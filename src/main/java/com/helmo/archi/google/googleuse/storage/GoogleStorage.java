@@ -16,10 +16,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+
 public class GoogleStorage { //TODO Work with path not strings
 	
-	private Storage storage;
-	private String bucketName;
+	private final Storage storage;
+	private final String bucketName;
 	
 	public GoogleStorage(String bucket) throws IOException {
 		storage = StorageOptions.newBuilder()

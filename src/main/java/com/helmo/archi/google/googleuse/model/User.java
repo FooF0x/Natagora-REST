@@ -1,7 +1,6 @@
 package com.helmo.archi.google.googleuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +26,6 @@ public class User extends IdentifiedModel {
 	@Column(name = "pic_path")
 	private String onlinePath;
 	
-//	@JsonManagedReference
 	@OneToMany(cascade = {CascadeType.PERSIST},
 			mappedBy = "father")
 	private List<Session> sessions;

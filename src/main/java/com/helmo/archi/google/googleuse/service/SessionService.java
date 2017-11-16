@@ -32,4 +32,8 @@ public class SessionService {
 		two.setDateEnd(new Timestamp(new Date().getTime()));
 		sesRepo.save(two);
 	}
+	
+	public Session getById(long id) {
+		return sesRepo.findOne(id);
+	}
 }

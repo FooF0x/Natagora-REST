@@ -12,14 +12,10 @@ public class GoogleTranslate {
 	private Translate translate;
 	
 	public GoogleTranslate() {
-		try {
-			translate = TranslateOptions
-					.newBuilder()
-					.setCredentials(HELMoCredentialsProvider.getCredential())
-					.build().getService();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		translate = TranslateOptions
+				.newBuilder()
+				.setCredentials(HELMoCredentialsProvider.getCredential())
+				.build().getService();
 	}
 	
 	public String simpleTranslateInEN(String input) {

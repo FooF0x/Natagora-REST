@@ -32,7 +32,6 @@ public class Session extends IdentifiedModel{
 //	@OneToMany(cascade = {CascadeType.PERSIST})
 //	private List<Observation> observations;
 
-//	@JsonBackReference
 	@JoinColumn(name = "id_user")
 	@ManyToOne(targetEntity = User.class)
 	private User father;

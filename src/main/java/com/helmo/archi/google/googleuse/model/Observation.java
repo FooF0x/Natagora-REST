@@ -17,16 +17,16 @@ public class Observation extends IdentifiedModel {
 	
 	@Column(name = "latitude")
 	private String latitude;
-	@Column(name = "latitude")
+	@Column(name = "longitude")
 	private String longitude;
-	@Column(name = "latitude")
+	@Column(name = "date_time")
 	private Timestamp dateTime;
 	
-	@Column(name = "latitude")
+	@Column(name = "number_obs")
 	private int nbrObs;
-	@Column(name = "latitude")
+	@Column(name = "validation")
 	private boolean validation;
-	@Column(name = "latitude")
+	@Column(name = "media_type")
 	private int mediaType;
 	@Column(name = "latitude")
 	private int bird;

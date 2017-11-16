@@ -25,4 +25,9 @@ public class SessionController {
 	public void createSession(@RequestBody Session ses) {
 		sesSrv.createSession(ses);
 	}
+	
+	@GetMapping("/{id}")
+	public Session getSessionById(@PathVariable("id") long id) {
+		return sesSrv.getById(id);
+	}
 }
