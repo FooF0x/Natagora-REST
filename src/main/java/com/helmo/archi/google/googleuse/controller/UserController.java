@@ -25,4 +25,19 @@ public class UserController {
 	public void createUser(@RequestBody User usr) {
 		usrSrv.createUser(usr);
 	}
+
+	@GetMapping("/{id}")
+	public User getUserById(@PathVariable("id") long id) {
+		return usrSrv.getById(id);
+	}
+
+	@PutMapping() //TODO JWTToken
+	public void updateUserById(@RequestBody User usr) {
+		usrSrv.createUser(usr);
+	}
+
+	@DeleteMapping("/{id}")
+	public void deleteUserById(@PathVariable("id") long id) {
+		usrSrv.deleteById(id);
+	}
 }

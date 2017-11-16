@@ -1,9 +1,0 @@
-{
-  "gcloudDbUser" : "root",
-  "gcloudDbPwd" : "mynameisroot",
-  "connectionString" : "jdbc:mysql://104.199.35.177:3306/NatagoraDb?useSSL=true",
-  "emailRegex" : "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?",
-  "defaultPicOnlineLocation" : "default/defProfilePic.png",
-  "allowedExt" : ["jpg", "jpeg", "png", "gif"]
-
-}

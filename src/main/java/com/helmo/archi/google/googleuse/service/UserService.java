@@ -27,4 +27,21 @@ public class UserService {
 		two.setOnlinePath(usr.getOnlinePath());
 		usrRepo.save(two);
 	}
+	
+	public User getById(long id) {
+		return usrRepo.findOne(id);
+	}
+	
+	public void updateById(User usr) {
+		User two = new User();
+		two.setFullName(usr.getFullName());
+		two.setEmail(usr.getEmail());
+		two.setAdmin(usr.isAdmin());
+		two.setOnlinePath(usr.getOnlinePath());
+		usrRepo.save(usr);
+	}
+	
+	public void deleteById(long id) {
+		usrRepo.delete(id);
+	}
 }
