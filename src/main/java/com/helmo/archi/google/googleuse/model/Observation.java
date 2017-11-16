@@ -3,6 +3,7 @@ package com.helmo.archi.google.googleuse.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -12,21 +13,28 @@ import java.sql.Timestamp;
 //@Entity(name = "Observation")
 @Table(name = "Observation")
 @Getter @Setter
-public class Observation { //TODO Define as a SQLObsElement
+public class Observation extends IdentifiedModel {
 	
-	@Id
-	private long idObs;
+	@Column(name = "latitude")
 	private String latitude;
+	@Column(name = "latitude")
 	private String longitude;
+	@Column(name = "latitude")
 	private Timestamp dateTime;
 	
+	@Column(name = "latitude")
 	private int nbrObs;
+	@Column(name = "latitude")
 	private boolean validation;
+	@Column(name = "latitude")
 	private int mediaType;
+	@Column(name = "latitude")
 	private int bird;
 	private Path onlinePath;
+	@Column(name = "latitude")
 	private String analyseResult;
 	
+	@Column(name = "latitude")
 	private Path localPath;
 	
 	private Session father;
