@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.Map;
 
 @Getter @Setter
-public class Bird extends IdentifiedModel {
+public class Bird extends DatastoreIdentifiedModel {
 	
 	public static final String NAME = "name"; //Used with Datastore
 	public static final String DESCRIPTION = "description";

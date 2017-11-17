@@ -29,23 +29,40 @@ public class BirdController {
 		return brdSrv.getBirds();
 	}
 	
-	@PostMapping(consumes = APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public void createBird(HttpEntity<String> httpEntity) {
-		String json = httpEntity.getBody(); //TODO Check if there are Name and Desc at least
-		
+	private Bird jsonToBird(String json) {
 		JsonParser parser = JsonParserFactory.getJsonParser();
 		Map<String, Object> result = parser.parseMap(json);
 		
 		Bird bird = new Bird();
-		bird.setName((String) result.get("name"));
-		bird.setDescription((String) result.get("description"));
+		if(result.containsKey("id"))
+			bird.setId((long) result.remove("id"));
+		
+		bird.setName((String) result.remove("name"));
+		bird.setDescription((String) result.remove("description"));
 		bird.setDatas(new HashMap<>());
 		
 		for(String key : result.keySet()) {
 			bird.put(key, (String) result.get(key));
 		}
-		
-		brdSrv.createBird(bird);
+		return bird;
+	}
+	
+	@PostMapping(consumes = APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public void createBird(HttpEntity<String> httpEntity) {
+		String json = httpEntity.getBody(); //TODO Check if there are Name and Desc at least
+		brdSrv.createBird(jsonToBird(httpEntity.getBody()));
+	}
+	
+	@GetMapping("/{id}")
+	public Bird getById(@PathVariable("id") long id) {
+		return brdSrv.getById(id);
+	}
+	
+	@PutMapping
+	@ResponseBody
+	public void updateBird(HttpEntity<String> httpEntity) {
+		String json = httpEntity.getBody(); //TODO Check if there are Name and Desc at least
+		brdSrv.update(jsonToBird(httpEntity.getBody()));
 	}
 }

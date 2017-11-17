@@ -1,8 +1,7 @@
 package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.Bird;
-import com.helmo.archi.google.googleuse.storage.GoogleDatastore;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,14 +9,26 @@ import java.util.List;
 @Service
 public class BirdService {
 
-	private final GoogleDatastore datastore = new GoogleDatastore();
+	private final BirdRepository brdRepo;
+	
+	public BirdService(BirdRepository brdRepo) {
+		this.brdRepo = brdRepo;
+	}
 	
 	public void createBird(Bird bird) {
-		datastore.createBird(bird);
+		brdRepo.save(bird);
 	}
 	
 	public List<Bird> getBirds() {
-		return datastore.findAll();
+		return brdRepo.findAll();
+	}
+	
+	public Bird getById(long id) {
+		return brdRepo.find(id);
+	}
+	
+	public void update(Bird bird) {
+		brdRepo.update(bird);
 	}
 }
 	
