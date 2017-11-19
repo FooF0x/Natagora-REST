@@ -39,7 +39,7 @@ public class BirdController {
 		
 		bird.setName((String) result.remove("name"));
 		bird.setDescription((String) result.remove("description"));
-		bird.setDatas(new HashMap<>());
+		bird.setData(new HashMap<>());
 		
 		for(String key : result.keySet()) {
 			bird.put(key, (String) result.get(key));
@@ -64,5 +64,10 @@ public class BirdController {
 	public void updateBird(HttpEntity<String> httpEntity) {
 		String json = httpEntity.getBody(); //TODO Check if there are Name and Desc at least
 		brdSrv.update(jsonToBird(httpEntity.getBody()));
+	}
+	
+	@DeleteMapping("/{id}")
+	public void deleteBird(@PathVariable("id") Long id) {
+		brdSrv.deleteBird(id);
 	}
 }

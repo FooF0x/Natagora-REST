@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.*;
 import java.nio.file.Path;
@@ -31,10 +32,4 @@ public class User extends IdentifiedModel {
 	private List<Session> sessions;
 	
 	public User() {}
-	
-	public User(String fullName, String email) {
-		this.fullName = fullName;
-		this.email = email;
-		sessions = new ArrayList<>();
-	}
 }

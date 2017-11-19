@@ -38,7 +38,7 @@ public class BirdDatastore implements BirdDAO {
 		bird.setId(entity.getKey().getId());
 		bird.setName(entity.getString(Bird.NAME));
 		bird.setDescription(entity.getString(Bird.DESCRIPTION));
-		bird.setDatas(new HashMap<>());
+		bird.setData(new HashMap<>());
 		Set<String> names = entity.getNames();
 		
 		for(String item : names)
@@ -55,7 +55,7 @@ public class BirdDatastore implements BirdDAO {
 				.set(Bird.DESCRIPTION, bird.getDescription())
 				.build();
 		Entity temp = Entity.newBuilder(entity).build();
-		for(String itemKey : bird.getDatas().keySet()) {
+		for(String itemKey : bird.getData().keySet()) {
 			temp = Entity.newBuilder(temp)
 					.set(itemKey, bird.get(itemKey))
 					.build();
@@ -72,7 +72,7 @@ public class BirdDatastore implements BirdDAO {
 				.set(Bird.DESCRIPTION, bird.getDescription())
 				.build();
 		FullEntity<IncompleteKey> temp = Entity.newBuilder(incBirdEntity).build();
-		for(String itemKey : bird.getDatas().keySet()) {
+		for(String itemKey : bird.getData().keySet()) {
 			temp = Entity.newBuilder(temp)
 					.set(itemKey, bird.get(itemKey))
 					.build();
@@ -80,12 +80,6 @@ public class BirdDatastore implements BirdDAO {
 		
 		Entity birdEntity = datastore.add(temp); // Save the Entity
 		return birdEntity.getKey().getId();
-	}
-	
-	
-	public Bird readBird(Long idBird) {
-		Entity birdEntity = datastore.get(keyFactory.newKey(idBird)); // Load an Entity for Key(id)
-		return entityToBird(birdEntity);
 	}
 	
 	@Override
@@ -108,5 +102,15 @@ public class BirdDatastore implements BirdDAO {
 	@Override
 	public void update(Bird entity) {
 		datastore.update(birdToEntity(entity));
+	}
+	
+	@Override
+	public void delete(Long id) {
+		datastore.delete(keyFactory.newKey(id));
+	}
+	
+	@Override
+	public boolean exist(Long id) {
+		return datastore.get(keyFactory.newKey(id)) != null;
 	}
 }

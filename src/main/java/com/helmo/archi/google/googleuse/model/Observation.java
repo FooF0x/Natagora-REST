@@ -1,67 +1,57 @@
 package com.helmo.archi.google.googleuse.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 
-//@Entity(name = "Observation")
+@Entity
 @Table(name = "Observation")
 @Getter @Setter
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class Observation extends IdentifiedModel {
 	
 	@Column(name = "latitude")
 	private String latitude;
+	
 	@Column(name = "longitude")
 	private String longitude;
+	
 	@Column(name = "date_time")
 	private Timestamp dateTime;
 	
 	@Column(name = "number_obs")
 	private int nbrObs;
+	
 	@Column(name = "validation")
 	private boolean validation;
-	@Column(name = "media_type")
-	private int mediaType;
-	@Column(name = "latitude")
-	private int bird;
-	private Path onlinePath;
-	@Column(name = "latitude")
+	
+	@Column(name = "online_path")
+	private String onlinePath;
+	
+	@Column(name = "analyse_result")
 	private String analyseResult;
 	
-	@Column(name = "latitude")
-	private Path localPath;
+	@Column(name = "id_bird")
+	private long bird;
 	
+	@JoinColumn(name = "media_type")
+	@ManyToOne(targetEntity = MediaType.class)
+	private MediaType mediaType;
+	
+	@JoinColumn(name = "id_session")
+	@ManyToOne(targetEntity = Session.class)
+	@JsonIgnore
 	private Session father;
 	
+	@Transient
+	@JsonIgnore
+	private Path localPath;
+	
 	public Observation() {}
-	
-	public Observation(
-			Session session, String latitude, String longitude, Timestamp dateTime, int nbrObs, boolean validation,
-			int mediaType, int bird, Path localPath, Path onlinePath) {
-		this.father = session;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.dateTime = dateTime;
-		this.nbrObs = nbrObs;
-		this.validation = validation;
-		this.mediaType = mediaType;
-		this.bird = bird;
-		this.localPath = localPath;
-		this.onlinePath = onlinePath;
-	}
-	
-	public String getLocalAsString(){
-		return localPath.toString();
-	}
-	
-	public String getOnlineAsString() {
-		return onlinePath.toString();
-	}
-	
-	}
+}

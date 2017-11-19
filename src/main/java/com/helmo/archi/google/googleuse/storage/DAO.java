@@ -10,4 +10,8 @@ public interface DAO <Entity, IdType> {
 	<T extends Entity> IdType save(T entity);
 	
 	<T extends Entity> void update(T entity);
+	
+	void delete(IdType key);
+	
+	boolean exist(IdType key);
 }

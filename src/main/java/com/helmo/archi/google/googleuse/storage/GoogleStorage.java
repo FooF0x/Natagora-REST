@@ -4,6 +4,8 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,18 +18,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
+@Component
 public class GoogleStorage { //TODO Work with path not strings
 	
 	private final Storage storage;
-	private final String bucketName;
+	@Value("${google.storage.bucketName}")
+	private String bucketName;
 	
-	public GoogleStorage(String bucket) throws IOException {
+	public GoogleStorage() throws IOException {
 		storage = StorageOptions.newBuilder()
 				.setCredentials(HELMoCredentialsProvider.getCredential())
 				.build()
 				.getService();
-		bucketName = bucket;
 	}
 	
 	public void uploadPicture(String path, String onlinePath, String ext) throws IOException {

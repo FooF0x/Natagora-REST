@@ -9,7 +9,12 @@ public interface BirdDAO extends DAO<Bird, Long> {
 	
 	List<Bird> findAll();
 	Bird find(Long id);
+	
 	Long save(Bird entity);
 	
 	void update(Bird bird);
+	
+	void delete(Long id);
+	
+	boolean exist(Long id);
 }

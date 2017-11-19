@@ -1,6 +1,7 @@
 package com.helmo.archi.google.googleuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +30,9 @@ public class Session extends IdentifiedModel{
 	@Column(name = "longitude")
 	private String longitude;
 	
-//	@OneToMany(cascade = {CascadeType.PERSIST})
-//	private List<Observation> observations;
+	@OneToMany(cascade = {CascadeType.PERSIST},
+		mappedBy = "father")
+	private List<Observation> observations;
 
 	@JoinColumn(name = "id_user")
 	@ManyToOne(targetEntity = User.class)
@@ -38,12 +40,4 @@ public class Session extends IdentifiedModel{
 	
 	public Session() {}
 	
-//	public Session(User user, String name, Timestamp start, Timestamp end, String latitude, String longitude) {
-////		this.father = user;
-//		this.name = name;
-//		this.dateStart = start;
-//		this.dateEnd = end;
-//		this.latitude = latitude;
-//		this.longitude = longitude;
-//	}
 }

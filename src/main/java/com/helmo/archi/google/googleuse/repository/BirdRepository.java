@@ -34,6 +34,16 @@ public class BirdRepository implements BirdRepositoryInterface {
 	public void update(Bird entity) {
 		datastore.update(entity);
 	}
+	
+	@Override
+	public void delete(Long id) {
+		datastore.delete(id);
+	}
+	
+	@Override
+	public boolean exist(Long id) {
+		return datastore.exist(id);
+	}
 
 //	Bird getById(long id);
 }

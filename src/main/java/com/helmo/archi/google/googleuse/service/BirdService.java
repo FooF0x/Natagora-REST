@@ -30,6 +30,10 @@ public class BirdService {
 	public void update(Bird bird) {
 		brdRepo.update(bird);
 	}
+	
+	public void deleteBird(Long id) {
+		brdRepo.delete(id);
+	}
 }
 	
 
