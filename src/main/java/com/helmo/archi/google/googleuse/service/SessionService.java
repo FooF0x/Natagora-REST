@@ -25,7 +25,7 @@ public class SessionService {
 	public void createSession(Session ses) {
 		Session two = new Session();
 		two.setName(ses.getName());
-		two.setFather(ses.getFather());
+		two.setUser(ses.getUser());
 		two.setLatitude(ses.getLatitude());
 		two.setLongitude(ses.getLongitude());
 		two.setDateStart(new Timestamp(new Date().getTime())); //TODO To change

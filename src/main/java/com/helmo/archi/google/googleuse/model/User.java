@@ -28,7 +28,7 @@ public class User extends IdentifiedModel {
 	private String onlinePath;
 	
 	@OneToMany(cascade = {CascadeType.PERSIST},
-			mappedBy = "father")
+			mappedBy = "user")
 	private List<Session> sessions;
 	
 	public User() {}

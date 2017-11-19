@@ -33,7 +33,7 @@ public class ObservationService {
 		two.setNbrObs(obs.getNbrObs());
 		two.setOnlinePath(obs.getOnlinePath());
 		two.setValidation(obs.isValidation());
-		two.setFather(obs.getFather());
+		two.setSession(obs.getSession());
 		
 		obsRepo.save(two);
 	}

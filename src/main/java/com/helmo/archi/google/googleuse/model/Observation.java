@@ -1,8 +1,6 @@
 package com.helmo.archi.google.googleuse.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +11,6 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "Observation")
 @Getter @Setter
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class Observation extends IdentifiedModel {
 	
 	@Column(name = "latitude")
@@ -47,7 +44,7 @@ public class Observation extends IdentifiedModel {
 	@JoinColumn(name = "id_session")
 	@ManyToOne(targetEntity = Session.class)
 	@JsonIgnore
-	private Session father;
+	private Session session;
 	
 	@Transient
 	@JsonIgnore
