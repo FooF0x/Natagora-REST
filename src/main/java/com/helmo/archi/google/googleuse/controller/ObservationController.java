@@ -28,4 +28,9 @@ public class ObservationController {
 	public void createObservation(@RequestBody Observation obs) {
 		obsSrv.createObservation(obs);
 	}
+	
+	@DeleteMapping("/{id}")
+	public void deleteObservation(@PathVariable("id") Long id) {
+		obsSrv.deleteById(id);
+	}
 }

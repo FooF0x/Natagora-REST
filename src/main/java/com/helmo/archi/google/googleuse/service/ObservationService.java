@@ -44,4 +44,8 @@ public class ObservationService {
 		
 		obsRepo.save(two);
 	}
+	
+	public void deleteById(Long id) {
+		obsRepo.delete(id);
+	}
 }
