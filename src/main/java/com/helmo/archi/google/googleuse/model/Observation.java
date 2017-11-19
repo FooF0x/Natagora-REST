@@ -35,7 +35,7 @@ public class Observation extends IdentifiedModel {
 	private String analyseResult;
 	
 	@Column(name = "id_bird")
-	private long bird;
+	private long birdId;
 	
 	@JoinColumn(name = "media_type")
 	@ManyToOne(targetEntity = MediaType.class)
@@ -49,6 +49,9 @@ public class Observation extends IdentifiedModel {
 	@Transient
 	@JsonIgnore
 	private Path localPath;
+	
+	@Transient
+	private Bird bird;
 	
 	public Observation() {}
 }
