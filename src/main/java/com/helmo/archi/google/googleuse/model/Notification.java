@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "notifications")
 @Getter @Setter
 public class Notification extends IdentifiedModel {
 

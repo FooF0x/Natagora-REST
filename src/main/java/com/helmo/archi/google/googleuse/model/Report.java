@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "report")
+@Table(name = "reports")
 @Getter @Setter
 public class Report extends IdentifiedModel {
 

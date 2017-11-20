@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.*;
@@ -18,14 +20,22 @@ import java.util.List;
 public class User extends IdentifiedModel {
 	
 	@Column(name = "full_name")
+	@NotEmpty
 	private String fullName;
+	
 	@Column(name = "email")
+	@Email(message = "Please, provide a valid email")
+	@NotEmpty
 	private String email;
+	
 	@Column(name = "is_admin")
 	private boolean admin = false;
 	
 	@Column(name = "pic_path")
 	private String onlinePath;
+	
+	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	private List<Role> roles;
 	
 	@OneToMany(cascade = {CascadeType.PERSIST},
 			mappedBy = "user")

@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "Observation")
+@Table(name = "observations")
 @Getter @Setter
 public class Observation extends IdentifiedModel {
 	

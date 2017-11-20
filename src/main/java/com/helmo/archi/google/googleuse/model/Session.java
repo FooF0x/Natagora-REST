@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-@Table(name = "session")
+@Table(name = "sessions")
 @Getter @Setter
 public class Session extends IdentifiedModel{
 	

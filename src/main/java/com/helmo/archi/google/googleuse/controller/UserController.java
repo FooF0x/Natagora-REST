@@ -1,6 +1,7 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.User;
+import com.helmo.archi.google.googleuse.service.PasswordService;
 import com.helmo.archi.google.googleuse.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +12,11 @@ import java.util.List;
 public class UserController {
 	
 	private final UserService usrSrv;
+	private final PasswordService pwdSrv;
 	
-	public UserController(UserService usrSrv) {
+	public UserController(UserService usrSrv, PasswordService pwdSrv) {
 		this.usrSrv = usrSrv;
+		this.pwdSrv = pwdSrv;
 	}
 	
 	@GetMapping()
