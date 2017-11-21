@@ -1,16 +1,16 @@
 package com.helmo.archi.google.googleuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.*;
-import java.nio.file.Path;
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,7 +24,7 @@ public class User extends IdentifiedModel {
 	private String fullName;
 	
 	@Column(name = "email")
-	@Email(message = "Please, provide a valid email")
+//	@Email(message = "Please, provide a valid email")
 	@NotEmpty
 	private String email;
 	
@@ -34,12 +34,32 @@ public class User extends IdentifiedModel {
 	@Column(name = "pic_path")
 	private String onlinePath;
 	
-	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	@JoinTable(
+			name = "user_role",
+			joinColumns=@JoinColumn(name="id_user"),
+			inverseJoinColumns=@JoinColumn(name="id_role"))
 	private List<Role> roles;
 	
 	@OneToMany(cascade = {CascadeType.PERSIST},
 			mappedBy = "user")
 	private List<Session> sessions;
 	
+//	@JoinColumn(name = "last_used")
+//	@OneToMany(targetEntity = Password.class)
+//	@JsonIgnore
+//	private Password passwordData;
+	
+	@Column(name = "password")
+	@JsonIgnore
+	private String password;
+	
 	public User() {}
+	
+	public User(String fullName, String email, String pass, List<Role> roles) {
+		this.fullName = fullName;
+		this.email = email;
+		this.password = pass;
+		this.roles = roles;
+	}
 }

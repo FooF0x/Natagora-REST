@@ -72,7 +72,7 @@
 //
 //		String[] labelsFRItems = translation.split(",");
 //		int count = 0;
-//		for (String key : labelsEn.keySet()) labelsFR.put(labelsFRItems[count++].trim(), labelsEn.get(key).trim());
+//		for (String key : labelsEn.keySet()) labelsFR.putIntoData(labelsFRItems[count++].trim(), labelsEn.get(key).trim());
 //
 //		return labelsFR;
 //	}

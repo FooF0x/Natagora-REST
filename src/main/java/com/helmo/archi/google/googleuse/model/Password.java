@@ -22,4 +22,10 @@ public class Password extends IdentifiedModel {
 	private User user;
 	
 	public Password() { }
+	
+	public Password(String password, Timestamp time, User user) {
+		this.content = password;
+		this.dataChange = time;
+		this.user = user;
+	}
 }
