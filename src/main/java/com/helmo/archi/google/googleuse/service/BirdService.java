@@ -1,26 +1,26 @@
 package com.helmo.archi.google.googleuse.service;
 
-import com.helmo.archi.google.googleuse.model.BirdTwo;
-import com.helmo.archi.google.googleuse.repository.BirdTwoRepository;
+import com.helmo.archi.google.googleuse.model.Bird;
+import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class BirdTwoService {
+public class BirdService {
 
-	private final BirdTwoRepository brdRepo;
+	private final BirdRepository brdRepo;
 	
-	public BirdTwoService(BirdTwoRepository brdRepo) {
+	public BirdService(BirdRepository brdRepo) {
 		this.brdRepo = brdRepo;
 	}
 	
 	
-	public List<BirdTwo> findAll() {
-		return (List<BirdTwo>) brdRepo.findAll();
+	public List<Bird> findAll() {
+		return (List<Bird>) brdRepo.findAll();
 	}
 	
-	public void create(BirdTwo bird) {
+	public void create(Bird bird) {
 		brdRepo.save(bird);
 	}
 }
