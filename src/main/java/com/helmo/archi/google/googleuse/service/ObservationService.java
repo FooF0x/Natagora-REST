@@ -1,8 +1,8 @@
 package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.Observation;
+import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import com.helmo.archi.google.googleuse.repository.ObservationRepository;
-import com.helmo.archi.google.googleuse.storage.BirdDatastore;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -13,17 +13,17 @@ import java.util.List;
 public class ObservationService {
 	
 	private final ObservationRepository obsRepo;
-	private final BirdDatastore birdDatastore;
+	private final BirdRepository brdRepo;
 	
-	public ObservationService(ObservationRepository obsRepo, BirdDatastore birdDatastore) {
+	public ObservationService(ObservationRepository obsRepo, BirdRepository birdDatastore) {
 		this.obsRepo = obsRepo;
-		this.birdDatastore = birdDatastore;
+		this.brdRepo = birdDatastore;
 	}
 	
 	public List<Observation> getObservations() {
 		List<Observation> rtn = obsRepo.findAll();
 		for (Observation obs : obsRepo.findAll())
-			obs.setBird(birdDatastore.find(obs.getBirdId()));
+			obs.setBird(brdRepo.findOne(obs.getBirdId()));
 		
 		return rtn;
 	}

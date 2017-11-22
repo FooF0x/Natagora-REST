@@ -3,6 +3,7 @@ package com.helmo.archi.google.googleuse.controller;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.service.PasswordService;
 import com.helmo.archi.google.googleuse.service.UserService;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class UserController {
 	}
 	
 	@GetMapping()
+	@Secured("ROLE_ADMIN")
 	public List<User> getUsers() {
 		return usrSrv.getUsers();
 	}

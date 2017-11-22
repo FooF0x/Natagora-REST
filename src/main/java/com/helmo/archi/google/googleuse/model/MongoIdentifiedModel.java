@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
-public class MongoIdentifiedModel {
+public abstract class MongoIdentifiedModel {
 	
 	@Id
 	@Getter @Setter
-	private String id;
+	private Long id;
 }

@@ -1,14 +1,20 @@
 package com.helmo.archi.google.googleuse.model;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Data
+@Document(collection = "birds")
 @Getter @Setter
-public class Bird extends DatastoreIdentifiedModel {
+public class Bird extends MongoIdentifiedModel {
 	
 	public static final String NAME = "name"; //Used with Datastore
 	public static final String DESCRIPTION = "description";
@@ -57,7 +63,7 @@ public class Bird extends DatastoreIdentifiedModel {
 	@Override
 	public String toString() {
 		return String.format(
-				"BIRD [id=%d, name=%s ]\n\t[Data : %d]\n\t[Picture : %d]\n\t[Multiple : %d]",
+				"BIRD [id=%s, name=%s ]\n\t[Data : %d]\n\t[Picture : %d]\n\t[Multiple : %d]",
 				getId(), name, data.size(), picture.size(), multiple.size()
 		);
 	}
