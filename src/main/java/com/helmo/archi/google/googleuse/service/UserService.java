@@ -27,8 +27,9 @@ public class UserService {
 		two.setFullName(usr.getFullName());
 		two.setEmail(usr.getEmail());
 		two.setAdmin(usr.isAdmin());
-		two.setOnlinePath(usr.getOnlinePath());
 		two.setPassword(passEnc.encode(usr.getPassword()));
+		two.setOnlinePath(usr.getOnlinePath() != null ? usr.getOnlinePath() : "default/defProfilePic.png");
+		two.setRoles(usr.getRoles());
 		usrRepo.save(two);
 	}
 	
