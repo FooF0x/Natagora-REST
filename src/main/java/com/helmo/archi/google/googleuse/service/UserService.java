@@ -2,6 +2,7 @@ package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +11,11 @@ import java.util.List;
 public class UserService {
 
 	private final UserRepository usrRepo;
+	private final PasswordEncoder passEnc;
 	
-	public UserService(UserRepository usrRepo) {
+	public UserService(UserRepository usrRepo, PasswordEncoder passEnc) {
 		this.usrRepo = usrRepo;
+		this.passEnc = passEnc;
 	}
 	
 	public List<User> getUsers() {
@@ -25,6 +28,7 @@ public class UserService {
 		two.setEmail(usr.getEmail());
 		two.setAdmin(usr.isAdmin());
 		two.setOnlinePath(usr.getOnlinePath());
+		two.setPassword(passEnc.encode(usr.getPassword()));
 		usrRepo.save(two);
 	}
 	
