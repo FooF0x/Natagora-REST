@@ -41,46 +41,15 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			
 			checkRolesIntegrity(roleRepo);
 			
-			User admUsr; //TODO Improve
-			if((admUsr = usrRepo.findOne(1L)) == null)
-				admUsr = usrRepo.findByEmail(env.getProperty("user.admin.email"));
-			if(!checkAdminIntegrity(admUsr, env, passEnc, roleRepo))
-				if (admUsr != null)
-					usrRepo.delete(admUsr);
+			checkManagementUser("admin", true, usrRepo, roleRepo, env, passEnc,
+					roleRepo.findOneByName("ROLE_ADMIN"),
+					roleRepo.findOneByName("ROLE_SYSTEM"),
+					roleRepo.findOneByName("ROLE_USER"));
 			
-			if(usrRepo.findOne(1L) == null) {
-				usrRepo.save(new User(
-						env.getProperty("user.admin.name"),
-						env.getProperty("user.admin.email"),
-						passEnc.encode(env.getProperty("user.admin.password")),
-						true,
-						env.getProperty("helmo.storage.defaultPic.onlineLocation"),
-						Arrays.asList(
-								roleRepo.findOneByName("ROLE_ADMIN"),
-								roleRepo.findOneByName("ROLE_SYSTEM"),
-								roleRepo.findOneByName("ROLE_USER"))
-				));
-			}
-			
-			User sysUsr;
-			if((sysUsr  = usrRepo.findOne(2L)) == null)
-				sysUsr = usrRepo.findByEmail(env.getProperty("user.system.email"));
-			if(!checkSystemIntegrity(sysUsr, env, passEnc, roleRepo))
-				if(sysUsr != null)
-					usrRepo.delete(admUsr);
-			
-			if(usrRepo.findOne(2L) == null) {
-				usrRepo.save(new User(
-						env.getProperty("user.system.name"),
-						env.getProperty("user.system.email"),
-						passEnc.encode(env.getProperty("user.system.password")),
-						false,
-						env.getProperty("helmo.storage.defaultPic.onlineLocation"),
-						Arrays.asList(
-								roleRepo.findOneByName("ROLE_SYSTEM"),
-								roleRepo.findOneByName("ROLE_USER"))
-				));
-			}
+			checkManagementUser("system", false, usrRepo, roleRepo, env, passEnc,
+					roleRepo.findOneByName("ROLE_ADMIN"),
+					roleRepo.findOneByName("ROLE_SYSTEM"),
+					roleRepo.findOneByName("ROLE_USER"));
 			
 			if(usrRepo.findByEmail("user@nat.be") == null) { //TODO Remove for production
 				usrRepo.save(new User(
@@ -97,9 +66,28 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		};
 	}
 	
+	private void checkManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
+		User usr = usrRepo.findByEmail(env.getProperty("user." + type + ".email")); //TODO Improve
+		if(checkAdminIntegrity(usr, env, passEnc, roleRepo))
+			if (usr != null)
+				usrRepo.delete(usr);
+		addManagementUser(type, admin, usrRepo, roleRepo, env, passEnc, roles);
+	}
+	
+	private void addManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
+		if(usrRepo.findByEmail(env.getProperty("user." + type + ".email")) == null)
+			usrRepo.save(new User(
+					env.getProperty("user." + type + ".name"),
+					env.getProperty("user." + type + ".email"),
+					passEnc.encode(env.getProperty("user." + type + ".password")),
+					admin,
+					env.getProperty("helmo.storage.defaultPic.onlineLocation"),
+					Arrays.asList(roles)));
+		
+	}
+	
 	private boolean checkAdminIntegrity(User usr, Environment env, PasswordEncoder passEnc, RoleRepository roleRepo) {
 		return usr != null
-				&& usr.getId() == 1L
 				&& usr.getFullName().equals(env.getProperty("user.admin.name"))
 				&& usr.getEmail().equals(env.getProperty("user.admin.email"))
 				&& passEnc.matches(env.getProperty("user.admin.email"), usr.getPassword())
@@ -112,10 +100,9 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	
 	private boolean checkSystemIntegrity(User usr, Environment env, PasswordEncoder passEnc, RoleRepository roleRepo) {
 		return usr != null
-				&& usr.getId() == 2L
 				&& usr.getFullName().equals(env.getProperty("user.system.name"))
 				&& usr.getEmail().equals(env.getProperty("user.system.email"))
-				&& passEnc.matches(env.getProperty("user.system.email"), usr.getPassword())
+				&& passEnc.matches(env.getProperty("user.system.password"), usr.getPassword())
 				&& usr.getOnlinePath().equals(env.getProperty("helmo.storage.defaultPic.onlineLocation"))
 				&& !usr.isAdmin()
 				&& usr.getRoles().contains(roleRepo.findOneByName("ROLE_SYSTEM"))

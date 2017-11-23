@@ -3,6 +3,8 @@ package com.helmo.archi.google.googleuse.controller;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.service.PasswordService;
 import com.helmo.archi.google.googleuse.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +23,13 @@ public class UserController {
 	}
 	
 	@GetMapping()
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN", "ROLE_SYSTEM"})
 	public List<User> getUsers() {
 		return usrSrv.getUsers();
 	}
 	
 	@PostMapping()
+	@Secured({"ROLE_ADMIN", "ROLE_SYSTEM"})
 	public void createUser(@RequestBody User usr) {
 		usrSrv.createUser(usr);
 	}
@@ -37,12 +40,20 @@ public class UserController {
 	}
 
 	@PutMapping()
-	public void updateUserById(@RequestBody User usr) {
+	public ResponseEntity updateUserById(@RequestBody User usr) {
+		if(usr.getId() == 1L || usr.getId() == 2L) //SuperAdmin and System can't be changed
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+		
 		usrSrv.createUser(usr);
+		return ResponseEntity.ok(null);
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteUserById(@PathVariable("id") long id) {
+	public ResponseEntity deleteUserById(@PathVariable("id") long id) {
+		if(id == 1L ||id == 2L) //SuperAdmin and System can't be changed
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+		
 		usrSrv.deleteById(id);
+		return ResponseEntity.ok(null);
 	}
 }
