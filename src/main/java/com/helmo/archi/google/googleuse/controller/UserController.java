@@ -41,7 +41,7 @@ public class UserController {
 
 	@PutMapping()
 	public ResponseEntity updateUserById(@RequestBody User usr) {
-		if(usr.getId() == 1L || usr.getId() == 2L) //SuperAdmin and System can't be changed
+		if(checkAdmin(usr)) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 		
 		usrSrv.createUser(usr);
@@ -50,10 +50,15 @@ public class UserController {
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity deleteUserById(@PathVariable("id") long id) {
-		if(id == 1L ||id == 2L) //SuperAdmin and System can't be changed
+		if(checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 		
 		usrSrv.deleteById(id);
 		return ResponseEntity.ok(null);
+	}
+	
+	private boolean checkAdmin(User usr) {
+		return usr != null &&
+				(usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
 	}
 }

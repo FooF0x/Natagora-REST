@@ -1,12 +1,10 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Bird;
-import com.helmo.archi.google.googleuse.repository.BirdRepository;
+import com.helmo.archi.google.googleuse.service.BirdService;
+import com.helmo.archi.google.googleuse.service.NextSequenceService;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,10 +12,12 @@ import java.util.List;
 @RequestMapping("/birds")
 public class BirdController {
 
-	private final BirdRepository brdSrv;
+	private final BirdService brdSrv;
+	private final NextSequenceService nextSeq;
 	
-	public BirdController(BirdRepository brdSrv) {
+	public BirdController(BirdService brdSrv, NextSequenceService nxtSeq) {
 		this.brdSrv = brdSrv;
+		this.nextSeq = nxtSeq;
 	}
 	
 	@GetMapping
@@ -28,7 +28,8 @@ public class BirdController {
 	
 	@PostMapping
 	@Secured("ROLE_ADMIN")
-	public void postBird(Bird bird) {
+	public void postBird(@RequestBody Bird bird) {
+		bird.setId(nextSeq.getNextSequence("birds"));
 		brdSrv.save(bird);
 	}
 }

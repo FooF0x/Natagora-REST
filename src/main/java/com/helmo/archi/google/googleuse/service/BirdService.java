@@ -17,10 +17,10 @@ public class BirdService {
 	
 	
 	public List<Bird> findAll() {
-		return (List<Bird>) brdRepo.findAll();
+		return brdRepo.findAll();
 	}
 	
-	public void create(Bird bird) {
+	public void save(Bird bird) {
 		brdRepo.save(bird);
 	}
 }

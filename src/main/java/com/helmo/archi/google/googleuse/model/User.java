@@ -51,7 +51,6 @@ public class User extends IdentifiedModel {
 //	private Password passwordData;
 	
 	@Column(name = "password")
-	@JsonIgnore
 	private String password;
 	
 	public User() {}

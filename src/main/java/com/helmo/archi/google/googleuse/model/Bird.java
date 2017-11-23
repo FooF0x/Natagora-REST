@@ -24,41 +24,12 @@ public class Bird extends MongoIdentifiedModel {
 	
 	private String name;
 	private String description;
-	private List<String> picture;
 	
+	private List<String> picture;
 	private Map<String, String> data;
 	private Map<String, List<String>> multiple;
 	
 	public Bird() {}
-	
-	public String getFromData(String key) {
-		return data.get(key);
-	}
-	
-	public List<String> getFromMultiple(String key) {
-		return multiple.get(key);
-	}
-	
-	public String getFromPicture(int idx) {
-		return picture.get(idx);
-	}
-	
-	public void putIntoData(String key, String value) {
-		data.put(key, value);
-	}
-	
-	public void putIntoMultiple(String key, List<String> values) {
-		multiple.put(key, values);
-	}
-	
-	public void putIntoMultiple(String key, String value) {
-		if(!multiple.containsKey(key)) multiple.put(key, new ArrayList<>());
-		multiple.get(key).add(value);
-	}
-	
-	public void add(String item) {
-		picture.add(item);
-	}
 	
 	@Override
 	public String toString() {
