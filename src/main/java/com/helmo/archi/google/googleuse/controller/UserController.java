@@ -23,23 +23,25 @@ public class UserController {
 	}
 	
 	@GetMapping()
-	@Secured({"ROLE_ADMIN", "ROLE_SYSTEM"})
+	@Secured("ROLE_SYSTEM")
 	public List<User> getUsers() {
 		return usrSrv.getUsers();
 	}
 	
 	@PostMapping()
-	@Secured({"ROLE_ADMIN", "ROLE_SYSTEM"})
+	@Secured("ROLE_SYSTEM")
 	public void createUser(@RequestBody User usr) {
 		usrSrv.createUser(usr);
 	}
 
 	@GetMapping("/{id}")
+	@Secured("ROLE_SYSTEM")
 	public User getUserById(@PathVariable("id") long id) {
 		return usrSrv.getById(id);
 	}
 
 	@PutMapping()
+	@Secured("ROLE_USER")
 	public ResponseEntity updateUserById(@RequestBody User usr) {
 		if(checkAdmin(usr)) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
@@ -49,6 +51,7 @@ public class UserController {
 	}
 
 	@DeleteMapping("/{id}")
+	@Secured("ROLE_USER")
 	public ResponseEntity deleteUserById(@PathVariable("id") long id) {
 		if(checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);

@@ -2,6 +2,8 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.service.SessionService;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,17 +19,26 @@ public class SessionController {
 	}
 
 	@GetMapping()
+	@Secured("ROLE_USER")
 	public List<Session> getSessions() {
 		return sesSrv.getSessions();
 	}
 	
+	@GetMapping("/{id}")
+	@Secured("ROLE_USER")
+	public Session getSessionById(@PathVariable("id") long id) {
+		return sesSrv.getById(id);
+	}
+	
 	@PostMapping
+	@Secured("ROLE_USER")
 	public void createSession(@RequestBody Session ses) {
 		sesSrv.createSession(ses);
 	}
 	
-	@GetMapping("/{id}")
-	public Session getSessionById(@PathVariable("id") long id) {
-		return sesSrv.getById(id);
+	@PutMapping
+	@Secured("ROLE_USER")
+	public void update(@RequestBody Session ses) {
+		sesSrv.update(ses);
 	}
 }

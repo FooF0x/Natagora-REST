@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class Bird extends MongoIdentifiedModel {
 	public static final String PICTURE = "picture";
 	public static final String MULTIPLE = "multiple";
 	
+	@Indexed(unique = true)
 	private String name;
 	private String description;
 	

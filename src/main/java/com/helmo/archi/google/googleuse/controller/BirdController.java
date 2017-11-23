@@ -21,9 +21,15 @@ public class BirdController {
 	}
 	
 	@GetMapping
-	@Secured("ROLE_ADMIN")
+	@Secured("ROLE_USER")
 	public List<Bird> getBird() {
 		return brdSrv.findAll();
+	}
+	
+	@GetMapping("/{id}")
+	@Secured("ROLE_USER")
+	public Bird getSingleBird(@PathVariable("id") long id) {
+		return brdSrv.find(id);
 	}
 	
 	@PostMapping
@@ -31,5 +37,17 @@ public class BirdController {
 	public void postBird(@RequestBody Bird bird) {
 		bird.setId(nextSeq.getNextSequence("birds"));
 		brdSrv.save(bird);
+	}
+	
+	@PutMapping
+	@Secured("ROLE_ADMIN")
+	public void updateBird(@RequestBody Bird bird) {
+		brdSrv.update(bird);
+	}
+	
+	@DeleteMapping("/{id}")
+	@Secured("ROLE_ADMIN")
+	public void deleteBird(@PathVariable("id") long id) {
+		brdSrv.delete(id);
 	}
 }

@@ -138,6 +138,11 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
             <version>1.5.8.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>15.0</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

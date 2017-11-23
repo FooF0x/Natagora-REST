@@ -29,11 +29,17 @@ public class SessionService {
 		two.setLatitude(ses.getLatitude());
 		two.setLongitude(ses.getLongitude());
 		two.setDateStart(new Timestamp(new Date().getTime())); //TODO To change
-		two.setDateEnd(new Timestamp(new Date().getTime()));
+		two.setDateEnd(new Timestamp(new Date().getTime())); //TODO To change
+		two.setObservations(ses.getObservations());
+		
 		sesRepo.save(two);
 	}
 	
 	public Session getById(long id) {
 		return sesRepo.findOne(id);
+	}
+	
+	public void update(Session ses) {
+		sesRepo.save(ses);
 	}
 }

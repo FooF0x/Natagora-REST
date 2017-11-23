@@ -33,7 +33,6 @@ public class Session extends IdentifiedModel{
 
 	@JoinColumn(name = "id_user")
 	@ManyToOne(targetEntity = User.class)
-	@JsonIgnore
 	private User user;
 	
 	public Session() {}
