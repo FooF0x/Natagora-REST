@@ -20,8 +20,8 @@ public class Role extends IdentifiedModel{
 	
 	public Role() {}
 	
-	public Role(String name) {
+	public Role(String name, String desc) {
 		this.name = name;
-		this.description = name;
+		this.description = desc;
 	}
 }

@@ -40,6 +40,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			for(Role role : usr.getRoles()) {
 				auths.add(new SimpleGrantedAuthority(role.getName()));
 			}
+			if(usr.isAdmin() && !auths.contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				auths.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 			
 			// use the credentials
 			// and authenticate against the third-party system

@@ -36,7 +36,7 @@ public class UserController {
 		return usrSrv.getById(id);
 	}
 
-	@PutMapping() //TODO JWTToken
+	@PutMapping()
 	public void updateUserById(@RequestBody User usr) {
 		usrSrv.createUser(usr);
 	}

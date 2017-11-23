@@ -34,7 +34,7 @@ public class User extends IdentifiedModel {
 	@Column(name = "pic_path")
 	private String onlinePath;
 	
-	@ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.DETACH)
 	@JoinTable(
 			name = "user_role",
 			joinColumns=@JoinColumn(name="id_user"),
@@ -56,10 +56,12 @@ public class User extends IdentifiedModel {
 	
 	public User() {}
 	
-	public User(String fullName, String email, String pass, List<Role> roles) {
+	public User(String fullName, String email, String pass, boolean admin, String onlinePath, List<Role> roles) {
 		this.fullName = fullName;
 		this.email = email;
+		this.admin = admin;
 		this.password = pass;
+		this.onlinePath = onlinePath;
 		this.roles = roles;
 	}
 }
