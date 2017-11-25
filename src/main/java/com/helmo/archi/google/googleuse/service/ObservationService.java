@@ -48,4 +48,8 @@ public class ObservationService {
 	public void deleteById(Long id) {
 		obsRepo.delete(id);
 	}
+	
+	public Observation findOne(long id) {
+		return findOne(id);
+	}
 }
