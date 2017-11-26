@@ -26,4 +26,5 @@ public class ReportService {
 	public Report create(Report rpt) {
 		return repRepo.save(rpt);
 	}
+	
 }

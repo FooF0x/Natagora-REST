@@ -174,4 +174,12 @@ public class GoogleStorage { //TODO Work with path not strings
 	private String formatToOnlinePath(String path) {
 		return path.replace("\\", "/");
 	}
+	
+	public boolean exist(String onlinePath) {
+		try {
+			return getMedia(onlinePath).length == 0;
+		} catch (IOException ex) {
+			return false;
+		}
+	}
 }

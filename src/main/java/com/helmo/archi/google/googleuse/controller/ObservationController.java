@@ -6,18 +6,13 @@ import com.helmo.archi.google.googleuse.ml.GoogleTranslate;
 import com.helmo.archi.google.googleuse.ml.GoogleVision;
 import com.helmo.archi.google.googleuse.model.Notification;
 import com.helmo.archi.google.googleuse.model.Observation;
+import com.helmo.archi.google.googleuse.service.CommentService;
 import com.helmo.archi.google.googleuse.service.NotificationService;
 import com.helmo.archi.google.googleuse.service.ObservationService;
+import com.helmo.archi.google.googleuse.service.ReportService;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -30,14 +25,18 @@ public class ObservationController {
 
 	private final ObservationService obsSrv;
 	private final NotificationService notSrv;
+	private final ReportService repSrv;
+	private final CommentService cmtSrv;
 	private final GoogleStorage storage;
 	private final GoogleVision vision;
 	private final GoogleTranslate translate;
 	
-	public ObservationController(ObservationService obsSrv, NotificationService notSrv,
-	                             GoogleStorage storage, GoogleVision vision, GoogleTranslate translate) {
+	public ObservationController(ObservationService obsSrv, NotificationService notSrv, ReportService repSrv,
+	                             CommentService cmtSrv, GoogleStorage storage, GoogleVision vision, GoogleTranslate translate) {
 		this.obsSrv = obsSrv;
 		this.notSrv = notSrv;
+		this.repSrv = repSrv;
+		this.cmtSrv = cmtSrv;
 		this.storage = storage;
 		this.vision = vision;
 		this.translate = translate;
@@ -57,7 +56,7 @@ public class ObservationController {
 	
 	@PostMapping
 	public void createObservation(@RequestBody Observation obs) {
-		//Analyse the pic
+		//Analyse the pics
 		try {
 			SafeSearchAnnotation safe = vision.safeSearchAnalyse(
 					obs.getOnlinePath());
@@ -116,46 +115,10 @@ public class ObservationController {
 	
 	@DeleteMapping("/{id}")
 	public void deleteObservation(@PathVariable("id") Long id) {
+//		repSrv.deleteAll(repSrv.findByObservation(id)); //Delete all reports
+		//Delete all comments
+		//Delete all notifications
 		obsSrv.deleteById(id);
 	}
 	
-	@RequestMapping(value = "/downloadImage", method = RequestMethod.GET)
-	public void downloadImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
-		int BUFFER_SIZE = 4096;
-		String filePath = "C:\\Work\\IntelliJ\\google-use\\src\\main\\resources\\pic\\pig.jpg" ;
-		// get the absolute path of the application
-		ServletContext context = request.getSession().getServletContext();
-		String appPath = context.getRealPath("");
-		// construct the complete absolute path of the file
-//		String fullPath = appPath + filePath;
-		String fullPath = filePath;
-		File downloadFile = new File(fullPath);
-		FileInputStream inputStream = new FileInputStream(downloadFile);
-		// get MIME type of the file
-		String mimeType = context.getMimeType(fullPath);
-		if (mimeType == null) {
-			// set to binary type if MIME mapping not found
-			mimeType = "application/octet-stream";
-		}
-		// check the mime type
-		System.out.println("MIME type: " + mimeType);
-		// set content attributes for the response
-		response.setContentType(mimeType);
-		response.setContentLength((int) downloadFile.length());
-		// set headers for the response
-		String headerKey = "Content-Disposition";
-		String headerValue = String.format("attachment; filename=\"%s\"", downloadFile.getName());
-		response.setHeader(headerKey, headerValue);
-		// get output stream of the response
-		OutputStream outStream = response.getOutputStream();
-		byte[] buffer = new byte[BUFFER_SIZE];
-		int bytesRead = -1;
-		// write bytes read from the input stream into the output stream
-		while ((bytesRead = inputStream.read(buffer)) != -1) {
-			outStream.write(buffer, 0, bytesRead);
-		}
-		inputStream.close();
-		outStream.close();
-	}
 }
