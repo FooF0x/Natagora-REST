@@ -7,6 +7,7 @@ import com.google.cloud.vision.v1.Feature.Type;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,9 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class GoogleVision {
 	
-	ImageAnnotatorSettings settings;
+	private ImageAnnotatorSettings settings;
 	
 	public GoogleVision() throws IOException {
 		CredentialsProvider credentialsProvider = FixedCredentialsProvider
@@ -30,12 +32,25 @@ public class GoogleVision {
 				.build();
 	}
 	
-	private BatchAnnotateImagesResponse performDetection(String localPath, Type type) throws Exception {
+	private BatchAnnotateImagesResponse performDetectionOnline(String onlinePath, Type type) throws Exception {
+		List<AnnotateImageRequest> requests = new ArrayList<>();
+		
+		ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(onlinePath).build();
+		Image img = Image.newBuilder().setSource(imgSource).build();
+		Feature feat = Feature.newBuilder().setType(type).build();
+		AnnotateImageRequest request =
+				AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
+		requests.add(request);
+		
+		try (ImageAnnotatorClient client = ImageAnnotatorClient.create(settings)) {
+			return client.batchAnnotateImages(requests);
+		}
+		
+	}
+	
+	private BatchAnnotateImagesResponse performDetection(byte[] picture, Type type) throws Exception {
 		try (ImageAnnotatorClient vision = ImageAnnotatorClient.create(settings)) {
-			// Reads the image file into memory
-			Path path = Paths.get(localPath);
-			byte[] data = Files.readAllBytes(path);
-			ByteString imgBytes = ByteString.copyFrom(data);
+			ByteString imgBytes = ByteString.copyFrom(picture);
 			
 			// Builds the image annotation request
 			List<AnnotateImageRequest> requests = new ArrayList<>();
@@ -56,9 +71,16 @@ public class GoogleVision {
 		}
 	}
 	
+	private BatchAnnotateImagesResponse performDetectionLocal(String localPath, Type type) throws Exception {
+		// Reads the image file into memory
+		Path path = Paths.get(localPath);
+		byte[] data = Files.readAllBytes(path);
+		return performDetection(data, type);
+	}
+	
 	public List<String> getRGB(String localPath) throws Exception {
 		List<String> rgb = new ArrayList<>();
-		for (AnnotateImageResponse res : performDetection(localPath, Type.IMAGE_PROPERTIES).getResponsesList()) {
+		for (AnnotateImageResponse res : performDetectionLocal(localPath, Type.IMAGE_PROPERTIES).getResponsesList()) {
 			if (res.hasError()) {
 				break;
 			}
@@ -77,7 +99,7 @@ public class GoogleVision {
 	public Map<String, String> labelAsMap(String localPath) throws Exception {
 		Map<String, String> labels = new HashMap<>();
 		String temp = "";
-		for (AnnotateImageResponse res : performDetection(localPath, Type.LABEL_DETECTION).getResponsesList()) {
+		for (AnnotateImageResponse res : performDetectionLocal(localPath, Type.LABEL_DETECTION).getResponsesList()) {
 			if (res.hasError()) {
 				break;
 			}
@@ -95,7 +117,13 @@ public class GoogleVision {
 		return labels;
 	}
 	
-	public String safeSearchAnalyze(String localPath) throws Exception {
-		return performDetection(localPath, Type.SAFE_SEARCH_DETECTION).toString();
+	public String safeSearchAnalyse(byte[] picture) throws Exception {
+		return performDetection(picture, Type.SAFE_SEARCH_DETECTION).toString();
+	}
+	
+	public SafeSearchAnnotation safeSearchAnalyse(String onlnePath) throws Exception {
+		return performDetectionOnline(onlnePath, Type.SAFE_SEARCH_DETECTION)
+				.getResponses(0)
+				.getSafeSearchAnnotation();
 	}
 }

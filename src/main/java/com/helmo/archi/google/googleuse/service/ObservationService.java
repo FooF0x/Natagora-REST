@@ -28,7 +28,7 @@ public class ObservationService {
 		return rtn;
 	}
 	
-	public void createObservation(Observation obs) {
+	public Observation save(Observation obs) {
 		Observation two = new Observation();
 		two.setDateTime(new Timestamp(new Date().getTime()));
 		
@@ -42,7 +42,7 @@ public class ObservationService {
 		two.setValidation(obs.isValidation());
 		two.setSession(obs.getSession());
 		
-		obsRepo.save(two);
+		return obsRepo.save(two);
 	}
 	
 	public void deleteById(Long id) {
@@ -52,4 +52,5 @@ public class ObservationService {
 	public Observation findOne(long id) {
 		return findOne(id);
 	}
+	
 }

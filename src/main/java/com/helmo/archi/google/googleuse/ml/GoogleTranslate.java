@@ -4,9 +4,11 @@ import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.Translate.TranslateOption;
 import com.google.cloud.translate.TranslateOptions;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
 public class GoogleTranslate {
 	
 	private Translate translate;

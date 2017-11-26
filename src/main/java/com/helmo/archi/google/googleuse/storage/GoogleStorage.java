@@ -17,19 +17,21 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
 
 @Component
 public class GoogleStorage { //TODO Work with path not strings
 	
 	private final Storage storage;
-	@Value("${google.storage.bucketName}")
+//	@Value("${google.storage.bucketName}")
 	private String bucketName;
 	
-	public GoogleStorage() throws IOException {
+	public GoogleStorage() {
 		storage = StorageOptions.newBuilder()
 				.setCredentials(HELMoCredentialsProvider.getCredential())
 				.build()
 				.getService();
+		bucketName = "nat-test";
 	}
 	
 	public void uploadPicture(String path, String onlinePath, String ext) throws IOException {
@@ -95,6 +97,39 @@ public class GoogleStorage { //TODO Work with path not strings
 		}
 	}
 	
+	public byte[] getMedia(String onlinePath) throws IOException {
+		onlinePath = formatToOnlinePath(onlinePath);
+		Blob blob = storage.get(BlobId.of(bucketName, onlinePath));
+		if (blob == null) {
+			System.out.println("No such object");
+			return new byte[0];
+		}
+		
+		byte[] rtn = new byte[1];
+		
+		if (blob.getSize() < 1_000_000) {
+			// Blob is small read all its content in one request
+			 return blob.getContent();
+		} else {
+			// When Blob size is big or unknown use the blob's channel reader.
+			try (ReadChannel reader = blob.reader()) {
+//				byte[] content = new byte[64 * 1024];
+				List<Byte> content = new LinkedList<>();
+				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
+				while (reader.read(bytes) > 0) {
+					bytes.flip();
+					for(byte tmp : bytes.array())
+						content.add(tmp);
+					bytes.clear();
+				}
+				rtn = new byte[content.size()];
+				for(int i = 0; i < rtn.length; i++)
+					rtn[i] = content.get(i);
+			}
+		}
+		return rtn;
+	}
+	
 	public void getMedia(String onlinePath, String strLocalPath) throws IOException {
 		onlinePath = formatToOnlinePath(onlinePath);
 		Blob blob = storage.get(BlobId.of(bucketName, onlinePath));
@@ -108,23 +143,23 @@ public class GoogleStorage { //TODO Work with path not strings
 		if (downloadTo != null) {
 			writeTo = new PrintStream(new FileOutputStream(downloadTo.toFile()));
 		}
-		if (blob.getSize() < 1_000_000) {
-			// Blob is small read all its content in one request
-			byte[] content = blob.getContent();
-			writeTo.write(content);
-		} else {
-			// When Blob size is big or unknown use the blob's channel reader.
-//			try (ReadChannel reader = storage.reader(bucketName, blob.getName())) {
-			try (ReadChannel reader = blob.reader()) {
-				WritableByteChannel channel = Channels.newChannel(writeTo);
-				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
-				while (reader.read(bytes) > 0) {
-					bytes.flip();
-					channel.write(bytes);
-					bytes.clear();
-				}
-			}
-		}
+//		if (blob.getSize() < 1_000_000) {
+//			// Blob is small read all its content in one request
+//			byte[] content = blob.getContent();
+//			writeTo.write(content);
+//		} else {
+//			// When Blob size is big or unknown use the blob's channel reader.
+////			try (ReadChannel reader = storage.reader(bucketName, blob.getName())) {
+//			try (ReadChannel reader = blob.reader()) {
+//				WritableByteChannel channel = Channels.newChannel(writeTo);
+//				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
+//				while (reader.read(bytes) > 0) {
+//					bytes.flip();
+//					channel.write(bytes);
+//					bytes.clear();
+//				}
+//			}
+//		}
 		if (downloadTo == null) {
 			writeTo.println();
 		} else {

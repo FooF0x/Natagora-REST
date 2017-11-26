@@ -9,16 +9,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @Component
-@PropertySource("classpath:application.properties")
 public class HELMoCredentialsProvider {
 	public static ServiceAccountCredentials getCredential() {
 		try {
 			return ServiceAccountCredentials.fromStream(
 					new FileInputStream(
-							new ClassPathResource("service_key.json").getFile()));
+							new ClassPathResource("/service_key.json").getFile()));
+//			return ServiceAccountCredentials.fromStream(
+//					new FileInputStream(
+//							new ClassPathResource("C:\\Dev\\service_key.json").getFile()));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
-		return null; //TODO To change
 	}
 }

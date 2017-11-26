@@ -18,4 +18,8 @@ public class NotificationService {
 	public List<Notification> getAll() {
 		return notRepo.findAll();
 	}
+	
+	public void save(Notification notif) {
+		notRepo.save(notif);
+	}
 }
