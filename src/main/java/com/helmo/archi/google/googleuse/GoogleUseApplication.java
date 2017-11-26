@@ -1,9 +1,11 @@
 package com.helmo.archi.google.googleuse;
 
+import com.google.cloud.storage.Storage;
 import com.helmo.archi.google.googleuse.model.Role;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.repository.RoleRepository;
 import com.helmo.archi.google.googleuse.repository.UserRepository;
+import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +16,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +39,8 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	}
 	
 	@Bean
-	public ApplicationRunner startApp(UserRepository usrRepo, RoleRepository roleRepo, PasswordEncoder passEnc, Environment env) {
+	public ApplicationRunner startApp(UserRepository usrRepo, RoleRepository roleRepo, PasswordEncoder passEnc, Environment env,
+	                                  GoogleStorage storage) {
 		return args -> {
 			
 			checkRolesIntegrity(roleRepo);
@@ -63,7 +67,22 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 				));
 			}
 			
+			checkStorageIntegrity(storage, env);
+			
 		};
+	}
+	
+	private void checkStorageIntegrity(GoogleStorage storage, Environment env) {
+		if(!storage.exist(env.getProperty("storage.defaultPic.onlineLocation")))  //TODO Not ok
+			try {
+				storage.uploadPicture(
+						"/pics/defaultPic.png",
+						env.getProperty("storage.defaultPic.onlineLocation"),
+						"png"
+				);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
 	private void checkManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
