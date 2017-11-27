@@ -3,7 +3,6 @@ package com.helmo.archi.google.googleuse.controller;
 import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.service.SessionService;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

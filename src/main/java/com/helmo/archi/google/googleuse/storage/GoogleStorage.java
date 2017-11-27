@@ -4,7 +4,6 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
@@ -12,12 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class GoogleStorage { //TODO Work with path not strings

@@ -2,12 +2,13 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Report;
 import com.helmo.archi.google.googleuse.service.ReportService;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/reports")
 public class ReportController {
 
 	private final ReportService rptSrv;
@@ -22,7 +23,20 @@ public class ReportController {
 	}
 	
 	@PostMapping
-	public void createOne(@RequestBody Report rpt) {
-		rptSrv.create(rpt);
+	@Secured("ROLE_USER")
+	public Report createOne(@RequestBody Report rpt) {
+		return rptSrv.save(rpt);
+	}
+	
+	@PutMapping
+	@Secured("ROLE_USER")
+	public Report updateOne(@RequestBody Report rpt) {
+		return rptSrv.updateOne(rpt);
+	}
+	
+	@DeleteMapping
+	@Secured("ROLE_USER")
+	public void deleteOne(@RequestBody Report rpt) {
+		rptSrv.deleteOne(rpt);
 	}
 }

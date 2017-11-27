@@ -1,6 +1,5 @@
 package com.helmo.archi.google.googleuse;
 
-import com.google.cloud.storage.Storage;
 import com.helmo.archi.google.googleuse.model.Role;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.repository.RoleRepository;

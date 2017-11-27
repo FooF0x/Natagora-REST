@@ -50,7 +50,7 @@ public class ObservationService {
 	}
 	
 	public Observation findOne(long id) {
-		return findOne(id);
+		return obsRepo.findOne(id);
 	}
 	
 }

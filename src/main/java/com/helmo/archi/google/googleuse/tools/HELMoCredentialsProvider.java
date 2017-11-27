@@ -1,7 +1,6 @@
 package com.helmo.archi.google.googleuse.tools;
 
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 

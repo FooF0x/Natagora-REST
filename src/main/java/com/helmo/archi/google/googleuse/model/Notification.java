@@ -24,7 +24,9 @@ public class Notification extends IdentifiedModel {
 	private boolean status;
 	
 	@JoinColumn(name = "observation")
-	@ManyToOne(targetEntity = Observation.class)
+	@ManyToOne(
+			targetEntity = Observation.class,
+			cascade = CascadeType.REMOVE)
 	private Observation observation;
 	
 	public Notification() {}

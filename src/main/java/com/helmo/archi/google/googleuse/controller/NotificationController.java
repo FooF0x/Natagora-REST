@@ -2,9 +2,8 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Notification;
 import com.helmo.archi.google.googleuse.service.NotificationService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,7 +18,14 @@ public class NotificationController {
 	}
 	
 	@GetMapping
+	@Secured("ROLE_USER")
 	public List<Notification> getNotifications() {
 		return notSrv.getAll();
+	}
+	
+	@PutMapping
+	@Secured("ROLE_USER")
+	public Notification updateOne(@RequestBody Notification notif) {
+		return notSrv.updateOne(notif);
 	}
 }

@@ -6,8 +6,6 @@ import com.google.cloud.translate.TranslateOptions;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 public class GoogleTranslate {
 	
@@ -22,6 +20,11 @@ public class GoogleTranslate {
 	
 	public String simpleTranslateInEN(String input) {
 		return translate.translate(input).getTranslatedText();
+	}
+	public String simpleTranslateFromENToFR(String input) {
+		return translate.translate(input,
+				TranslateOption.sourceLanguage("en"),
+				TranslateOption.targetLanguage("fr")).getTranslatedText();
 	}
 	
 	public String translateWithOption(String input, String srcLg, String tgtLg) {

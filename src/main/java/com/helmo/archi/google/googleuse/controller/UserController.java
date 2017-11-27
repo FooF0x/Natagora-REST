@@ -31,7 +31,7 @@ public class UserController {
 	@PostMapping()
 	@Secured("ROLE_SYSTEM")
 	public void createUser(@RequestBody User usr) {
-		usrSrv.createUser(usr);
+		usrSrv.saveOne(usr);
 	}
 
 	@GetMapping("/{id}")
@@ -42,11 +42,11 @@ public class UserController {
 
 	@PutMapping()
 	@Secured("ROLE_USER")
-	public ResponseEntity updateUserById(@RequestBody User usr) {
+	public ResponseEntity updateUser(@RequestBody User usr) {
 		if(checkAdmin(usr)) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 		
-		usrSrv.createUser(usr);
+		usrSrv.update(usr);
 		return ResponseEntity.ok(null);
 	}
 

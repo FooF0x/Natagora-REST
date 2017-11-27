@@ -25,15 +25,44 @@ public class UserService {
 		return usrRepo.findAll();
 	}
 	
-	public void createUser(User usr) {
+	public void saveOne(User usr) {
 		User two = new User();
 		two.setFullName(usr.getFullName());
 		two.setEmail(usr.getEmail());
 		two.setAdmin(usr.isAdmin());
 		two.setPassword(passEnc.encode(usr.getPassword()));
-		two.setOnlinePath(usr.getOnlinePath() != null ? usr.getOnlinePath() : env.getProperty("helmo.storage.defaultPic.onlineLocation"));
+		two.setOnlinePath(
+				usr.getOnlinePath() != null
+				? usr.getOnlinePath()
+				: env.getProperty("helmo.storage.defaultPic.onlineLocation"));
 		two.setRoles(usr.getRoles());
 		usrRepo.save(two);
+	}
+	
+	public User update(User toUpdate) {
+		User usr = usrRepo.findOne(toUpdate.getId());
+		usr.setFullName(
+				toUpdate.getFullName() != null
+				? toUpdate.getFullName()
+				: usr.getFullName()
+		);
+		usr.setEmail(
+				toUpdate.getEmail() != null
+				? toUpdate.getEmail()
+				: usr.getEmail()
+		);
+		usr.setOnlinePath(
+				toUpdate.getOnlinePath() != null
+				? toUpdate.getOnlinePath()
+				: usr.getOnlinePath()
+		);
+		usr.setRoles(
+				toUpdate.getRoles() != null
+						? toUpdate.getRoles()
+						: usr.getRoles()
+		);
+		usr.setAdmin(toUpdate.isAdmin());
+		return usrRepo.save(usr);
 	}
 	
 	public User getById(long id) {

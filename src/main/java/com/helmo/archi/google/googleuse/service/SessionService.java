@@ -4,8 +4,8 @@ import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Service

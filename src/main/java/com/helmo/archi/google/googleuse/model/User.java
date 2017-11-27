@@ -1,16 +1,12 @@
 package com.helmo.archi.google.googleuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 @Entity
