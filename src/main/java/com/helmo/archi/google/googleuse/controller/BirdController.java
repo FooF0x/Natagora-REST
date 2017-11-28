@@ -12,7 +12,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/birds")
 public class BirdController {
-
+	
 	private final BirdService brdSrv;
 	private final NextSequenceService nextSeq;
 	
@@ -57,9 +57,10 @@ public class BirdController {
 	public Set<Bird> birdHelper(@RequestBody BirdFinder seed) {
 		seed.processInput();
 		Set<Bird> rtn = new HashSet<>();
-		for(String key : seed.getSingle().keySet())
+		for (String key : seed.getSingle().keySet())
 			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getSingle().get(key)));
 		return rtn;
+		
 	}
 	
 	private void trash() {
@@ -139,7 +140,7 @@ public class BirdController {
 //		//TODO Process the maps
 	
 	}
-	
+
 //	<X extends java.lang> Map<String, Map<Bird, Double>> processAttribute(Map<String, X> seed) {
 //		Map<String, List<Bird>> birdsFound = new HashMap<>(); //Bird match the attribute
 //		Map<String, Map<Bird, Double>> process = new HashMap<>(); //

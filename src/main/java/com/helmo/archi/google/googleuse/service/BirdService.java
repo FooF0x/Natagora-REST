@@ -8,7 +8,7 @@ import java.util.List;
 
 @Service
 public class BirdService {
-
+	
 	private final BirdRepository brdRepo;
 	
 	public BirdService(BirdRepository brdRepo) {
@@ -35,23 +35,23 @@ public class BirdService {
 	public Bird find(long id) {
 		return brdRepo.findOne(id);
 	}
-
+	
 	public List<Bird> findSingleByArgs(String key, String item) {
 		return null;
 	}
-
+	
 	public List<Bird> findSingleByArgs(String key, double item) {
 		return null;
 	}
-
+	
 	public List<Bird> findSingleByArgs(String key, long item) {
 		return null;
 	}
-	
+
 //	public <X extends java.lang> List<Bird> findSingleByArgs(String key, X item) {
 //		return null;
 //	}
-	
+
 //	public <X extends java.lang> List<Bird> findSingleByArgs(String key, X x) {
 //		return null;
 //	}

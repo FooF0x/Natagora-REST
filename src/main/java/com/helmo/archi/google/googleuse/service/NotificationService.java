@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class NotificationService {
-
+	
 	private final NotificationRepository notRepo;
 	
 	public NotificationService(NotificationRepository notRepo) {
@@ -28,19 +28,19 @@ public class NotificationService {
 		Notification notif = notRepo.findOne(toUpdate.getId());
 		notif.setStatus(toUpdate.isStatus());
 		notif.setCaption(
-				toUpdate.getCaption() != null
-				? toUpdate.getCaption()
-				: notif.getCaption()
+			  toUpdate.getCaption() != null
+					? toUpdate.getCaption()
+					: notif.getCaption()
 		);
 		notif.setDescription(
-				toUpdate.getDescription() != null
-				? toUpdate.getDescription()
-				: notif.getDescription()
+			  toUpdate.getDescription() != null
+					? toUpdate.getDescription()
+					: notif.getDescription()
 		);
 		notif.setDate(
-				toUpdate.getDate() != null
-				? toUpdate.getDate()
-				: notif.getDate()
+			  toUpdate.getDate() != null
+					? toUpdate.getDate()
+					: notif.getDate()
 		);
 		return notRepo.save(notif);
 	}

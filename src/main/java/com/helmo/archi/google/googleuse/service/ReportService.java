@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class ReportService {
-
+	
 	private final ReportRepository repRepo;
 	
 	public ReportService(ReportRepository repRepo) {
@@ -30,9 +30,9 @@ public class ReportService {
 		Report toSave = new Report();
 		toSave.setCommentary(rpt.getCommentary());
 		toSave.setDate(
-				(rpt.getDate() != null)
-				? rpt.getDate()
-				: new Timestamp(new Date().getTime())
+			  (rpt.getDate() != null)
+					? rpt.getDate()
+					: new Timestamp(new Date().getTime())
 		);
 		toSave.setObservation(rpt.getObservation());
 		toSave.setUser(rpt.getUser());
@@ -42,9 +42,9 @@ public class ReportService {
 	public Report updateOne(Report updated) {
 		Report rpt = repRepo.findOne(updated.getId());
 		rpt.setCommentary(
-				(updated.getCommentary() != null)
-				? updated.getCommentary()
-				: rpt.getCommentary()
+			  (updated.getCommentary() != null)
+					? updated.getCommentary()
+					: rpt.getCommentary()
 		);
 		return repRepo.save(rpt);
 	}

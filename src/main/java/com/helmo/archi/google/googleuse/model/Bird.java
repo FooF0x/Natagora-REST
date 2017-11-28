@@ -11,7 +11,8 @@ import java.util.Map;
 
 @Data
 @Document(collection = "birds")
-@Getter @Setter
+@Getter
+@Setter
 public class Bird extends MongoIdentifiedModel {
 	
 	public static final String NAME = "name"; //Used with Datastore
@@ -28,13 +29,14 @@ public class Bird extends MongoIdentifiedModel {
 	private Map<String, String> data;
 	private Map<String, List<String>> multiple;
 	
-	public Bird() {}
+	public Bird() {
+	}
 	
 	@Override
 	public String toString() {
 		return String.format(
-				"BIRD [id=%s, name=%s ]\n\t[Data : %d]\n\t[Picture : %d]\n\t[Multiple : %d]",
-				getId(), name, data.size(), picture.size(), multiple.size()
+			  "BIRD [id=%s, name=%s ]\n\t[Data : %d]\n\t[Picture : %d]\n\t[Multiple : %d]",
+			  getId(), name, data.size(), picture.size(), multiple.size()
 		);
 	}
 }

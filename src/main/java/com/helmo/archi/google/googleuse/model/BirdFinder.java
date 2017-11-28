@@ -6,7 +6,8 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Map;
 
-@Getter @Setter
+@Getter
+@Setter
 public class BirdFinder {
 	
 	//First Input
@@ -20,10 +21,10 @@ public class BirdFinder {
 	public void processInput() {
 		for (String key : single.keySet()) {
 			String item = single.get(key);
-			if(isNumeric(item)) {
+			if (isNumeric(item)) {
 				double temp = Double.parseDouble(item);
 				try {
-					if(temp == (int)temp)
+					if (temp == (int) temp)
 						longItems.put(key, Long.parseLong(item));
 				} catch (Exception e) {
 					doubleItems.put(key, temp);

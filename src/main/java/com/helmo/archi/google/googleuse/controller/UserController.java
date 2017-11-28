@@ -33,27 +33,27 @@ public class UserController {
 	public void createUser(@RequestBody User usr) {
 		usrSrv.saveOne(usr);
 	}
-
+	
 	@GetMapping("/{id}")
 	@Secured("ROLE_SYSTEM")
 	public User getUserById(@PathVariable("id") long id) {
 		return usrSrv.getById(id);
 	}
-
+	
 	@PutMapping()
 	@Secured("ROLE_USER")
 	public ResponseEntity updateUser(@RequestBody User usr) {
-		if(checkAdmin(usr)) //SuperAdmin and System can't be changed
+		if (checkAdmin(usr)) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 		
 		usrSrv.update(usr);
 		return ResponseEntity.ok(null);
 	}
-
+	
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
 	public ResponseEntity deleteUserById(@PathVariable("id") long id) {
-		if(checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
+		if (checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 		
 		usrSrv.deleteById(id);
@@ -62,6 +62,6 @@ public class UserController {
 	
 	private boolean checkAdmin(User usr) {
 		return usr != null &&
-				(usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
+			  (usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
 	}
 }

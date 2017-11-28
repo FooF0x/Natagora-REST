@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class UserService {
-
+	
 	private final UserRepository usrRepo;
 	private final PasswordEncoder passEnc;
 	private final Environment env;
@@ -32,9 +32,9 @@ public class UserService {
 		two.setAdmin(usr.isAdmin());
 		two.setPassword(passEnc.encode(usr.getPassword()));
 		two.setOnlinePath(
-				usr.getOnlinePath() != null
-				? usr.getOnlinePath()
-				: env.getProperty("helmo.storage.defaultPic.onlineLocation"));
+			  usr.getOnlinePath() != null
+					? usr.getOnlinePath()
+					: env.getProperty("helmo.storage.defaultPic.onlineLocation"));
 		two.setRoles(usr.getRoles());
 		usrRepo.save(two);
 	}
@@ -42,24 +42,24 @@ public class UserService {
 	public User update(User toUpdate) {
 		User usr = usrRepo.findOne(toUpdate.getId());
 		usr.setFullName(
-				toUpdate.getFullName() != null
-				? toUpdate.getFullName()
-				: usr.getFullName()
+			  toUpdate.getFullName() != null
+					? toUpdate.getFullName()
+					: usr.getFullName()
 		);
 		usr.setEmail(
-				toUpdate.getEmail() != null
-				? toUpdate.getEmail()
-				: usr.getEmail()
+			  toUpdate.getEmail() != null
+					? toUpdate.getEmail()
+					: usr.getEmail()
 		);
 		usr.setOnlinePath(
-				toUpdate.getOnlinePath() != null
-				? toUpdate.getOnlinePath()
-				: usr.getOnlinePath()
+			  toUpdate.getOnlinePath() != null
+					? toUpdate.getOnlinePath()
+					: usr.getOnlinePath()
 		);
 		usr.setRoles(
-				toUpdate.getRoles() != null
-						? toUpdate.getRoles()
-						: usr.getRoles()
+			  toUpdate.getRoles() != null
+					? toUpdate.getRoles()
+					: usr.getRoles()
 		);
 		usr.setAdmin(toUpdate.isAdmin());
 		return usrRepo.save(usr);

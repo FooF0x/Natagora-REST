@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/observations")
 public class ObservationController {
-
+	
 	private final ObservationService obsSrv;
 	private final NotificationService notSrv;
 	private final ReportService repSrv;
@@ -44,7 +44,7 @@ public class ObservationController {
 	public List<Observation> getObservations() {
 		return obsSrv.getObservations();
 	}
-	
+
 //	@GetMapping("/{id}")
 //	public List<Observation> getObservations(@PathVariable("id") long id) {
 //		Observation obs = obsSrv.findOne(id);
@@ -57,25 +57,25 @@ public class ObservationController {
 		//Analyse the pics
 		try {
 			SafeSearchAnnotation safe = vision.safeSearchAnalyse(
-					obs.getOnlinePath());
+				  obs.getOnlinePath());
 			obs.setAnalyseResult(safe.toString());
 			//Define Notification
-			if(safe.getAdultValue() >= 2
-					|| safe.getMedicalValue() >= 2
-					|| safe.getViolenceValue() >= 2){
+			if (safe.getAdultValue() >= 2
+				  || safe.getMedicalValue() >= 2
+				  || safe.getViolenceValue() >= 2) {
 				Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
 				String message = String.format(
-						"Analyse de l'image :\n" +
-								"Violance : %s\n" +
-								"Adulte : %s\n" +
-								"Medical : %s\n" +
-								"Canular : %s",
-						rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
+					  "Analyse de l'image :\n" +
+							"Violance : %s\n" +
+							"Adulte : %s\n" +
+							"Medical : %s\n" +
+							"Canular : %s",
+					  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
 				);
 				notSrv.save(NotificationBuilder.getDefaultNotification( //Send a notification
-						"Problème avec une observation",
-						message,
-						obsSrv.save(obs)
+					  "Problème avec une observation",
+					  message,
+					  obsSrv.save(obs)
 				));
 			} else
 				obsSrv.save(obs);
@@ -90,9 +90,9 @@ public class ObservationController {
 		Map<String, String> rtn = new HashMap<>();
 		
 		rtn.put("adult", translate.simpleTranslateFromENToFR(safe.getAdult().name()));
-		rtn.put("medial",  translate.simpleTranslateFromENToFR(safe.getMedical().name()));
-		rtn.put("violence",  translate.simpleTranslateFromENToFR(safe.getViolence().name()));
-		rtn.put("spoof",  translate.simpleTranslateFromENToFR(safe.getSpoof().name()));
+		rtn.put("medial", translate.simpleTranslateFromENToFR(safe.getMedical().name()));
+		rtn.put("violence", translate.simpleTranslateFromENToFR(safe.getViolence().name()));
+		rtn.put("spoof", translate.simpleTranslateFromENToFR(safe.getSpoof().name()));
 		
 		
 		return rtn;

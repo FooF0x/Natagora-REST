@@ -10,13 +10,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/sessions")
 public class SessionController {
-
+	
 	private final SessionService sesSrv;
-
+	
 	public SessionController(SessionService sesSrv) {
 		this.sesSrv = sesSrv;
 	}
-
+	
 	@GetMapping()
 	@Secured("ROLE_USER")
 	public List<Session> getSessions() {
