@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,23 +28,20 @@ public class NotificationController implements BasicController<Notification> {
 	@Override
 	@GetMapping("/{id}")
 	public Notification getOne(@PathVariable("id") long id) {
-		return null;
+		return notSrv.getById(id);
 	}
 	
 	@Override
 	@PostMapping
 	public List<Notification> create(@RequestBody Notification... notifications) {
-		return null;
+		return notSrv.create(notifications);
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_USER")
 	public List<Notification> update(@RequestBody Notification... notifs) {
-		List<Notification> rtn = new ArrayList<>();
-		for(Notification not : notifs)
-			rtn.add(notSrv.updateOne(not));
-		return rtn;
+		return update(notifs);
 	}
 	
 	@Override

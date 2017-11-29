@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class ObservationService {
+public class ObservationService implements BasicService<Observation, Long> {
 	
 	private final ObservationRepository obsRepo;
 	private final BirdRepository brdRepo;
@@ -20,7 +20,8 @@ public class ObservationService {
 		this.brdRepo = birdDatastore;
 	}
 	
-	public List<Observation> getObservations() {
+	@Override
+	public List<Observation> getAll() {
 		List<Observation> rtn = obsRepo.findAll();
 		for (Observation obs : obsRepo.findAll())
 			obs.setBird(brdRepo.findOne(obs.getBirdId()));
@@ -28,7 +29,15 @@ public class ObservationService {
 		return rtn;
 	}
 	
-	public Observation save(Observation obs) {
+	@Override
+	public Observation getById(Long id) {
+		Observation obs = obsRepo.findOne(id);
+		obs.setBird(brdRepo.findOne(obs.getBirdId()));
+		return obs;
+	}
+	
+	@Override
+	public Observation create(Observation obs) {
 		Observation two = new Observation();
 		two.setDateTime(new Timestamp(new Date().getTime()));
 		
@@ -45,12 +54,33 @@ public class ObservationService {
 		return obsRepo.save(two);
 	}
 	
+	@Override
+	public List<Observation> create(Observation... observations) {
+		return null;
+	}
+	
+	@Override
+	public List<Observation> update(Observation... observations) {
+		return null;
+	}
+	
+	@Override
+	public Observation update(Observation observation) {
+		return null;
+	}
+	
+	@Override
 	public void deleteById(Long id) {
 		obsRepo.delete(id);
 	}
 	
-	public Observation findOne(long id) {
-		return obsRepo.findOne(id);
+	@Override
+	public void delete(Observation... observations) {
+		return null;
 	}
 	
+	@Override
+	public void delete(Observation observation) {
+		return null;
+	}
 }

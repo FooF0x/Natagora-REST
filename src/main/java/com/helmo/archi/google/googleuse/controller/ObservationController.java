@@ -45,13 +45,13 @@ public class ObservationController implements BasicController<Observation> {
 	@Override
 	@GetMapping
 	public List<Observation> getAll() {
-		return obsSrv.getObservations();
+		return obsSrv.getAll();
 	}
 	
 	@Override
 	@GetMapping("/{id}")
 	public Observation getOne(@PathVariable("id") long id) {
-		return obsSrv.findOne(id);
+		return obsSrv.getById(id);
 	}
 	
 	@Override
@@ -65,7 +65,7 @@ public class ObservationController implements BasicController<Observation> {
 				SafeSearchAnnotation safe = vision.safeSearchAnalyse(
 						obs.getOnlinePath());
 				obs.setAnalyseResult(safe.toString());
-				rtn.add(added = obsSrv.save(obs));
+				rtn.add(added = obsSrv.create(obs));
 				
 				//Define Notification
 				if (safe.getAdultValue() >= 2
@@ -80,7 +80,7 @@ public class ObservationController implements BasicController<Observation> {
 									"Canular : %s",
 							rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
 					);
-					notSrv.save(NotificationBuilder.getDefaultNotification( //Send a notification
+					notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
 							"Problème avec une observation",
 							message,
 							added
@@ -107,7 +107,7 @@ public class ObservationController implements BasicController<Observation> {
 	
 	@Override
 	public List<Observation> update(Observation... observations) {
-		return null;
+		return obsSrv.update(observations);
 	}
 	
 	@Override

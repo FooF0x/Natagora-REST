@@ -16,7 +16,7 @@ public interface BasicService<Model, IdType> {
 	List<Model> update(Model... models);
 	Model update(Model model);
 	
-	List<Model> delete(Model... models);
-	Model delete(Model model);
-	Model deleteById(IdType id);
+	void delete(Model... models);
+	void delete(Model model);
+	void deleteById(IdType id);
 }

@@ -2,6 +2,7 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Comment;
 import com.helmo.archi.google.googleuse.service.CommentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,26 +27,35 @@ public class CommentController implements BasicController<Comment> {
 	@Override
 	@GetMapping("/{id}")
 	public Comment getOne(@PathVariable("id") long id) {
-		return cmtSrv.getOne(id);
+		return cmtSrv.getById(id);
 	}
 	
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")
 	public List<Comment> create(@RequestBody Comment... comment) {
-		return cmtSrv.saveOne(comment);
+		return cmtSrv.create(comment);
 	}
 	
+	@Override
 	@PutMapping
 	@Secured("ROLE_USER")
-	public Comment updateOne(@RequestBody Comment cmt) {
-		return cmtSrv.updateOne(cmt);
+	public List<Comment> update(Comment... comments) {
+		return cmtSrv.update(comments);
 	}
 	
+	@Override
 	@DeleteMapping
 	@Secured("ROLE_USER")
-	public void deleteOne(@RequestBody Comment cmt) {
-		cmtSrv.deleteOne(cmt);
+	public ResponseEntity delete(@RequestBody Comment... cmt) {
+		cmtSrv.delete(cmt);
+		return ResponseEntity.ok().build();
 	}
 	
+	@Override
+	@DeleteMapping("/{id}")
+	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+		cmtSrv.deleteById(id);
+		return ResponseEntity.ok().build();
+	}
 }

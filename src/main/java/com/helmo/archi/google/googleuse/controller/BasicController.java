@@ -21,5 +21,5 @@ public interface BasicController<Model> {
 	@DeleteMapping("/{id}")
 	ResponseEntity deleteOne(@PathVariable("id") long id);
 	@DeleteMapping
-	ResponseEntity delete(Model... models);
+	ResponseEntity delete(@RequestBody Model... models);
 }

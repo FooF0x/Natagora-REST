@@ -10,6 +10,7 @@ public class HomeController {
 
 	@GetMapping
 	public String index() { //TODO Define a Hello page
-		return "Hello\n\tAuthors : GRIGNET Quentin - MARÉCHAL Thibaut";
+		return "<p>Hello</p>" +
+				"<p>Authors : GRIGNET Quentin - MARÉCHAL Thibaut</p>";
 	}
 }

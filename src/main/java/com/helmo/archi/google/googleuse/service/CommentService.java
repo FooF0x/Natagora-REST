@@ -54,20 +54,20 @@ public class CommentService implements BasicService<Comment, Long> {
 	}
 	
 	@Override
-	public Comment delete(Comment cmt) {
+	public void delete(Comment cmt) {
 		cmtRepo.delete(cmt.getId());
 		cmt.deleteId();
 		return cmt;
 	}
 	
 	@Override
-	public List<Comment> delete(Comment... comments) {
+	public void delete(Comment... comments) {
 		return null;
 	}
 	
 	@Override
-	public Comment deleteById(Long id) {
-		return null;
+	public void deleteById(Long id) {
+		cmtRepo.delete(id);
 	}
 	
 	public void deleteByObservation(Observation obs) {
