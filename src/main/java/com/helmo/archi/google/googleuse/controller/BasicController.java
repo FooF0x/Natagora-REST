@@ -1,18 +1,25 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 public interface BasicController<Model> {
 	
+	@GetMapping
 	List<Model> getAll();
-	Model getOne(long id);
+	@GetMapping("/{id}")
+	Model getOne(@PathVariable("id") long id);
 	
-	List<Model> create(Model... models);
+	@PostMapping
+	List<Model> create(@RequestBody Model... models);
 	
-	List<Model> update(Model... models);
+	@PutMapping
+	List<Model> update(@RequestBody Model... models);
 	
-	ResponseEntity deleteOne(long id);
+	@DeleteMapping("/{id}")
+	ResponseEntity deleteOne(@PathVariable("id") long id);
+	@DeleteMapping
 	ResponseEntity delete(Model... models);
 }

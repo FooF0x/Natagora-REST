@@ -5,10 +5,12 @@ import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class CommentService {
+public class CommentService implements BasicService<Comment, Long> {
 
 	private final CommentRepository cmtRepo;
 	
@@ -16,22 +18,56 @@ public class CommentService {
 		this.cmtRepo = cmtRepo;
 	}
 	
+	@Override
 	public List<Comment> getAll() {
 		return cmtRepo.findAll();
 	}
 	
-	public Comment saveOne(Comment comment) {
+	@Override
+	public Comment getById(Long id) {
+		return cmtRepo.findOne(id);
+	}
+	
+	@Override
+	public Comment create(Comment comment) {
 		return cmtRepo.save(comment);
 	}
 	
-	public Comment updateOne(Comment updated) {
+	@Override
+	public List<Comment> create(Comment... comments) {
+		return cmtRepo.save(Arrays.asList(comments));
+	}
+	
+	@Override
+	public Comment update(Comment updated) {
 		Comment cmt = cmtRepo.findOne(updated.getId());
 		cmt.setCommentary(updated.getCommentary());
 		return cmtRepo.save(cmt);
 	}
 	
-	public void deleteOne(Comment cmt) {
+	@Override
+	public List<Comment> update(Comment... comments) {
+		List<Comment> rtn = new ArrayList<>();
+		for(Comment cmt : comments)
+			rtn.add(update(cmt));
+		return rtn;
+	}
+	
+	@Override
+	public Comment delete(Comment cmt) {
 		cmtRepo.delete(cmt.getId());
+		cmt.deleteId();
+		return cmt;
+	}
+	
+	@Override
+	public List<Comment> delete(Comment... comments) {
+		return null;
+	}
+	
+	@Override
+	public Comment deleteById(Long id) {
+		return null;
 	}
 	
 	public void deleteByObservation(Observation obs) {

@@ -10,16 +10,18 @@ import com.helmo.archi.google.googleuse.service.ObservationService;
 import com.helmo.archi.google.googleuse.service.ReportService;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import com.helmo.archi.google.googleuse.tools.NotificationBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/observations")
-public class ObservationController {
+public class ObservationController implements BasicController<Observation> {
 	
 	private final ObservationService obsSrv;
 	private final NotificationService notSrv;
@@ -40,50 +42,55 @@ public class ObservationController {
 		this.translate = translate;
 	}
 	
+	@Override
 	@GetMapping
-	public List<Observation> getObservations() {
+	public List<Observation> getAll() {
 		return obsSrv.getObservations();
 	}
-
-//	@GetMapping("/{id}")
-//	public List<Observation> getObservations(@PathVariable("id") long id) {
-//		Observation obs = obsSrv.findOne(id);
-////		if(obs.getOnlinePath())
-//		return obsSrv.getObservations();
-//	}
 	
+	@Override
+	@GetMapping("/{id}")
+	public Observation getOne(@PathVariable("id") long id) {
+		return obsSrv.findOne(id);
+	}
+	
+	@Override
 	@PostMapping
-	public void createObservation(@RequestBody Observation obs) {
+	public List<Observation> create(@RequestBody Observation... observs) {
 		//Analyse the pics
+		List<Observation> rtn = new ArrayList<>();
+		Observation added;
 		try {
-			SafeSearchAnnotation safe = vision.safeSearchAnalyse(
-				  obs.getOnlinePath());
-			obs.setAnalyseResult(safe.toString());
-			//Define Notification
-			if (safe.getAdultValue() >= 2
-				  || safe.getMedicalValue() >= 2
-				  || safe.getViolenceValue() >= 2) {
-				Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
-				String message = String.format(
-					  "Analyse de l'image :\n" +
-							"Violance : %s\n" +
-							"Adulte : %s\n" +
-							"Medical : %s\n" +
-							"Canular : %s",
-					  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
-				);
-				notSrv.save(NotificationBuilder.getDefaultNotification( //Send a notification
-					  "Problème avec une observation",
-					  message,
-					  obsSrv.save(obs)
-				));
-			} else
-				obsSrv.save(obs);
-			
+			for(Observation obs : observs) {
+				SafeSearchAnnotation safe = vision.safeSearchAnalyse(
+						obs.getOnlinePath());
+				obs.setAnalyseResult(safe.toString());
+				rtn.add(added = obsSrv.save(obs));
+				
+				//Define Notification
+				if (safe.getAdultValue() >= 2
+						|| safe.getMedicalValue() >= 2
+						|| safe.getViolenceValue() >= 2) {
+					Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
+					String message = String.format(
+							"Analyse de l'image :\n" +
+									"Violance : %s\n" +
+									"Adulte : %s\n" +
+									"Medical : %s\n" +
+									"Canular : %s",
+							rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
+					);
+					notSrv.save(NotificationBuilder.getDefaultNotification( //Send a notification
+							"Problème avec une observation",
+							message,
+							added
+					));
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		return rtn;
 	}
 	
 	private Map<String, String> translateSafeSearch(SafeSearchAnnotation safe) {
@@ -98,14 +105,26 @@ public class ObservationController {
 		return rtn;
 	}
 	
+	@Override
+	public List<Observation> update(Observation... observations) {
+		return null;
+	}
+	
+	@Override
+	public ResponseEntity delete(Observation... observations) {
+		return ResponseEntity.badRequest().build();
+	}
+	
+	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
-	public void deleteObservation(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 //		Observation obs = obsSrv.findOne(id);
 //		repSrv.deleteByObservation(obs); //Delete all reports
 //		cmtSrv.deleteByObservation(obs); //Delete all comments
 //		notSrv.deleteByObservation(obs); //Delete all notifications
 		obsSrv.deleteById(id);
+		return ResponseEntity.badRequest().build();
 	}
 	
 }

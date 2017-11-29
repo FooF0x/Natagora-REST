@@ -51,12 +51,12 @@ public class NotificationController implements BasicController<Notification> {
 	@Override
 	@DeleteMapping("/{id}")
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
-		return null;
+		return ResponseEntity.badRequest().build();
 	}
 	
 	@Override
 	@DeleteMapping
 	public ResponseEntity delete(@RequestBody Notification... notifications) {
-		return null;
+		return ResponseEntity.badRequest().build();
 	}
 }

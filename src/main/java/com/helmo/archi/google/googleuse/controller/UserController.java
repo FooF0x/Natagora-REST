@@ -60,7 +60,8 @@ public class UserController implements BasicController<User> {
 	public List<User> update(@RequestBody User... users) {
 		List<User> rtn = new ArrayList<>();
 		for(User usr : users)
-			rtn.add(usrSrv.update(usr));
+			if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
+				rtn.add(usrSrv.update(usr));
 		return rtn;
 	}
 	
@@ -78,10 +79,21 @@ public class UserController implements BasicController<User> {
 	@Override
 	@DeleteMapping
 	public ResponseEntity delete(@RequestBody User... users) {
-		return ResponseEntity.badRequest().build();
+		for(User usr : users) {
+			if (checkAdmin(usr)) //SuperAdmin and System can't be changed
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+			
+			usrSrv.deleteById(usr.getId());
+		}
+		return ResponseEntity.ok(null);
 	}
 	
-	private boolean checkAdmin(@RequestBody User usr) {
+	/**
+	 * Check weather a user is simple or admin.
+	 * @param usr The user you wanna check
+	 * @return <code>TRUE</code> if is admin or system user
+	 */
+	private boolean checkAdmin(User usr) {
 		return usr != null &&
 			  (usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
 	}

@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/comments")
-public class CommentController {
+public class CommentController implements BasicController<Comment> {
 
 	private final CommentService cmtSrv;
 	
@@ -17,14 +17,22 @@ public class CommentController {
 		this.cmtSrv = cmtSrv;
 	}
 	
+	@Override
 	@GetMapping
 	public List<Comment> getAll() {
 		return cmtSrv.getAll();
 	}
 	
+	@Override
+	@GetMapping("/{id}")
+	public Comment getOne(@PathVariable("id") long id) {
+		return cmtSrv.getOne(id);
+	}
+	
+	@Override
 	@PostMapping
 	@Secured("ROLE_USER")
-	public Comment saveOne(@RequestBody Comment comment) {
+	public List<Comment> create(@RequestBody Comment... comment) {
 		return cmtSrv.saveOne(comment);
 	}
 	
