@@ -7,7 +7,9 @@ import com.helmo.archi.google.googleuse.service.NextSequenceService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/birds")

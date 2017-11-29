@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.helmo.archi.google</groupId>
-    <artifactId>google-use</artifactId>
-    <version>0.0.1</version>
+    <artifactId>GRIMAR</artifactId>
+    <version>1.0</version>
     <packaging>war</packaging>
 
-    <name>google-use</name>
+    <name>GRIMAR-REST</name>
     <description></description>
 
     <parent>

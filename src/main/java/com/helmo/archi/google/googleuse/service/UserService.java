@@ -25,7 +25,7 @@ public class UserService {
 		return usrRepo.findAll();
 	}
 	
-	public void saveOne(User usr) {
+	public User saveOne(User usr) {
 		User two = new User();
 		two.setFullName(usr.getFullName());
 		two.setEmail(usr.getEmail());
@@ -36,7 +36,7 @@ public class UserService {
 					? usr.getOnlinePath()
 					: env.getProperty("helmo.storage.defaultPic.onlineLocation"));
 		two.setRoles(usr.getRoles());
-		usrRepo.save(two);
+		return usrRepo.save(two);
 	}
 	
 	public User update(User toUpdate) {
