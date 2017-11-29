@@ -5,7 +5,7 @@ import com.helmo.archi.google.googleuse.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -44,18 +44,22 @@ public class SessionService implements BasicService<Session, Long> {
 	}
 	
 	@Override
-	public List<Session> create(Session... sessions) {
-		List<Session> rtn = new ArrayList<>();
-		for(Session ses : sessions)
-			rtn.add(create(ses));
-		return rtn;
+	public Session update(Session ses) {
+		return sesRepo.save(ses);
 	}
 	
-	public Session getById(long id) {
-		return sesRepo.findOne(id);
+	@Override
+	public void delete(Session... sessions) {
+		sesRepo.delete(Arrays.asList(sessions));
 	}
 	
-	public void update(Session ses) {
-		sesRepo.save(ses);
+	@Override
+	public void delete(Session session) {
+		sesRepo.delete(session);
+	}
+	
+	@Override
+	public void deleteById(Long id) {
+		sesRepo.delete(id);
 	}
 }

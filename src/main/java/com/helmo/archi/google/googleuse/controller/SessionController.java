@@ -20,7 +20,7 @@ public class SessionController {
 	@GetMapping()
 	@Secured("ROLE_USER")
 	public List<Session> getSessions() {
-		return sesSrv.getSessions();
+		return sesSrv.getAll();
 	}
 	
 	@GetMapping("/{id}")
@@ -32,7 +32,7 @@ public class SessionController {
 	@PostMapping
 	@Secured("ROLE_USER")
 	public void createSession(@RequestBody Session ses) {
-		sesSrv.createSession(ses);
+		sesSrv.create(ses);
 	}
 	
 	@PutMapping

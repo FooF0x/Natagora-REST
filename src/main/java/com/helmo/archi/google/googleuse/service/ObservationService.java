@@ -55,16 +55,6 @@ public class ObservationService implements BasicService<Observation, Long> {
 	}
 	
 	@Override
-	public List<Observation> create(Observation... observations) {
-		return null;
-	}
-	
-	@Override
-	public List<Observation> update(Observation... observations) {
-		return null;
-	}
-	
-	@Override
 	public Observation update(Observation observation) {
 		return null;
 	}
@@ -76,11 +66,9 @@ public class ObservationService implements BasicService<Observation, Long> {
 	
 	@Override
 	public void delete(Observation... observations) {
-		return null;
 	}
 	
 	@Override
 	public void delete(Observation observation) {
-		return null;
 	}
 }

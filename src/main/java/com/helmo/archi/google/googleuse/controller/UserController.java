@@ -27,7 +27,7 @@ public class UserController implements BasicController<User> {
 	@GetMapping
 	@Secured("ROLE_SYSTEM")
 	public List<User> getAll() {
-		return usrSrv.getUsers();
+		return usrSrv.getAll();
 	}
 	
 	@Override

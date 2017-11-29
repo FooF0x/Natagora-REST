@@ -5,7 +5,6 @@ import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,11 +33,6 @@ public class CommentService implements BasicService<Comment, Long> {
 	}
 	
 	@Override
-	public List<Comment> create(Comment... comments) {
-		return cmtRepo.save(Arrays.asList(comments));
-	}
-	
-	@Override
 	public Comment update(Comment updated) {
 		Comment cmt = cmtRepo.findOne(updated.getId());
 		cmt.setCommentary(updated.getCommentary());
@@ -46,23 +40,13 @@ public class CommentService implements BasicService<Comment, Long> {
 	}
 	
 	@Override
-	public List<Comment> update(Comment... comments) {
-		List<Comment> rtn = new ArrayList<>();
-		for(Comment cmt : comments)
-			rtn.add(update(cmt));
-		return rtn;
-	}
-	
-	@Override
 	public void delete(Comment cmt) {
 		cmtRepo.delete(cmt.getId());
-		cmt.deleteId();
-		return cmt;
 	}
 	
 	@Override
 	public void delete(Comment... comments) {
-		return null;
+		cmtRepo.delete(Arrays.asList(comments));
 	}
 	
 	@Override

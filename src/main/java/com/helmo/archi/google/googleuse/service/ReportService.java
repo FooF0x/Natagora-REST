@@ -6,7 +6,6 @@ import com.helmo.archi.google.googleuse.repository.ReportRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,14 +27,6 @@ public class ReportService implements BasicService<Report, Long> {
 	@Override
 	public Report getById(Long id) {
 		return repRepo.findOne(id);
-	}
-	
-	@Override
-	public List<Report> create(Report... reports) {
-		List<Report> rtn = new ArrayList<>();
-		for (Report rpt : reports)
-			rtn.add(create(rpt));
-		return rtn;
 	}
 	
 	@Override
@@ -61,14 +52,6 @@ public class ReportService implements BasicService<Report, Long> {
 						: rpt.getCommentary()
 		);
 		return repRepo.save(rpt);
-	}
-	
-	@Override
-	public List<Report> update(Report... reports) {
-		List<Report> rtn = new ArrayList<>();
-		for(Report rpt : reports)
-			rtn.add(create(rpt));
-		return rtn;
 	}
 	
 	@Override

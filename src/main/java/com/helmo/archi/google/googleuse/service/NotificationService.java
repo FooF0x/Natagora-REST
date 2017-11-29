@@ -5,7 +5,6 @@ import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,11 +33,6 @@ public class NotificationService implements BasicService<Notification, Long> {
 	}
 	
 	@Override
-	public List<Notification> create(Notification... notifications) {
-		return notRepo.save(Arrays.asList(notifications));
-	}
-	
-	@Override
 	public Notification update(Notification toUpdate) {
 		Notification notif = notRepo.findOne(toUpdate.getId());
 		notif.setStatus(toUpdate.isStatus());
@@ -61,26 +55,13 @@ public class NotificationService implements BasicService<Notification, Long> {
 	}
 	
 	@Override
-	public List<Notification> update(Notification... notifications) {
-		List<Notification> rtn = new ArrayList<>();
-		for(Notification not : notifications)
-			rtn.add(update(not));
-		return rtn;
-	}
-	
-	@Override
 	public void delete(Notification... notifications) {
-		List<Notification> rtn = new ArrayList<>();
-		for(Notification not : notifications)
-			rtn.add(delete(not));
-		return rtn;
+		notRepo.delete(Arrays.asList(notifications));
 	}
 	
 	@Override
 	public void delete(Notification notification) {
 		notRepo.delete(notification.getId());
-		notification.deleteId();
-		return notification;
 	}
 	
 	@Override

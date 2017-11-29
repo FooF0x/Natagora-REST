@@ -25,18 +25,18 @@ public class ReportController {
 	@PostMapping
 	@Secured("ROLE_USER")
 	public Report createOne(@RequestBody Report rpt) {
-		return rptSrv.save(rpt);
+		return rptSrv.create(rpt);
 	}
 	
 	@PutMapping
 	@Secured("ROLE_USER")
 	public Report updateOne(@RequestBody Report rpt) {
-		return rptSrv.updateOne(rpt);
+		return rptSrv.update(rpt);
 	}
 	
 	@DeleteMapping
 	@Secured("ROLE_USER")
 	public void deleteOne(@RequestBody Report rpt) {
-		rptSrv.deleteOne(rpt);
+		rptSrv.delete(rpt);
 	}
 }

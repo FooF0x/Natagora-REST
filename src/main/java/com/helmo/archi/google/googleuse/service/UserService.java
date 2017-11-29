@@ -6,10 +6,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService implements BasicService<User, Long> {
 	
 	private final UserRepository usrRepo;
 	private final PasswordEncoder passEnc;
@@ -21,11 +22,18 @@ public class UserService {
 		this.env = env;
 	}
 	
-	public List<User> getUsers() {
+	@Override
+	public List<User> getAll() {
 		return usrRepo.findAll();
 	}
 	
-	public User saveOne(User usr) {
+	@Override
+	public User getById(Long id) {
+		return usrRepo.findOne(id);
+	}
+	
+	@Override
+	public User create(User usr) {
 		User two = new User();
 		two.setFullName(usr.getFullName());
 		two.setEmail(usr.getEmail());
@@ -65,11 +73,18 @@ public class UserService {
 		return usrRepo.save(usr);
 	}
 	
-	public User getById(long id) {
-		return usrRepo.findOne(id);
+	@Override
+	public void delete(User... users) {
+		usrRepo.delete(Arrays.asList(users));
 	}
 	
-	public void deleteById(long id) {
+	@Override
+	public void delete(User user) {
+		usrRepo.delete(user);
+	}
+	
+	@Override
+	public void deleteById(Long id) {
 		usrRepo.delete(id);
 	}
 }
