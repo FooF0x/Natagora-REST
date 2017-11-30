@@ -4,10 +4,11 @@ import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class BirdService {
+public class BirdService implements BasicService<Bird, Long> {
 	
 	private final BirdRepository brdRepo;
 	
@@ -15,25 +16,39 @@ public class BirdService {
 		this.brdRepo = brdRepo;
 	}
 	
-	public List<Bird> findAll() {
+	@Override
+	public List<Bird> getAll() {
 		return brdRepo.findAll();
 	}
 	
-	public void save(Bird bird) {
-		brdRepo.insert(bird);
+	@Override
+	public Bird getById(Long id) {
+		return brdRepo.findOne(id);
 	}
 	
-	public void update(Bird bird) {
+	@Override
+	public Bird create(Bird bird) {
+		return brdRepo.insert(bird);
+	}
+	
+	public Bird update(Bird bird) {
 		brdRepo.delete(bird.getId());
-		brdRepo.insert(bird);
+		return brdRepo.insert(bird);
 	}
 	
-	public void delete(long id) {
+	@Override
+	public void deleteById(Long id) {
 		brdRepo.delete(id);
 	}
 	
-	public Bird find(long id) {
-		return brdRepo.findOne(id);
+	@Override
+	public void delete(Bird... birds) {
+		brdRepo.delete(Arrays.asList(birds));
+	}
+	
+	@Override
+	public void delete(Bird bird) {
+		brdRepo.delete(bird);
 	}
 	
 	public List<Bird> findSingleByArgs(String key, String item) {

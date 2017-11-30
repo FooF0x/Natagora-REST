@@ -15,10 +15,6 @@ public abstract class IdentifiedModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	public void deleteId() {
-		id = -1L;
-	}
-	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
