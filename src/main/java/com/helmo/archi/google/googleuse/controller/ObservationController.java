@@ -63,27 +63,27 @@ public class ObservationController implements BasicController<Observation> {
 		try {
 			for (Observation obs : observs) {
 				SafeSearchAnnotation safe = vision.safeSearchAnalyse(
-						obs.getOnlinePath());
+					  obs.getOnlinePath());
 				obs.setAnalyseResult(safe.toString());
 				rtn.add(added = obsSrv.create(obs));
 				
 				//Define Notification
 				if (safe.getAdultValue() >= 2
-						|| safe.getMedicalValue() >= 2
-						|| safe.getViolenceValue() >= 2) {
+					  || safe.getMedicalValue() >= 2
+					  || safe.getViolenceValue() >= 2) {
 					Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
 					String message = String.format(
-							"Analyse de l'image :\n" +
-									"Violance : %s\n" +
-									"Adulte : %s\n" +
-									"Medical : %s\n" +
-									"Canular : %s",
-							rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
+						  "Analyse de l'image :\n" +
+								"Violance : %s\n" +
+								"Adulte : %s\n" +
+								"Medical : %s\n" +
+								"Canular : %s",
+						  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
 					);
 					notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
-							"Problème avec une observation",
-							message,
-							added
+						  "Problème avec une observation",
+						  message,
+						  added
 					));
 				}
 			}

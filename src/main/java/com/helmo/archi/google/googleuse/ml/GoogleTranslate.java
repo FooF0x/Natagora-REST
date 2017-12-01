@@ -13,9 +13,9 @@ public class GoogleTranslate {
 	
 	public GoogleTranslate() {
 		translate = TranslateOptions
-				.newBuilder()
-				.setCredentials(HELMoCredentialsProvider.getCredential())
-				.build().getService();
+			  .newBuilder()
+			  .setCredentials(HELMoCredentialsProvider.getCredential())
+			  .build().getService();
 	}
 	
 	public String simpleTranslateInEN(String input) {
@@ -24,14 +24,14 @@ public class GoogleTranslate {
 	
 	public String simpleTranslateFromENToFR(String input) {
 		return translate.translate(input,
-				TranslateOption.sourceLanguage("en"),
-				TranslateOption.targetLanguage("fr")).getTranslatedText();
+			  TranslateOption.sourceLanguage("en"),
+			  TranslateOption.targetLanguage("fr")).getTranslatedText();
 	}
 	
 	public String translateWithOption(String input, String srcLg, String tgtLg) {
 		return translate.translate(
-				input,
-				TranslateOption.sourceLanguage(srcLg),
-				TranslateOption.targetLanguage(tgtLg)).getTranslatedText();
+			  input,
+			  TranslateOption.sourceLanguage(srcLg),
+			  TranslateOption.targetLanguage(tgtLg)).getTranslatedText();
 	}
 }

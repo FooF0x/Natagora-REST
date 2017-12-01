@@ -26,9 +26,9 @@ public class GoogleStorage { //TODO Work with path not strings
 	
 	public GoogleStorage() {
 		storage = StorageOptions.newBuilder()
-				.setCredentials(HELMoCredentialsProvider.getCredential())
-				.build()
-				.getService();
+			  .setCredentials(HELMoCredentialsProvider.getCredential())
+			  .build()
+			  .getService();
 		bucketName = "nat-test";
 	}
 	
@@ -45,9 +45,9 @@ public class GoogleStorage { //TODO Work with path not strings
 	private void uploadMedia(String path, String onlinePath, String mediaType) throws IOException {
 		BlobId blobId = BlobId.of(bucketName, onlinePath);
 		BlobInfo blobInfo = BlobInfo
-				.newBuilder(blobId)
-				.setContentType(mediaType)
-				.build();
+			  .newBuilder(blobId)
+			  .setContentType(mediaType)
+			  .build();
 		
 		uploadContent(Paths.get(path), blobInfo);
 	}
@@ -55,9 +55,9 @@ public class GoogleStorage { //TODO Work with path not strings
 	public void uploadFolder(String bucket, String fullFolderName) {
 		BlobId blobId = BlobId.of(bucket, fullFolderName + "/");
 		BlobInfo blobInfo = BlobInfo
-				.newBuilder(blobId)
-				.setContentType("Folder/folder")
-				.build();
+			  .newBuilder(blobId)
+			  .setContentType("Folder/folder")
+			  .build();
 		storage.create(blobInfo, new byte[0]);
 	}
 	

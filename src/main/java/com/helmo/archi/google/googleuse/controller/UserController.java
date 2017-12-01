@@ -96,6 +96,6 @@ public class UserController implements BasicController<User> {
 	 */
 	private boolean checkAdmin(User usr) {
 		return usr != null &&
-				(usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
+			  (usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
 	}
 }

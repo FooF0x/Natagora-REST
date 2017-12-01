@@ -11,6 +11,6 @@ public class HomeController {
 	@GetMapping
 	public String index() { //TODO Define a Hello page
 		return "<p>Hello</p>" +
-				"<p>Authors : GRIGNET Quentin - MARÉCHAL Thibaut</p>";
+			  "<p>Authors : GRIGNET Quentin - MARÉCHAL Thibaut</p>";
 	}
 }

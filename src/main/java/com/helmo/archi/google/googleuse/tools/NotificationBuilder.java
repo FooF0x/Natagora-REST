@@ -9,7 +9,7 @@ import java.util.Date;
 public class NotificationBuilder {
 	
 	public static Notification getNotification(
-			String caption, String description, Timestamp time, boolean status, Observation obs) {
+		  String caption, String description, Timestamp time, boolean status, Observation obs) {
 		Notification notif = new Notification();
 		notif.setDate(time);
 		notif.setCaption(caption);
@@ -22,19 +22,19 @@ public class NotificationBuilder {
 	/**
 	 * Return a notification with actual timestamp and status as false.
 	 *
-	 * @param caption     The caption of the notification.
+	 * @param caption The caption of the notification.
 	 * @param description The description of the notification.
-	 * @param obs         The observation link with the notification.
+	 * @param obs The observation link with the notification.
 	 * @return A notification.
 	 */
 	public static Notification getDefaultNotification(
-			String caption, String description, Observation obs) {
+		  String caption, String description, Observation obs) {
 		return getNotification(
-				caption,
-				description,
-				new Timestamp(new Date().getTime()),
-				false,
-				obs
+			  caption,
+			  description,
+			  new Timestamp(new Date().getTime()),
+			  false,
+			  obs
 		);
 	}
 }

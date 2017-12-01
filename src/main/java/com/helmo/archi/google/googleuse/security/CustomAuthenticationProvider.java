@@ -46,7 +46,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			// use the credentials
 			// and authenticate against the third-party system
 			return new UsernamePasswordAuthenticationToken(
-					name, password, auths);
+				  name, password, auths);
 		} else {
 			throw new UsernameNotFoundException("User doesn't exist");
 		}
@@ -55,6 +55,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return authentication.equals(
-				UsernamePasswordAuthenticationToken.class);
+			  UsernamePasswordAuthenticationToken.class);
 	}
 }

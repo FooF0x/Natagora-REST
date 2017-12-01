@@ -33,13 +33,13 @@ public class User extends IdentifiedModel {
 	
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
 	@JoinTable(
-			name = "user_role",
-			joinColumns = @JoinColumn(name = "id_user"),
-			inverseJoinColumns = @JoinColumn(name = "id_role"))
+		  name = "user_role",
+		  joinColumns = @JoinColumn(name = "id_user"),
+		  inverseJoinColumns = @JoinColumn(name = "id_role"))
 	private List<Role> roles;
 	
 	@OneToMany(cascade = {CascadeType.PERSIST},
-			mappedBy = "user")
+		  mappedBy = "user")
 	private List<Session> sessions;
 
 //	@JoinColumn(name = "last_used")

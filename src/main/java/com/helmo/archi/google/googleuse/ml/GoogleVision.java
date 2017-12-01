@@ -25,11 +25,11 @@ public class GoogleVision {
 	
 	public GoogleVision() throws IOException {
 		CredentialsProvider credentialsProvider = FixedCredentialsProvider
-				.create(HELMoCredentialsProvider.getCredential());
+			  .create(HELMoCredentialsProvider.getCredential());
 		settings = ImageAnnotatorSettings
-				.newBuilder()
-				.setCredentialsProvider(credentialsProvider)
-				.build();
+			  .newBuilder()
+			  .setCredentialsProvider(credentialsProvider)
+			  .build();
 	}
 	
 	private BatchAnnotateImagesResponse performDetectionOnline(String onlinePath, Type type) throws Exception {
@@ -39,7 +39,7 @@ public class GoogleVision {
 		Image img = Image.newBuilder().setSource(imgSource).build();
 		Feature feat = Feature.newBuilder().setType(type).build();
 		AnnotateImageRequest request =
-				AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
+			  AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
 		requests.add(request);
 		
 		try (ImageAnnotatorClient client = ImageAnnotatorClient.create(settings)) {
@@ -55,15 +55,15 @@ public class GoogleVision {
 			// Builds the image annotation request
 			List<AnnotateImageRequest> requests = new ArrayList<>();
 			Image img = Image.newBuilder()
-					.setContent(imgBytes)
-					.build();
+				  .setContent(imgBytes)
+				  .build();
 			Feature feat = Feature.newBuilder()
-					.setType(type)
-					.build();
+				  .setType(type)
+				  .build();
 			AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
-					.addFeatures(feat)
-					.setImage(img)
-					.build();
+				  .addFeatures(feat)
+				  .setImage(img)
+				  .build();
 			requests.add(request);
 			
 			// Performs the detection
@@ -88,9 +88,9 @@ public class GoogleVision {
 			DominantColorsAnnotation colors = res.getImagePropertiesAnnotation().getDominantColors();
 			for (ColorInfo color : colors.getColorsList()) {
 				rgb.add(String.format("%.0f;%.0f;%.0f",
-						color.getColor().getRed(),
-						color.getColor().getGreen(),
-						color.getColor().getBlue()));
+					  color.getColor().getRed(),
+					  color.getColor().getGreen(),
+					  color.getColor().getBlue()));
 			}
 		}
 		return rgb;
@@ -123,7 +123,7 @@ public class GoogleVision {
 	
 	public SafeSearchAnnotation safeSearchAnalyse(String onlnePath) throws Exception {
 		return performDetectionOnline(onlnePath, Type.SAFE_SEARCH_DETECTION)
-				.getResponses(0)
-				.getSafeSearchAnnotation();
+			  .getResponses(0)
+			  .getSafeSearchAnnotation();
 	}
 }

@@ -26,8 +26,8 @@ public class Notification extends IdentifiedModel {
 	
 	@JoinColumn(name = "observation")
 	@ManyToOne(
-			targetEntity = Observation.class,
-			cascade = CascadeType.REMOVE)
+		  targetEntity = Observation.class,
+		  cascade = CascadeType.REMOVE)
 	private Observation observation;
 	
 	public Notification() {

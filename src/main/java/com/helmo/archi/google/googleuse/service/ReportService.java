@@ -34,9 +34,9 @@ public class ReportService implements BasicService<Report, Long> {
 		Report toSave = new Report();
 		toSave.setCommentary(rpt.getCommentary());
 		toSave.setDate(
-				(rpt.getDate() != null)
-						? rpt.getDate()
-						: new Timestamp(new Date().getTime())
+			  (rpt.getDate() != null)
+					? rpt.getDate()
+					: new Timestamp(new Date().getTime())
 		);
 		toSave.setObservation(rpt.getObservation());
 		toSave.setUser(rpt.getUser());
@@ -47,9 +47,9 @@ public class ReportService implements BasicService<Report, Long> {
 	public Report update(Report updated) {
 		Report rpt = repRepo.findOne(updated.getId());
 		rpt.setCommentary(
-				(updated.getCommentary() != null)
-						? updated.getCommentary()
-						: rpt.getCommentary()
+			  (updated.getCommentary() != null)
+					? updated.getCommentary()
+					: rpt.getCommentary()
 		);
 		return repRepo.save(rpt);
 	}
