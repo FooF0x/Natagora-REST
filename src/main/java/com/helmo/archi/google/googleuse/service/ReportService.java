@@ -51,6 +51,21 @@ public class ReportService implements BasicService<Report, Long> {
 					? updated.getCommentary()
 					: rpt.getCommentary()
 		);
+		rpt.setDate(
+			  (updated.getDate() != null)
+					? updated.getDate()
+					: rpt.getDate()
+		);
+		rpt.setUser(
+			  (updated.getUser() != null)
+					? updated.getUser()
+					: rpt.getUser()
+		);
+		rpt.setObservation(
+			  (updated.getObservation() != null)
+					? updated.getObservation()
+					: rpt.getObservation()
+		);
 		return repRepo.save(rpt);
 	}
 	

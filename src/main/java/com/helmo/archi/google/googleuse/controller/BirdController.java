@@ -16,11 +16,9 @@ import java.util.Set;
 public class BirdController {
 	
 	private final BirdService brdSrv;
-	private final NextSequenceService nextSeq;
 	
-	public BirdController(BirdService brdSrv, NextSequenceService nxtSeq) {
+	public BirdController(BirdService brdSrv) {
 		this.brdSrv = brdSrv;
-		this.nextSeq = nxtSeq;
 	}
 	
 	@GetMapping
@@ -38,7 +36,6 @@ public class BirdController {
 	@PostMapping
 	@Secured("ROLE_ADMIN")
 	public void postBird(@RequestBody Bird bird) {
-		bird.setId(nextSeq.getNextSequence("birds"));
 		brdSrv.create(bird);
 	}
 	

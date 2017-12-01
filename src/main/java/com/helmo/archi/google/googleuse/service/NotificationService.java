@@ -3,6 +3,7 @@ package com.helmo.archi.google.googleuse.service;
 import com.helmo.archi.google.googleuse.model.Notification;
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.repository.NotificationRepository;
+import com.helmo.archi.google.googleuse.tools.Time;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -28,7 +29,15 @@ public class NotificationService implements BasicService<Notification, Long> {
 	}
 	
 	@Override
-	public Notification create(Notification notif) {
+	public Notification create(Notification toAdd) {
+		Notification notif = new Notification();
+		notif.setCaption(toAdd.getCaption());
+		notif.setDescription(toAdd.getDescription());
+		notif.setDate(toAdd.getDate() != null
+			  ? toAdd.getDate()
+			  : Time.getTime());
+		notif.setStatus(toAdd.isStatus());
+		notif.setObservation(toAdd.getObservation());
 		return notRepo.save(notif);
 	}
 	

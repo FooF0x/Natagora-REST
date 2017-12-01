@@ -3,10 +3,10 @@ package com.helmo.archi.google.googleuse.service;
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import com.helmo.archi.google.googleuse.repository.ObservationRepository;
+import com.helmo.archi.google.googleuse.tools.Time;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -39,15 +39,24 @@ public class ObservationService implements BasicService<Observation, Long> {
 	@Override
 	public Observation create(Observation obs) {
 		Observation two = new Observation();
-		two.setDateTime(new Timestamp(new Date().getTime()));
 		
 		two.setLatitude(obs.getLatitude());
 		two.setLongitude(obs.getLongitude());
-		two.setAnalyseResult(obs.getAnalyseResult());
 		two.setBirdId(obs.getBirdId());
 		two.setMediaType(obs.getMediaType());
 		two.setNbrObs(obs.getNbrObs());
-		two.setOnlinePath(obs.getOnlinePath());
+		two.setDateTime(
+			  obs.getDateTime() != null
+					? obs.getDateTime()
+					: Time.getTime());
+		two.setAnalyseResult(
+			  obs.getAnalyseResult() != null
+					? obs.getAnalyseResult()
+					: "");
+		two.setOnlinePath(
+			  obs.getOnlinePath() != null
+					? obs.getOnlinePath()
+					: "");
 		two.setValidation(obs.isValidation());
 		two.setSession(obs.getSession());
 		
@@ -55,8 +64,45 @@ public class ObservationService implements BasicService<Observation, Long> {
 	}
 	
 	@Override
-	public Observation update(Observation observation) {
-		return null;
+	public Observation update(Observation obs) {
+		Observation original = obsRepo.findOne(obs.getId());
+		
+		original.setBirdId(obs.getBirdId());
+		original.setNbrObs(obs.getNbrObs());
+		original.setValidation(obs.isValidation());
+		original.setLongitude(
+			  obs.getLongitude() != null
+					? obs.getLongitude()
+					: original.getLongitude());
+		original.setLatitude(
+			  obs.getLatitude() != null
+					? obs.getLatitude()
+					: original.getLatitude());
+		original.setDateTime(
+			  obs.getDateTime() != null
+					? obs.getDateTime()
+					: original.getDateTime());
+		original.setOnlinePath(
+			  obs.getOnlinePath() != null
+					? obs.getOnlinePath()
+					: original.getOnlinePath());
+		original.setAnalyseResult(
+			  obs.getAnalyseResult() != null
+					? obs.getAnalyseResult()
+					: original.getAnalyseResult());
+		original.setBird(
+			  obs.getBird() != null
+					? obs.getBird()
+					: original.getBird());
+		original.setMediaType(
+			  obs.getMediaType() != null
+					? obs.getMediaType()
+					: original.getMediaType());
+		original.setSession(
+			  obs.getSession() != null
+					? obs.getSession()
+					: original.getSession());
+		return obsRepo.save(original);
 	}
 	
 	@Override
@@ -66,9 +112,11 @@ public class ObservationService implements BasicService<Observation, Long> {
 	
 	@Override
 	public void delete(Observation... observations) {
+		obsRepo.delete(Arrays.asList(observations));
 	}
 	
 	@Override
 	public void delete(Observation observation) {
+		obsRepo.delete(observation);
 	}
 }

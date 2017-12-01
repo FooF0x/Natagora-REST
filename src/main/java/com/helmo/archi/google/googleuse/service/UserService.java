@@ -40,7 +40,7 @@ public class UserService implements BasicService<User, Long> {
 		two.setAdmin(usr.isAdmin());
 		two.setPassword(passEnc.encode(usr.getPassword()));
 		two.setOnlinePath(
-			  usr.getOnlinePath() != null
+			  (usr.getOnlinePath() != null)
 					? usr.getOnlinePath()
 					: env.getProperty("helmo.storage.defaultPic.onlineLocation"));
 		two.setRoles(usr.getRoles());

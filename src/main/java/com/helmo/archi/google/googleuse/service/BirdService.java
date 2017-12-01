@@ -11,9 +11,11 @@ import java.util.List;
 public class BirdService implements BasicService<Bird, Long> {
 	
 	private final BirdRepository brdRepo;
+	private final NextSequenceService nextSeq;
 	
-	public BirdService(BirdRepository brdRepo) {
+	public BirdService(BirdRepository brdRepo, NextSequenceService nextSeq) {
 		this.brdRepo = brdRepo;
+		this.nextSeq = nextSeq;
 	}
 	
 	@Override
@@ -27,13 +29,30 @@ public class BirdService implements BasicService<Bird, Long> {
 	}
 	
 	@Override
-	public Bird create(Bird bird) {
+	public Bird create(Bird toSave) {
+		Bird bird = toSave.getAddable();
+		bird.setId(nextSeq.getNextSequence("birds"));
 		return brdRepo.insert(bird);
 	}
 	
-	public Bird update(Bird bird) {
-		brdRepo.delete(bird.getId());
-		return brdRepo.insert(bird);
+	public Bird update(Bird toUpdate) {
+		Bird bird = brdRepo.findOne(toUpdate.getId());
+		
+		bird.setName(toUpdate.getName() != null
+			  ? toUpdate.getName()
+			  : bird.getName());
+		bird.setDescription(toUpdate.getDescription() != null
+			  ? toUpdate.getDescription()
+			  : bird.getDescription());
+		bird.setData(toUpdate.getData() != null
+			  ? toUpdate.getData()
+			  : bird.getData());
+		bird.setPicture(toUpdate.getPicture() != null
+			  ? toUpdate.getPicture()
+			  : bird.getPicture());
+		
+		brdRepo.delete(toUpdate.getId());
+		return brdRepo.insert(toUpdate);
 	}
 	
 	@Override
