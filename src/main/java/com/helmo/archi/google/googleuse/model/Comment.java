@@ -8,9 +8,10 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "comments")
-@Getter @Setter
+@Getter
+@Setter
 public class Comment extends IdentifiedModel {
-
+	
 	@Column(name = "commentary")
 	private String commentary;
 	
@@ -25,5 +26,6 @@ public class Comment extends IdentifiedModel {
 	@ManyToOne(targetEntity = Observation.class)
 	private Observation observation;
 	
-	public Comment() {}
+	public Comment() {
+	}
 }

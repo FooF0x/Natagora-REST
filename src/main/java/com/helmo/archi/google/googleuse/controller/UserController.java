@@ -42,7 +42,7 @@ public class UserController implements BasicController<User> {
 	public List<User> create(@RequestBody User... users) {
 		return null;
 	}
-	
+
 //	@Override
 //	@PutMapping
 //	@Secured("ROLE_USER")
@@ -59,7 +59,7 @@ public class UserController implements BasicController<User> {
 	@PutMapping
 	public List<User> update(@RequestBody User... users) {
 		List<User> rtn = new ArrayList<>();
-		for(User usr : users)
+		for (User usr : users)
 			if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
 				rtn.add(usrSrv.update(usr));
 		return rtn;
@@ -71,7 +71,7 @@ public class UserController implements BasicController<User> {
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		if (checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-
+		
 		usrSrv.deleteById(id);
 		return ResponseEntity.ok(null);
 	}
@@ -79,7 +79,7 @@ public class UserController implements BasicController<User> {
 	@Override
 	@DeleteMapping
 	public ResponseEntity delete(@RequestBody User... users) {
-		for(User usr : users) {
+		for (User usr : users) {
 			if (checkAdmin(usr)) //SuperAdmin and System can't be changed
 				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 			
@@ -90,11 +90,12 @@ public class UserController implements BasicController<User> {
 	
 	/**
 	 * Check weather a user is simple or admin.
+	 *
 	 * @param usr The user you wanna check
 	 * @return <code>TRUE</code> if is admin or system user
 	 */
 	private boolean checkAdmin(User usr) {
 		return usr != null &&
-			  (usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
+				(usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
 	}
 }

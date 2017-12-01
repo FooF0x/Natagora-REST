@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class CommentService implements BasicService<Comment, Long> {
-
+	
 	private final CommentRepository cmtRepo;
 	
 	public CommentService(CommentRepository cmtRepo) {

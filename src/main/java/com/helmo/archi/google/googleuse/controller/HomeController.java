@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/")
 public class HomeController {
-
+	
 	@GetMapping
 	public String index() { //TODO Define a Hello page
 		return "<p>Hello</p>" +

@@ -8,9 +8,10 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "notifications")
-@Getter @Setter
+@Getter
+@Setter
 public class Notification extends IdentifiedModel {
-
+	
 	@Column(name = "caption")
 	private String caption;
 	
@@ -29,5 +30,6 @@ public class Notification extends IdentifiedModel {
 			cascade = CascadeType.REMOVE)
 	private Observation observation;
 	
-	public Notification() {}
+	public Notification() {
+	}
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/comments")
 public class CommentController implements BasicController<Comment> {
-
+	
 	private final CommentService cmtSrv;
 	
 	public CommentController(CommentService cmtSrv) {

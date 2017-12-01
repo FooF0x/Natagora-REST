@@ -8,9 +8,10 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "passwords")
-@Getter @Setter
+@Getter
+@Setter
 public class Password extends IdentifiedModel {
-
+	
 	@Column(name = "content")
 	private String content;
 	
@@ -21,7 +22,8 @@ public class Password extends IdentifiedModel {
 	@ManyToOne(targetEntity = User.class)
 	private User user;
 	
-	public Password() { }
+	public Password() {
+	}
 	
 	public Password(String password, Timestamp time, User user) {
 		this.content = password;

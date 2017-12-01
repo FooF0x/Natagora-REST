@@ -9,6 +9,7 @@ public interface BasicController<Model> {
 	
 	@GetMapping
 	List<Model> getAll();
+	
 	@GetMapping("/{id}")
 	Model getOne(@PathVariable("id") long id);
 	
@@ -20,6 +21,7 @@ public interface BasicController<Model> {
 	
 	@DeleteMapping("/{id}")
 	ResponseEntity deleteOne(@PathVariable("id") long id);
+	
 	@DeleteMapping
 	ResponseEntity delete(@RequestBody Model... models);
 }

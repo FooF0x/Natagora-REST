@@ -11,14 +11,14 @@ import java.util.List;
 
 @Service
 public class SessionService implements BasicService<Session, Long> {
-
+	
 	private final SessionRepository sesRepo;
-
-
+	
+	
 	public SessionService(SessionRepository sesRepo) {
 		this.sesRepo = sesRepo;
 	}
-
+	
 	@Override
 	public List<Session> getAll() {
 		return sesRepo.findAll();

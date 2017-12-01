@@ -13,13 +13,13 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Service
 public class NextSequenceService {
-	@Autowired private MongoOperations mongo;
+	@Autowired
+	private MongoOperations mongo;
 	
-	public int getNextSequence(String seqName)
-	{
+	public int getNextSequence(String seqName) {
 		CustomSequences counter = mongo.findAndModify(
 				query(where("_id").is(seqName)),
-				new Update().inc("seq",1),
+				new Update().inc("seq", 1),
 				options().returnNew(true).upsert(true),
 				CustomSequences.class);
 		return counter.getSeq();

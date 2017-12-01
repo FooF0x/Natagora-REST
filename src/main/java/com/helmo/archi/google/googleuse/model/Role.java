@@ -9,8 +9,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "roles")
-@Getter @Setter
-public class Role extends IdentifiedModel{
+@Getter
+@Setter
+public class Role extends IdentifiedModel {
 	
 	@Column(name = "name")
 	private String name;
@@ -18,7 +19,8 @@ public class Role extends IdentifiedModel{
 	@Column(name = "description")
 	private String description;
 	
-	public Role() {}
+	public Role() {
+	}
 	
 	public Role(String name, String desc) {
 		this.name = name;

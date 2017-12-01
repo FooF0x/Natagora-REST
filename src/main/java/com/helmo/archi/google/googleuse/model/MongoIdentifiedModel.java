@@ -10,7 +10,8 @@ import javax.persistence.GenerationType;
 public abstract class MongoIdentifiedModel {
 	
 	@Id
-	@Getter @Setter
+	@Getter
+	@Setter
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	

@@ -21,7 +21,7 @@ import java.util.List;
 public class GoogleStorage { //TODO Work with path not strings
 	
 	private final Storage storage;
-//	@Value("${google.storage.bucketName}")
+	//	@Value("${google.storage.bucketName}")
 	private String bucketName;
 	
 	public GoogleStorage() {
@@ -33,12 +33,12 @@ public class GoogleStorage { //TODO Work with path not strings
 	}
 	
 	public void uploadPicture(String path, String onlinePath, String ext) throws IOException {
-		if(isASubfolder(onlinePath)) createTreeFolder(onlinePath);
+		if (isASubfolder(onlinePath)) createTreeFolder(onlinePath);
 		uploadMedia(path, formatToOnlinePath(onlinePath), "image/" + ext);
 	}
 	
 	public void uploadVideoMP4(String path, String onlinePath) throws IOException {
-		if(isASubfolder(onlinePath)) createTreeFolder(onlinePath);
+		if (isASubfolder(onlinePath)) createTreeFolder(onlinePath);
 		uploadMedia(path, formatToOnlinePath(onlinePath), "video/mp4");
 	}
 	
@@ -58,7 +58,7 @@ public class GoogleStorage { //TODO Work with path not strings
 				.newBuilder(blobId)
 				.setContentType("Folder/folder")
 				.build();
-		storage.create(blobInfo,new  byte[0]);
+		storage.create(blobInfo, new byte[0]);
 	}
 	
 	private void uploadContent(Path uploadFrom, BlobInfo blobInfo) throws IOException {
@@ -89,7 +89,7 @@ public class GoogleStorage { //TODO Work with path not strings
 		path = formatToOnlinePath(path);
 		String[] tree = path.split("/");
 		String temp = "";
-		for(int i=0; i<tree.length-1; i++) {
+		for (int i = 0; i < tree.length - 1; i++) {
 			temp += tree[i];
 			uploadFolder(bucketName, temp);
 		}
@@ -107,7 +107,7 @@ public class GoogleStorage { //TODO Work with path not strings
 		
 		if (blob.getSize() < 1_000_000) {
 			// Blob is small read all its content in one request
-			 return blob.getContent();
+			return blob.getContent();
 		} else {
 			// When Blob size is big or unknown use the blob's channel reader.
 			try (ReadChannel reader = blob.reader()) {
@@ -116,12 +116,12 @@ public class GoogleStorage { //TODO Work with path not strings
 				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
 				while (reader.read(bytes) > 0) {
 					bytes.flip();
-					for(byte tmp : bytes.array())
+					for (byte tmp : bytes.array())
 						content.add(tmp);
 					bytes.clear();
 				}
 				rtn = new byte[content.size()];
-				for(int i = 0; i < rtn.length; i++)
+				for (int i = 0; i < rtn.length; i++)
 					rtn[i] = content.get(i);
 			}
 		}

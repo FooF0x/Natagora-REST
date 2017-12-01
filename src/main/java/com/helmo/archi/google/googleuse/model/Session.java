@@ -9,8 +9,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "sessions")
-@Getter @Setter
-public class Session extends IdentifiedModel{
+@Getter
+@Setter
+public class Session extends IdentifiedModel {
 	
 	@Column(name = "name")
 	private String name;
@@ -27,13 +28,14 @@ public class Session extends IdentifiedModel{
 	private String longitude;
 	
 	@OneToMany(cascade = {CascadeType.PERSIST},
-		mappedBy = "session")
+			mappedBy = "session")
 	private List<Observation> observations;
-
+	
 	@JoinColumn(name = "id_user")
 	@ManyToOne(targetEntity = User.class)
 	private User user;
 	
-	public Session() {}
+	public Session() {
+	}
 	
 }

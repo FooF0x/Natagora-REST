@@ -22,7 +22,7 @@ import java.util.List;
 
 @SpringBootApplication
 public class GoogleUseApplication extends SpringBootServletInitializer {
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(GoogleUseApplication.class, args);
 	}
@@ -54,7 +54,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 					roleRepo.findOneByName("ROLE_SYSTEM"),
 					roleRepo.findOneByName("ROLE_USER"));
 			
-			if(usrRepo.findByEmail("user@nat.be") == null) { //TODO Remove for production
+			if (usrRepo.findByEmail("user@nat.be") == null) { //TODO Remove for production
 				usrRepo.save(new User(
 						"user",
 						"user@nat.be",
@@ -72,7 +72,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	}
 	
 	private void checkStorageIntegrity(GoogleStorage storage, Environment env) {
-		if(!storage.exist(env.getProperty("storage.defaultPic.onlineLocation")))  //TODO Not ok
+		if (!storage.exist(env.getProperty("storage.defaultPic.onlineLocation")))  //TODO Not ok
 			try {
 				storage.uploadPicture(
 						"/pics/defaultPic.png",
@@ -86,14 +86,14 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	
 	private void checkManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
 		User usr = usrRepo.findByEmail(env.getProperty("user." + type + ".email")); //TODO Improve
-		if(checkAdminIntegrity(usr, env, passEnc, roleRepo))
+		if (checkAdminIntegrity(usr, env, passEnc, roleRepo))
 			if (usr != null)
 				usrRepo.delete(usr);
 		addManagementUser(type, admin, usrRepo, roleRepo, env, passEnc, roles);
 	}
 	
 	private void addManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
-		if(usrRepo.findByEmail(env.getProperty("user." + type + ".email")) == null)
+		if (usrRepo.findByEmail(env.getProperty("user." + type + ".email")) == null)
 			usrRepo.save(new User(
 					env.getProperty("user." + type + ".name"),
 					env.getProperty("user." + type + ".email"),
@@ -125,24 +125,24 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 				&& !usr.isAdmin()
 				&& usr.getRoles().contains(roleRepo.findOneByName("ROLE_SYSTEM"))
 				&& usr.getRoles().contains(roleRepo.findOneByName("ROLE_USER"));
-				
+		
 	}
 	
 	private void checkRolesIntegrity(RoleRepository roleRepo) {
 		List<Role> roles = new ArrayList<>();
-		if(roleRepo.findOneByName("ROLE_ADMIN") == null) {
+		if (roleRepo.findOneByName("ROLE_ADMIN") == null) {
 			Role adm = new Role();
 			adm.setName("ROLE_ADMIN");
 			adm.setDescription("Natagora's Administrator");
 			roles.add(adm);
 		}
-		if(roleRepo.findOneByName("ROLE_SYSTEM") == null) {
+		if (roleRepo.findOneByName("ROLE_SYSTEM") == null) {
 			Role sys = new Role();
 			sys.setName("ROLE_SYSTEM");
 			sys.setDescription("Allow a non human user to do some actions");
 			roles.add(sys);
 		}
-		if(roleRepo.findOneByName("ROLE_USER") == null) {
+		if (roleRepo.findOneByName("ROLE_USER") == null) {
 			Role usr = new Role();
 			usr.setName("ROLE_USER");
 			usr.setDescription("Simple user");

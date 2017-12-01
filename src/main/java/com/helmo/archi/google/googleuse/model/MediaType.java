@@ -9,11 +9,13 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "media_types")
-@Getter @Setter
+@Getter
+@Setter
 public class MediaType extends IdentifiedModel {
-
+	
 	@Column(name = "name")
 	private String name;
 	
-	public MediaType() {}
+	public MediaType() {
+	}
 }

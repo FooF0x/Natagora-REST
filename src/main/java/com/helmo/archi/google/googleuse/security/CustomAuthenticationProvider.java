@@ -37,10 +37,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		if (usr != null && passEnc.matches(password, usr.getPassword())) {
 			
 			List<GrantedAuthority> auths = new ArrayList<>();
-			for(Role role : usr.getRoles()) {
+			for (Role role : usr.getRoles()) {
 				auths.add(new SimpleGrantedAuthority(role.getName()));
 			}
-			if(usr.isAdmin() && !auths.contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+			if (usr.isAdmin() && !auths.contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
 				auths.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 			
 			// use the credentials

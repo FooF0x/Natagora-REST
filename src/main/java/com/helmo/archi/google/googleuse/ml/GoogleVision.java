@@ -106,7 +106,7 @@ public class GoogleVision {
 			
 			for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
 				for (Map.Entry<Descriptors.FieldDescriptor, Object> entry : annotation.getAllFields().entrySet()) {
-					if(entry.getKey().toString().contains("description")) temp = entry.getValue().toString();
+					if (entry.getKey().toString().contains("description")) temp = entry.getValue().toString();
 					else if (entry.getKey().toString().contains("score")) {
 						labels.put(temp, entry.getValue().toString());
 					}

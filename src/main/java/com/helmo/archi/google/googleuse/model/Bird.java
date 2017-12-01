@@ -35,8 +35,8 @@ public class Bird extends MongoIdentifiedModel {
 	@Override
 	public String toString() {
 		return String.format(
-			  "BIRD [id=%s, name=%s ]\n\t[Data : %d]\n\t[Picture : %d]\n\t[Multiple : %d]",
-			  getId(), name, data.size(), picture.size(), multiple.size()
+				"BIRD [id=%s, name=%s ]\n\t[Data : %d]\n\t[Picture : %d]\n\t[Multiple : %d]",
+				getId(), name, data.size(), picture.size(), multiple.size()
 		);
 	}
 }

@@ -21,9 +21,10 @@ public class NotificationBuilder {
 	
 	/**
 	 * Return a notification with actual timestamp and status as false.
-	 * @param caption The caption of the notification.
+	 *
+	 * @param caption     The caption of the notification.
 	 * @param description The description of the notification.
-	 * @param obs The observation link with the notification.
+	 * @param obs         The observation link with the notification.
 	 * @return A notification.
 	 */
 	public static Notification getDefaultNotification(

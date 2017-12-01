@@ -21,6 +21,7 @@ public class GoogleTranslate {
 	public String simpleTranslateInEN(String input) {
 		return translate.translate(input).getTranslatedText();
 	}
+	
 	public String simpleTranslateFromENToFR(String input) {
 		return translate.translate(input,
 				TranslateOption.sourceLanguage("en"),

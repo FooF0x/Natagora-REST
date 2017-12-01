@@ -61,7 +61,7 @@ public class ObservationController implements BasicController<Observation> {
 		List<Observation> rtn = new ArrayList<>();
 		Observation added;
 		try {
-			for(Observation obs : observs) {
+			for (Observation obs : observs) {
 				SafeSearchAnnotation safe = vision.safeSearchAnalyse(
 						obs.getOnlinePath());
 				obs.setAnalyseResult(safe.toString());

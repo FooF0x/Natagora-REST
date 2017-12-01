@@ -10,7 +10,8 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "observations")
-@Getter @Setter
+@Getter
+@Setter
 public class Observation extends IdentifiedModel {
 	
 	@Column(name = "latitude")
@@ -53,5 +54,6 @@ public class Observation extends IdentifiedModel {
 	@Transient
 	private Bird bird;
 	
-	public Observation() {}
+	public Observation() {
+	}
 }

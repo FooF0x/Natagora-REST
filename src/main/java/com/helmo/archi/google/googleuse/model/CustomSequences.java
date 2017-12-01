@@ -6,7 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "customSequences")
-@Getter @Setter
+@Getter
+@Setter
 public class CustomSequences {
 	@Id
 	private String id;

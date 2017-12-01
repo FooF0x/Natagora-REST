@@ -11,8 +11,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@Getter
+@Setter
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User extends IdentifiedModel {
 	
 	@Column(name = "full_name")
@@ -30,17 +31,17 @@ public class User extends IdentifiedModel {
 	@Column(name = "pic_path")
 	private String onlinePath;
 	
-	@ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.DETACH)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
 	@JoinTable(
 			name = "user_role",
-			joinColumns=@JoinColumn(name="id_user"),
-			inverseJoinColumns=@JoinColumn(name="id_role"))
+			joinColumns = @JoinColumn(name = "id_user"),
+			inverseJoinColumns = @JoinColumn(name = "id_role"))
 	private List<Role> roles;
 	
 	@OneToMany(cascade = {CascadeType.PERSIST},
 			mappedBy = "user")
 	private List<Session> sessions;
-	
+
 //	@JoinColumn(name = "last_used")
 //	@OneToMany(targetEntity = Password.class)
 //	@JsonIgnore
@@ -49,7 +50,8 @@ public class User extends IdentifiedModel {
 	@Column(name = "password")
 	private String password;
 	
-	public User() {}
+	public User() {
+	}
 	
 	public User(String fullName, String email, String pass, boolean admin, String onlinePath, List<Role> roles) {
 		this.fullName = fullName;
