@@ -4,16 +4,18 @@ import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.model.BirdFinder;
 import com.helmo.archi.google.googleuse.service.BirdService;
 import com.helmo.archi.google.googleuse.service.NextSequenceService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/birds")
-public class BirdController {
+public class BirdController implements BasicController<Bird> {
 	
 	private final BirdService brdSrv;
 	
@@ -21,34 +23,48 @@ public class BirdController {
 		this.brdSrv = brdSrv;
 	}
 	
+	@Override
 	@GetMapping
 	@Secured("ROLE_USER")
-	public List<Bird> getBird() {
+	public List<Bird> getAll() {
 		return brdSrv.getAll();
 	}
 	
+	@Override
 	@GetMapping("/{id}")
 	@Secured("ROLE_USER")
-	public Bird getSingleBird(@PathVariable("id") long id) {
+	public Bird getOne(@PathVariable("id") long id) {
 		return brdSrv.getById(id);
 	}
 	
+	@Override
 	@PostMapping
 	@Secured("ROLE_ADMIN")
-	public void postBird(@RequestBody Bird bird) {
-		brdSrv.create(bird);
+	public List<Bird> create(@RequestBody Bird... bird) {
+		return brdSrv.create(bird);
 	}
 	
+	@Override
 	@PutMapping
 	@Secured("ROLE_ADMIN")
-	public void updateBird(@RequestBody Bird bird) {
-		brdSrv.update(bird);
+	public List<Bird> update(@RequestBody Bird... bird) {
+		return brdSrv.update(bird);
 	}
 	
+	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_ADMIN")
-	public void deleteBird(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		brdSrv.deleteById(id);
+		return ResponseEntity.ok().build();
+	}
+	
+	@Override
+	@DeleteMapping
+	@Secured("ROLE_ADMIN")
+	public ResponseEntity delete(Bird... birds) {
+		brdSrv.delete(birds);
+		return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/helper")
@@ -59,7 +75,15 @@ public class BirdController {
 		for (String key : seed.getSingle().keySet())
 			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getSingle().get(key)));
 		return rtn;
-		
+	}
+	
+	@GetMapping("/values/names")
+	@Secured("ROLE_USER")
+	public List<String> getNames() {
+		List<String> values = new ArrayList<>();
+		for(Bird brd : brdSrv.getAll())
+			values.add(brd.getName());
+		return values;
 	}
 	
 	private void trash() {

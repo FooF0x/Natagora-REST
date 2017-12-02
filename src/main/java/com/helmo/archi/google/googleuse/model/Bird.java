@@ -13,7 +13,7 @@ import java.util.Map;
 @Document(collection = "birds")
 @Getter
 @Setter
-public class Bird extends MongoIdentifiedModel implements AddableModel<Bird> {
+public class Bird extends MongoIdentifiedModel {
 	
 	@Indexed(unique = true)
 	private String name;
@@ -26,19 +26,9 @@ public class Bird extends MongoIdentifiedModel implements AddableModel<Bird> {
 	}
 	
 	@Override
-	public Bird getAddable() {
-		Bird bird = new Bird();
-		bird.setName(this.name);
-		bird.setDescription(this.description);
-		bird.setData(this.data);
-		bird.setPicture(this.picture);
-		return bird;
-	}
-	
-	@Override
 	public String toString() {
 		return String.format(
-			  "BIRD [id=%s, name=%s ]\n\t[Picture : %d]\n\t[Multiple : %d]",
+			  "BIRD [id=%s, name=%s ]\n\t[Picture : %d]\n\t[Data : %d]",
 			  getId(), name, picture.size(), data.size()
 		);
 	}
