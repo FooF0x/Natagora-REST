@@ -79,26 +79,30 @@ public class BirdService implements BasicService<Bird, Long> {
 		brdRepo.delete(bird);
 	}
 	
-	public List<Bird> findAllByArgs(String key, String args) {
-		Query findQuery = new Query();
-		Criteria findCriteria =  Criteria.where("data." + key).is(args);
-		findQuery.addCriteria(findCriteria);
-		List<Bird> birds = monqoTemplate.find(findQuery, Bird.class);
-		
-		return birds;
-//		List<Team> teams = mongoTemplate.find(findQuery, Team.class);
-	}
-	
 	public List<Bird> findSingleByArgs(String key, String item) {
 		return findAllByArgs(key, item);
 	}
 	
 	public List<Bird> findSingleByArgs(String key, double item) {
-		return null;
+		return findAllByArgs(key, item);
 	}
 	
 	public List<Bird> findSingleByArgs(String key, long item) {
-		return null;
+		return findAllByArgs(key, item);
+	}
+	
+	public List<Bird> findAllByArgs(String key, String args) {
+		Query findQuery = new Query();
+		findQuery.addCriteria(Criteria.where("data." + key).is(args));
+		return monqoTemplate.find(findQuery, Bird.class);
+	}
+	
+	public List<Bird> findAllByArgs(String key, double args) {
+		Query findQuery = new Query();
+		findQuery.addCriteria(Criteria.where("data." + key)
+			  .gte(args - args * 0.5)
+			  .lt(args + args * 1.5));
+		return monqoTemplate.find(findQuery, Bird.class);
 	}
 
 //	public <X extends java.lang> List<Bird> findSingleByArgs(String key, X item) {

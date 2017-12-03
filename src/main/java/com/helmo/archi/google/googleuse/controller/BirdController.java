@@ -2,16 +2,13 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.model.BirdFinder;
+import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.service.BirdService;
-import com.helmo.archi.google.googleuse.service.NextSequenceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/birds")
@@ -67,135 +64,136 @@ public class BirdController implements BasicController<Bird> {
 		return ResponseEntity.ok().build();
 	}
 	
+//	@PostMapping("/helper")
+//	@Secured("ROLE_USER")
+//	public Set<Bird> birdHelper(@RequestBody BirdFinder seed) {
+//		seed.processInput();
+//		Set<Bird> rtn = new HashSet<>();
+//		for (String key : seed.getStringItems().keySet())
+//			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getStringItems().get(key)));
+//		for (String key : seed.getLongItems().keySet())
+//			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getLongItems().get(key)));
+//		return rtn;
+//	}
+	
 	@PostMapping("/helper")
 	@Secured("ROLE_USER")
-	public Set<Bird> birdHelper(@RequestBody BirdFinder seed) {
+	public List<List<Object>> birdHelper(@RequestBody BirdFinder seed) {
 		seed.processInput();
-		Set<Bird> rtn = new HashSet<>();
-		for (String key : seed.getSingle().keySet())
-			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getSingle().get(key)));
-		return rtn;
+		Map<Bird, Double> rtn = new HashMap<>();
+		
+		//TODO Extract the database part in a stringItems method
+		Map<String, String> stringItems = seed.getStringItems(); //Original Seed
+		Map<String, List<Bird>> matchBirdString = new HashMap<>(); //Bird match the attribute
+		Map<String, Map<Bird, Double>> processString = new HashMap<>();
+		
+		for (String key : stringItems.keySet()) {
+			//Find birds inside Database
+			matchBirdString.put(key, brdSrv.findSingleByArgs(key, stringItems.get(key)));
+			
+			double maxScore = 0;
+			Map<Bird, Double> birdScore = new HashMap<>();
+			for (Bird tempBird : matchBirdString.get(key)) { //For all the birds found for this value
+				if (birdScore.containsKey(tempBird)) { //If already found
+					Double current = birdScore.get(tempBird); //Get its score
+					birdScore.replace(tempBird, current, ++current); //Its score +1
+				} else  //If first time
+					birdScore.put(tempBird, 1.0); //Create with one as score
+				
+				if (birdScore.get(tempBird) > maxScore) //Define max score
+					maxScore = birdScore.get(tempBird);
+			}
+			processString.put(key, birdScore);
+		}
+		
+		//TODO Extract the database part in a stringItems method
+		Map<String, Long> longItems = seed.getLongItems(); //Original Seed
+		Map<String, List<Bird>> matchBirdLong = new HashMap<>(); //Bird match the attribute
+		Map<String, Map<Bird, Double>> processLong = new HashMap<>();
+		for (String key : longItems.keySet()) {
+			long searchValue = longItems.get(key);
+			//Find birds inside Database
+			matchBirdLong.put(key, brdSrv.findSingleByArgs(key, longItems.get(key)));
+			
+			processBird(key, searchValue, matchBirdLong, processLong);
+			
+		}
+		
+		//TODO Extract the database part in a stringItems method
+		Map<String, Double> doubleItems = seed.getDoubleItems(); //Original Seed
+		Map<String, List<Bird>> matchBirdDouble = new HashMap<>(); //Bird match the attribute
+		Map<String, Map<Bird, Double>> processDouble = new HashMap<>();
+		
+		for (String key : doubleItems.keySet()) {
+			double searchValue = doubleItems.get(key);
+			//Find birds inside Database
+			matchBirdDouble.put(key, brdSrv.findSingleByArgs(key, doubleItems.get(key)));
+			
+			processBird(key, searchValue, matchBirdDouble, processDouble);
+		}
+		
+		Map<Bird, Double> fullScore = new HashMap<>();
+		double maxValue = 0;
+		maxValue = processFinalMap(maxValue, processString, fullScore);
+		maxValue = processFinalMap(maxValue, processLong, fullScore);
+		maxValue = processFinalMap(maxValue, processDouble, fullScore);
+		
+//		Map<Bird, Double> finalScore = new HashMap<>();
+		List<List<Object>> finalScore = new ArrayList<>();
+		for(Bird brd : fullScore.keySet()) {
+			List<Object> temp = new ArrayList<>(
+				  Arrays.asList(fullScore.get(brd) / maxValue, brd));
+			finalScore.add(temp);
+		}
+		return finalScore;
 	}
 	
 	@GetMapping("/values/names")
 	@Secured("ROLE_USER")
 	public List<String> getNames() {
 		List<String> values = new ArrayList<>();
-		for(Bird brd : brdSrv.getAll())
+		for (Bird brd : brdSrv.getAll())
 			values.add(brd.getName());
 		return values;
 	}
 	
-	private void trash() {
-//		Map<Bird, Double> rtn = new HashMap<>();
-//
-//		//TODO Extract the database part in a single method
-//		Map<String, String> tempSingle = seed.getSingle(); //Original Seed
-//		Map<String, List<Bird>> tempBirdsString = new HashMap<>(); //Bird match the attribute
-//		Map<String, Map<Bird, Double>> processString = new HashMap<>(); //
-//		for(String key : tempSingle.keySet()) {
-//			tempBirdsString.put(key, brdSrv.findSingleByArgs(key, tempSingle.get(key)));
-//			//TODO Process the result
-//			Map<Bird, Double> tempScore = new HashMap<>();
-//			for(String key2 : tempBirdsString.keySet()) {
-//				for(Bird tempBird : tempBirdsString.get(key2)) {
-//					if(tempScore.containsKey(tempBird)) {
-//						Double current = tempScore.get(tempBird);
-//						tempScore.replace(tempBird, current, ++current);
-//					} else {
-//						tempScore.put(tempBird, 1.0);
-//					}
-//				}
-//			}
-//			//Get the max
-//			double maxScore = 0;
-//			for (Bird tempBird : tempScore.keySet()) {
-//				if(tempScore.get(tempBird) > maxScore)
-//					maxScore = tempScore.get(tempBird);
-//			}
-//
-//			//Score x/1
-//			Map<Bird, Double> finalScore = new HashMap<>();
-//			for(Bird tempBird : tempScore.keySet()) {
-//				finalScore.put(tempBird, tempScore.get(tempBird) / maxScore);
-//			}
-//			processString.put(key, finalScore);
-//		}
-//		Map<String, Long> tempLong = seed.getLongItems();
-//		Map<String, List<Bird>> tempBirdsLong = new HashMap<>();
-//		Map<String, List<Map<Bird, Double>>> processLong = new HashMap<>();
-//		for(String key : tempLong.keySet()){
-//			tempBirdsLong.put(key, brdSrv.findSingleByArgs(key, tempSingle.get(key)));
-//			//TODO Process the result
-//			Map<Bird, Double> tempScore = new HashMap<>();
-//			for(String key2 : tempBirdsLong.keySet()) {
-//				for(Bird tempBird : tempBirdsString.get(key2)) {
-//					if(tempScore.containsKey(tempBird)) {
-//						Double current = tempScore.get(tempBird);
-//						tempScore.replace(tempBird, current, ++current);
-//					} else {
-//						tempScore.put(tempBird, 1.0);
-//					}
-//				}
-//			}
-//			//Get the max
-//			double maxScore = 0;
-//			for (Bird tempBird : tempScore.keySet()) {
-//				if(tempScore.get(tempBird) > maxScore)
-//					maxScore = tempScore.get(tempBird);
-//			}
-//
-//			//Score x/1
-//			Map<Bird, Double> finalScore = new HashMap<>();
-//			for(Bird tempBird : tempScore.keySet()) {
-//				finalScore.put(tempBird, tempScore.get(tempBird) / maxScore);
-//			}
-//			processString.put(key, finalScore);
-//		}
-//		Map<String, Double> tempDouble = seed.getDoubleItems();
-//		Map<String, List<Bird>> tempBirdsDouble = new HashMap<>();
-//		Map<String, List<Map<Bird, Double>>> processDouble = new HashMap<>();
-//		for(String key : tempDouble.keySet()){
-//			tempBirdsDouble.put(key, brdSrv.findSingleByArgs(key, tempSingle.get(key)));
-//			//TODO Process the result
-//		}
-//
-//		//TODO Process the maps
-	
+	private void processBird(String key, double searchValue, Map<String, List<Bird>> matchBirds, Map<String, Map<Bird, Double>> content) {
+		double maxScore = 0;
+		Map<Bird, Double> birdScore = new HashMap<>();
+		
+		for (Bird tempBird : matchBirds.get(key)) { //For all the birds found for this value
+			double ratio = (double) ((Number) tempBird.get(key).get(0)).longValue() / searchValue;
+			if(ratio > 1) ratio = 1 - (ratio % 1);
+			if (birdScore.containsKey(tempBird)) { //If already found
+				Double current = birdScore.get(tempBird); //Get its score
+				birdScore.replace(tempBird, current,
+					  current + ratio); //
+			} else  //If first time
+				birdScore.put(tempBird, ratio); //Create with one as score
+			
+			if (birdScore.get(tempBird) > maxScore) //Define max score
+				maxScore = birdScore.get(tempBird);
+		}
+		content.put(key, birdScore);
 	}
-
-//	<X extends java.lang> Map<String, Map<Bird, Double>> processAttribute(Map<String, X> seed) {
-//		Map<String, List<Bird>> birdsFound = new HashMap<>(); //Bird match the attribute
-//		Map<String, Map<Bird, Double>> process = new HashMap<>(); //
-//		for(String key : seed.keySet()) {
-//			birdsFound.put(key, brdSrv.<X>findSingleByArgs(key, seed.get(key)));
-//			//TODO Process the result
-//			Map<Bird, Double> tempScore = new HashMap<>();
-//			for(String key2 : birdsFound.keySet()) {
-//				for(Bird tempBird : birdsFound.get(key2)) {
-//					if(tempScore.containsKey(tempBird)) {
-//						Double current = tempScore.get(tempBird);
-//						tempScore.replace(tempBird, current, ++current);
-//					} else {
-//						tempScore.put(tempBird, 1.0);
-//					}
-//				}
-//			}
-//			//Get the max
-//			double maxScore = 0;
-//			for (Bird tempBird : tempScore.keySet()) {
-//				if(tempScore.get(tempBird) > maxScore)
-//					maxScore = tempScore.get(tempBird);
-//			}
-//
-//			//Score x/1
-//			Map<Bird, Double> finalScore = new HashMap<>();
-//			for(Bird tempBird : tempScore.keySet()) {
-//				finalScore.put(tempBird, tempScore.get(tempBird) / maxScore);
-//			}
-//			process.put(key, finalScore);
-//		}
-//
-//		return process;
-//	}
+	
+	private double processFinalMap(double maxValue, Map<String, Map<Bird, Double>> values, Map<Bird, Double> fullScore) {
+		for (String key : values.keySet()) { //For all the values
+			Map<Bird, Double> tempScore = values.get(key);
+			for (Bird brd : tempScore.keySet()) { //For all the bird in the value
+				Double replace;
+				if (fullScore.containsKey(brd)) {
+					Double current = fullScore.get(brd);
+					fullScore.replace(brd, current,
+						  replace = current + tempScore.get(brd));
+				} else {
+					fullScore.put(brd, replace = tempScore.get(brd));
+				}
+				
+				if (replace > maxValue)
+					maxValue = replace;
+			}
+		}
+		return maxValue;
+	}
 }

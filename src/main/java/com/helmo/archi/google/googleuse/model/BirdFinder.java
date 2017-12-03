@@ -3,6 +3,7 @@ package com.helmo.archi.google.googleuse.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 public class BirdFinder {
 	
 	//First Input
-	private Map<String, String> single;
+	private Map<String, String> stringItems;
 	private Map<String, List<String>> multiple;
 	
 	//Process Input
@@ -19,8 +20,10 @@ public class BirdFinder {
 	private Map<String, Double> doubleItems;
 	
 	public void processInput() {
-		for (String key : single.keySet()) {
-			String item = single.get(key);
+		if(longItems == null) longItems = new HashMap<>();
+		if(doubleItems == null) doubleItems = new HashMap<>();
+		for (String key : stringItems.keySet()) {
+			String item = stringItems.get(key);
 			if (isNumeric(item)) {
 				double temp = Double.parseDouble(item);
 				try {
@@ -29,7 +32,7 @@ public class BirdFinder {
 				} catch (Exception e) {
 					doubleItems.put(key, temp);
 				} finally {
-					single.remove(key);
+					stringItems.remove(key);
 				}
 			}
 		}

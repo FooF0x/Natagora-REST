@@ -20,9 +20,13 @@ public class Bird extends MongoIdentifiedModel {
 	private String description;
 	
 	private List<String> picture;
-	private Map<String, List<String>> data;
+	private Map<String, List<Object>> data;
 	
 	public Bird() {
+	}
+	
+	public List<Object> get(String key) {
+		return data.get(key);
 	}
 	
 	@Override
