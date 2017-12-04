@@ -106,25 +106,36 @@ public class ObservationController implements BasicController<Observation> {
 	}
 	
 	@Override
-	public List<Observation> update(Observation... observations) {
+	@PutMapping
+	public List<Observation> update(@RequestBody Observation... observations) {
 		return obsSrv.update(observations);
 	}
 	
 	@Override
-	public ResponseEntity delete(Observation... observations) {
-		return ResponseEntity.badRequest().build();
+	public ResponseEntity delete(@RequestBody Observation... observations) {
+		try {
+			for(Observation obs : observations)
+				deleteOne(obs.getId());
+			return ResponseEntity.ok().build();
+		} catch (Exception ex) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
-		Observation obs = obsSrv.getById(id);
-		repSrv.deleteByObservation(obs); //Delete all reports
-		cmtSrv.deleteByObservation(obs); //Delete all comments
-		notSrv.deleteByObservation(obs); //Delete all notifications
-		obsSrv.deleteById(id);
-		return ResponseEntity.badRequest().build();
+		try {
+			Observation obs = obsSrv.getById(id);
+			repSrv.deleteByObservation(obs); //Delete all reports
+			cmtSrv.deleteByObservation(obs); //Delete all comments
+			notSrv.deleteByObservation(obs); //Delete all notifications
+			obsSrv.deleteById(id);
+			return ResponseEntity.ok().build();
+		} catch (Exception ex) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 }
