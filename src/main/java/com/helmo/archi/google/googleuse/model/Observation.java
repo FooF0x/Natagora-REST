@@ -1,12 +1,16 @@
 package com.helmo.archi.google.googleuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.nio.file.Path;
 import java.sql.Timestamp;
+
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_WRITE;
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 @Entity
 @Table(name = "observations")
@@ -48,10 +52,11 @@ public class Observation extends IdentifiedModel {
 	private Session session;
 	
 	@Transient
-	@JsonIgnore
+	@JsonProperty(access =  WRITE_ONLY)
 	private Path localPath;
 	
 	@Transient
+	@JsonProperty(access =  READ_WRITE)
 	private Bird bird;
 	
 	public Observation() {

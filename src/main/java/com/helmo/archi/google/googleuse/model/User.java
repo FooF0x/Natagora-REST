@@ -1,6 +1,7 @@
 package com.helmo.archi.google.googleuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.*;
 
 @Entity
 @Table(name = "users")
@@ -48,6 +51,7 @@ public class User extends IdentifiedModel {
 //	private Password passwordData;
 	
 	@Column(name = "password")
+	@JsonProperty(access =  WRITE_ONLY)
 	private String password;
 	
 	public User() {

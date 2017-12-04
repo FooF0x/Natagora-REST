@@ -113,6 +113,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			  && usr.isAdmin()
 			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_ADMIN"))
 			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_SYSTEM"))
+			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_ANONYMOUS"))
 			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_USER"));
 	}
 	
@@ -124,6 +125,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			  && usr.getOnlinePath().equals(env.getProperty("helmo.storage.defaultPic.onlineLocation"))
 			  && !usr.isAdmin()
 			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_SYSTEM"))
+			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_ANONYMOUS"))
 			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_USER"));
 		
 	}
