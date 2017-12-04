@@ -119,10 +119,10 @@ public class ObservationController implements BasicController<Observation> {
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
-//		Observation obs = obsSrv.findOne(id);
-//		repSrv.deleteByObservation(obs); //Delete all reports
-//		cmtSrv.deleteByObservation(obs); //Delete all comments
-//		notSrv.deleteByObservation(obs); //Delete all notifications
+		Observation obs = obsSrv.getById(id);
+		repSrv.deleteByObservation(obs); //Delete all reports
+		cmtSrv.deleteByObservation(obs); //Delete all comments
+		notSrv.deleteByObservation(obs); //Delete all notifications
 		obsSrv.deleteById(id);
 		return ResponseEntity.badRequest().build();
 	}

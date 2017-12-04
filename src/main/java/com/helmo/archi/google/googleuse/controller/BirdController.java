@@ -64,18 +64,6 @@ public class BirdController implements BasicController<Bird> {
 		return ResponseEntity.ok().build();
 	}
 	
-//	@PostMapping("/helper")
-//	@Secured("ROLE_USER")
-//	public Set<Bird> birdHelper(@RequestBody BirdFinder seed) {
-//		seed.processInput();
-//		Set<Bird> rtn = new HashSet<>();
-//		for (String key : seed.getStringItems().keySet())
-//			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getStringItems().get(key)));
-//		for (String key : seed.getLongItems().keySet())
-//			rtn.addAll(brdSrv.findSingleByArgs(key, seed.getLongItems().get(key)));
-//		return rtn;
-//	}
-	
 	@PostMapping("/helper")
 	@Secured("ROLE_USER")
 	public List<List<Object>> birdHelper(@RequestBody BirdFinder seed) {
@@ -138,7 +126,6 @@ public class BirdController implements BasicController<Bird> {
 		maxValue = processFinalMap(maxValue, processLong, fullScore);
 		maxValue = processFinalMap(maxValue, processDouble, fullScore);
 		
-//		Map<Bird, Double> finalScore = new HashMap<>();
 		List<List<Object>> finalScore = new ArrayList<>();
 		for(Bird brd : fullScore.keySet()) {
 			List<Object> temp = new ArrayList<>(
