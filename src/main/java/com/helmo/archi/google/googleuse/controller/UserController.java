@@ -3,12 +3,14 @@ package com.helmo.archi.google.googleuse.controller;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.service.PasswordService;
 import com.helmo.archi.google.googleuse.service.UserService;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -16,47 +18,46 @@ import java.util.List;
 public class UserController implements BasicController<User> {
 	
 	private final UserService usrSrv;
-	private final PasswordService pwdSrv;
+	private final Environment env;
 	
-	public UserController(UserService usrSrv, PasswordService pwdSrv) {
+	private final List<User> superUsers; //SuperUsers in cache
+	
+	public UserController(UserService usrSrv, Environment env) {
 		this.usrSrv = usrSrv;
-		this.pwdSrv = pwdSrv;
+		this.env = env;
+		superUsers = Arrays.asList(     //Define the cache
+				usrSrv.getByEmail(env.getProperty("user.admin.email")),
+				usrSrv.getByEmail(env.getProperty("user.system.email")));
 	}
 	
 	@Override
 	@GetMapping
-	@Secured("ROLE_SYSTEM")
+	@Secured("ROLE_ANONYMOUS")
 	public List<User> getAll() {
 		return usrSrv.getAll();
 	}
 	
 	@Override
 	@GetMapping("/{id}")
-	@Secured("ROLE_SYSTEM")
+	@Secured("ROLE_ANONYMOUS")
 	public User getOne(@PathVariable("id") long id) {
 		return usrSrv.getById(id);
 	}
 	
 	@Override
 	@PostMapping
+	@Secured("ROLE_SYSTEM")
 	public List<User> create(@RequestBody User... users) {
-		return null;
+		List<User> rtn = new ArrayList<>();
+		for (User usr : users)
+			if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
+				rtn.add(usrSrv.create(usr));
+		return rtn;
 	}
-
-//	@Override
-//	@PutMapping
-//	@Secured("ROLE_USER")
-//	public User updateOne(@RequestBody User usr) {
-//		if (checkAdmin(usr)) //SuperAdmin and System can't be changed
-//			//return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-//			return null;
-//
-//		return usrSrv.update(usr);
-////		return ResponseEntity.ok(null);
-//	}
 	
 	@Override
 	@PutMapping
+	@Secured("ROLE_USER")
 	public List<User> update(@RequestBody User... users) {
 		List<User> rtn = new ArrayList<>();
 		for (User usr : users)
@@ -95,7 +96,6 @@ public class UserController implements BasicController<User> {
 	 * @return <code>TRUE</code> if is admin or system user
 	 */
 	private boolean checkAdmin(User usr) {
-		return usr != null &&
-			  (usr.getEmail().equals("admin@nat.be") || usr.getEmail().equals("system@nat.be"));
+		return usr != null && superUsers.contains(usr);
 	}
 }

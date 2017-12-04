@@ -133,7 +133,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		if (roleRepo.findOneByName("ROLE_ADMIN") == null) {
 			Role adm = new Role();
 			adm.setName("ROLE_ADMIN");
-			adm.setDescription("Natagora's Administrator");
+			adm.setDescription("Natagora's Super Administrator");
 			roles.add(adm);
 		}
 		if (roleRepo.findOneByName("ROLE_SYSTEM") == null) {
@@ -146,6 +146,12 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			Role usr = new Role();
 			usr.setName("ROLE_USER");
 			usr.setDescription("Simple user");
+			roles.add(usr);
+		}
+		if (roleRepo.findOneByName("ROLE_ANONYMOUS") == null) {
+			Role usr = new Role();
+			usr.setName("ROLE_ANONYMOUS");
+			usr.setDescription("Unauthenticated user");
 			roles.add(usr);
 		}
 		roleRepo.save(roles);

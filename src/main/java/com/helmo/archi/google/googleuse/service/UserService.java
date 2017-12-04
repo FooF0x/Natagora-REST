@@ -1,23 +1,27 @@
 package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.User;
+import com.helmo.archi.google.googleuse.repository.RoleRepository;
 import com.helmo.archi.google.googleuse.repository.UserRepository;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class UserService implements BasicService<User, Long> {
 	
 	private final UserRepository usrRepo;
+	private final RoleRepository roleRepo;
 	private final PasswordEncoder passEnc;
 	private final Environment env;
 	
-	public UserService(UserRepository usrRepo, PasswordEncoder passEnc, Environment env) {
+	public UserService(UserRepository usrRepo, RoleRepository roleRepo, PasswordEncoder passEnc, Environment env) {
 		this.usrRepo = usrRepo;
+		this.roleRepo = roleRepo;
 		this.passEnc = passEnc;
 		this.env = env;
 	}
@@ -32,8 +36,15 @@ public class UserService implements BasicService<User, Long> {
 		return usrRepo.findOne(id);
 	}
 	
+	public User getByEmail(String email) {
+		return usrRepo.findByEmail(email);
+	}
+	
 	@Override
 	public User create(User usr) {
+		if(usr.getRoles() == null || usr.getRoles().size() == 0)
+			usr.setRoles(Collections.singletonList(roleRepo.findOneByName("ROLE_USER")));
+		
 		User two = new User();
 		two.setFullName(usr.getFullName());
 		two.setEmail(usr.getEmail());
@@ -42,7 +53,7 @@ public class UserService implements BasicService<User, Long> {
 		two.setOnlinePath(
 			  (usr.getOnlinePath() != null)
 					? usr.getOnlinePath()
-					: env.getProperty("helmo.storage.defaultPic.onlineLocation"));
+					: env.getProperty("storage.defaultPic.onlineLocation"));
 		two.setRoles(usr.getRoles());
 		return usrRepo.save(two);
 	}
