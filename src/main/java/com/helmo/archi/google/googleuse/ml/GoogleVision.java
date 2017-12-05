@@ -7,6 +7,7 @@ import com.google.cloud.vision.v1.Feature.Type;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,8 +23,10 @@ import java.util.Map;
 public class GoogleVision {
 	
 	private ImageAnnotatorSettings settings;
+	private final Environment env;
 	
-	public GoogleVision() throws IOException {
+	public GoogleVision(Environment env) throws IOException {
+		this.env = env;
 		CredentialsProvider credentialsProvider = FixedCredentialsProvider
 			  .create(HELMoCredentialsProvider.getCredential());
 		settings = ImageAnnotatorSettings
@@ -121,9 +124,15 @@ public class GoogleVision {
 		return performDetection(picture, Type.SAFE_SEARCH_DETECTION).toString();
 	}
 	
-	public SafeSearchAnnotation safeSearchAnalyse(String onlnePath) throws Exception {
-		return performDetectionOnline(onlnePath, Type.SAFE_SEARCH_DETECTION)
-			  .getResponses(0)
-			  .getSafeSearchAnnotation();
+	public SafeSearchAnnotation safeSearchAnalyse(Path onlinePath) throws Exception {
+		String path;
+		if(onlinePath.startsWith("/"))
+			path = "gs://" + env.getProperty("storage.bucketName") + onlinePath;
+		else
+			path = "gs://" + env.getProperty("storage.bucketName") + "/" + onlinePath;
+		
+		return performDetectionOnline(path, Type.SAFE_SEARCH_DETECTION)
+				  .getResponses(0)
+				  .getSafeSearchAnnotation();
 	}
 }

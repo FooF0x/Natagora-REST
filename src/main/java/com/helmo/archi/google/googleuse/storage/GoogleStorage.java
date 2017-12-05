@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,28 +34,33 @@ public class GoogleStorage { //TODO Work with path not strings
 		bucketName = "nat-test";
 	}
 	
-	public void uploadPicture(String path, String onlinePath, String ext) throws IOException {
-		if (isASubfolder(onlinePath)) createTreeFolder(onlinePath);
-		uploadMedia(path, formatToOnlinePath(onlinePath), "image/" + ext);
+	public void uploadPicture(Path path, Path onlinePath, String ext) throws IOException {
+		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
+		uploadMedia(path, onlinePath, "image/" + ext);
 	}
 	
-	public void uploadVideoMP4(String path, String onlinePath) throws IOException {
-		if (isASubfolder(onlinePath)) createTreeFolder(onlinePath);
-		uploadMedia(path, formatToOnlinePath(onlinePath), "video/mp4");
+	public void uploadVideoMP4(Path path, Path onlinePath) throws IOException {
+		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
+		uploadMedia(path, onlinePath, "video/mp4");
 	}
 	
-	private void uploadMedia(String path, String onlinePath, String mediaType) throws IOException {
-		BlobId blobId = BlobId.of(bucketName, onlinePath);
+	public void uploadAudioMP3(Path path, Path onlinePath) throws IOException {
+		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
+		uploadMedia(path, onlinePath, "audio/mpeg");
+	}
+	
+	private void uploadMedia(Path path, Path onlinePath, String mediaType) throws IOException {
+		BlobId blobId = BlobId.of(bucketName, onlinePath.toString());
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType(mediaType)
 			  .build();
 		
-		uploadContent(Paths.get(path), blobInfo);
+		uploadContent(path, blobInfo);
 	}
 	
-	public void uploadFolder(String bucket, String fullFolderName) {
-		BlobId blobId = BlobId.of(bucket, fullFolderName + "/");
+	public void uploadFolder(Path fullFolderName) {
+		BlobId blobId = BlobId.of(bucketName, fullFolderName + "/");
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType("Folder/folder")
@@ -81,29 +88,18 @@ public class GoogleStorage { //TODO Work with path not strings
 		}
 	}
 	
-	private boolean isASubfolder(String path) {
-		return path.contains("\\") || path.contains("/");
+	private boolean isASubfolder(Path path) {
+		return path.startsWith("\\") || path.startsWith("/");
 	}
 	
-	private void createTreeFolder(String path) {
-		path = formatToOnlinePath(path);
-		String[] tree = path.split("/");
-		String temp = "";
-		for (int i = 0; i < tree.length - 1; i++) {
-			temp += tree[i];
-			uploadFolder(bucketName, temp);
-		}
-	}
-	
-	public byte[] getMedia(String onlinePath) throws IOException {
-		onlinePath = formatToOnlinePath(onlinePath);
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath));
+	public byte[] getMedia(Path onlinePath) throws IOException {
+		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString()));
 		if (blob == null) {
 			System.out.println("No such object");
 			return new byte[0];
 		}
 		
-		byte[] rtn = new byte[1];
+		byte[] rtn;
 		
 		if (blob.getSize() < 1_000_000) {
 			// Blob is small read all its content in one request
@@ -128,36 +124,33 @@ public class GoogleStorage { //TODO Work with path not strings
 		return rtn;
 	}
 	
-	public void getMedia(String onlinePath, String strLocalPath) throws IOException {
-		onlinePath = formatToOnlinePath(onlinePath);
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath));
+	public void getMedia(Path onlinePath, Path downloadTo) throws IOException {
+		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString()));
 		if (blob == null) {
 			System.out.println("No such object");
 			return;
 		}
 		
-		Path downloadTo = Paths.get(strLocalPath);
 		PrintStream writeTo = System.out;
 		if (downloadTo != null) {
 			writeTo = new PrintStream(new FileOutputStream(downloadTo.toFile()));
 		}
-//		if (blob.getSize() < 1_000_000) {
-//			// Blob is small read all its content in one request
-//			byte[] content = blob.getContent();
-//			writeTo.write(content);
-//		} else {
-//			// When Blob size is big or unknown use the blob's channel reader.
-////			try (ReadChannel reader = storage.reader(bucketName, blob.getName())) {
-//			try (ReadChannel reader = blob.reader()) {
-//				WritableByteChannel channel = Channels.newChannel(writeTo);
-//				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
-//				while (reader.read(bytes) > 0) {
-//					bytes.flip();
-//					channel.write(bytes);
-//					bytes.clear();
-//				}
-//			}
-//		}
+		if (blob.getSize() < 1_000_000) {
+			// Blob is small read all its content in one request
+			byte[] content = blob.getContent();
+			writeTo.write(content);
+		} else {
+			// When Blob size is big or unknown use the blob's channel reader.
+			try (ReadChannel reader = blob.reader()) {
+				WritableByteChannel channel = Channels.newChannel(writeTo);
+				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
+				while (reader.read(bytes) > 0) {
+					bytes.flip();
+					channel.write(bytes);
+					bytes.clear();
+				}
+			}
+		}
 		if (downloadTo == null) {
 			writeTo.println();
 		} else {
@@ -165,15 +158,11 @@ public class GoogleStorage { //TODO Work with path not strings
 		}
 	}
 	
-	public boolean deleteMedia(String onlinePath) {
-		return storage.delete(BlobId.of(bucketName, onlinePath));
+	public boolean deleteMedia(Path onlinePath) {
+		return storage.delete(BlobId.of(bucketName, onlinePath.toString()));
 	}
 	
-	private String formatToOnlinePath(String path) {
-		return path.replace("\\", "/");
-	}
-	
-	public boolean exist(String onlinePath) {
+	public boolean exist(Path onlinePath) {
 		try {
 			return getMedia(onlinePath).length == 0;
 		} catch (IOException ex) {

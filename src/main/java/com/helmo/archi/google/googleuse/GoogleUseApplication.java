@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,11 +73,11 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	}
 	
 	private void checkStorageIntegrity(GoogleStorage storage, Environment env) {
-		if (!storage.exist(env.getProperty("storage.defaultPic.onlineLocation")))  //TODO Not ok
+		if (!storage.exist(Paths.get(env.getProperty("storage.defaultPic.onlineLocation"))))  //TODO Not ok
 			try {
 				storage.uploadPicture(
-					  "/pics/defaultPic.png",
-					  env.getProperty("storage.defaultPic.onlineLocation"),
+					  Paths.get("/pics/defaultPic.png"),
+					  Paths.get(env.getProperty("storage.defaultPic.onlineLocation")),
 					  "png"
 				);
 			} catch (IOException e) {

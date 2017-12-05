@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +64,7 @@ public class ObservationController implements BasicController<Observation> {
 		try {
 			for (Observation obs : observs) {
 				SafeSearchAnnotation safe = vision.safeSearchAnalyse(
-					  obs.getOnlinePath());
+					  Paths.get(obs.getOnlinePath()));
 				obs.setAnalyseResult(safe.toString());
 				rtn.add(added = obsSrv.create(obs));
 				
@@ -132,6 +133,7 @@ public class ObservationController implements BasicController<Observation> {
 			cmtSrv.deleteByObservation(obs); //Delete all comments
 			notSrv.deleteByObservation(obs); //Delete all notifications
 			obsSrv.deleteById(id);
+			storage.deleteMedia(Paths.get(obs.getOnlinePath()));
 			return ResponseEntity.ok().build();
 		} catch (Exception ex) {
 			return ResponseEntity.notFound().build();
