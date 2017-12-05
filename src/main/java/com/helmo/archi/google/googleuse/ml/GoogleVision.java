@@ -38,90 +38,71 @@ public class GoogleVision {
 	private BatchAnnotateImagesResponse performDetectionOnline(String onlinePath, Type type) throws Exception {
 		List<AnnotateImageRequest> requests = new ArrayList<>();
 		
-		ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(onlinePath).build();
-		Image img = Image.newBuilder().setSource(imgSource).build();
-		Feature feat = Feature.newBuilder().setType(type).build();
-		AnnotateImageRequest request =
-			  AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
+		ImageSource imgSource = ImageSource.newBuilder()
+			  .setGcsImageUri(onlinePath)
+			  .build();
+		Image img = Image.newBuilder()
+			  .setSource(imgSource)
+			  .build();
+		Feature feat = Feature.newBuilder()
+			  .setType(type)
+			  .build();
+		AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
+				    .addFeatures(feat)
+				    .setImage(img)
+				    .build();
 		requests.add(request);
 		
 		try (ImageAnnotatorClient client = ImageAnnotatorClient.create(settings)) {
 			return client.batchAnnotateImages(requests);
 		}
+	}
+	
+	private BatchAnnotateImagesResponse performTwoDetectionOnline(String onlinePath, Type typeOne, Type typeTwo) throws Exception {
+		List<AnnotateImageRequest> requests = new ArrayList<>();
 		
-	}
-	
-	private BatchAnnotateImagesResponse performDetection(byte[] picture, Type type) throws Exception {
-		try (ImageAnnotatorClient vision = ImageAnnotatorClient.create(settings)) {
-			ByteString imgBytes = ByteString.copyFrom(picture);
-			
-			// Builds the image annotation request
-			List<AnnotateImageRequest> requests = new ArrayList<>();
-			Image img = Image.newBuilder()
-				  .setContent(imgBytes)
-				  .build();
-			Feature feat = Feature.newBuilder()
-				  .setType(type)
-				  .build();
-			AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
-				  .addFeatures(feat)
-				  .setImage(img)
-				  .build();
-			requests.add(request);
-			
-			// Performs the detection
-			return vision.batchAnnotateImages(requests);
+		ImageSource imgSource = ImageSource.newBuilder()
+			  .setGcsImageUri(onlinePath)
+			  .build();
+		Image img = Image.newBuilder()
+			  .setSource(imgSource)
+			  .build();
+		Feature featOne = Feature.newBuilder()
+			  .setType(typeOne)
+			  .build();
+		Feature featTwo = Feature.newBuilder()
+			  .setType(typeTwo)
+			  .build();
+		AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
+				    .addFeatures(featOne).addFeatures(featTwo)
+				    .setImage(img)
+				    .build();
+		requests.add(request);
+		
+		try (ImageAnnotatorClient client = ImageAnnotatorClient.create(settings)) {
+			return client.batchAnnotateImages(requests);
 		}
-	}
-	
-	private BatchAnnotateImagesResponse performDetectionLocal(String localPath, Type type) throws Exception {
-		// Reads the image file into memory
-		Path path = Paths.get(localPath);
-		byte[] data = Files.readAllBytes(path);
-		return performDetection(data, type);
-	}
-	
-	public List<String> getRGB(String localPath) throws Exception {
-		List<String> rgb = new ArrayList<>();
-		for (AnnotateImageResponse res : performDetectionLocal(localPath, Type.IMAGE_PROPERTIES).getResponsesList()) {
-			if (res.hasError()) {
-				break;
-			}
-			
-			DominantColorsAnnotation colors = res.getImagePropertiesAnnotation().getDominantColors();
-			for (ColorInfo color : colors.getColorsList()) {
-				rgb.add(String.format("%.0f;%.0f;%.0f",
-					  color.getColor().getRed(),
-					  color.getColor().getGreen(),
-					  color.getColor().getBlue()));
-			}
-		}
-		return rgb;
 	}
 	
 	public Map<String, String> labelAsMap(String localPath) throws Exception {
 		Map<String, String> labels = new HashMap<>();
 		String temp = "";
-		for (AnnotateImageResponse res : performDetectionLocal(localPath, Type.LABEL_DETECTION).getResponsesList()) {
-			if (res.hasError()) {
-				break;
-			}
-			
-			for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
-				for (Map.Entry<Descriptors.FieldDescriptor, Object> entry : annotation.getAllFields().entrySet()) {
-					if (entry.getKey().toString().contains("description")) temp = entry.getValue().toString();
-					else if (entry.getKey().toString().contains("score")) {
-						labels.put(temp, entry.getValue().toString());
-					}
-				}
-			}
-		}
+//		for (AnnotateImageResponse res : performDetectionLocal(localPath, Type.LABEL_DETECTION).getResponsesList()) {
+//			if (res.hasError()) {
+//				break;
+//			}
+//
+//			for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
+//				for (Map.Entry<Descriptors.FieldDescriptor, Object> entry : annotation.getAllFields().entrySet()) {
+//					if (entry.getKey().toString().contains("description")) temp = entry.getValue().toString();
+//					else if (entry.getKey().toString().contains("score")) {
+//						labels.put(temp, entry.getValue().toString());
+//					}
+//				}
+//			}
+//		}
 		
 		return labels;
-	}
-	
-	public String safeSearchAnalyse(byte[] picture) throws Exception {
-		return performDetection(picture, Type.SAFE_SEARCH_DETECTION).toString();
 	}
 	
 	public SafeSearchAnnotation safeSearchAnalyse(Path onlinePath) throws Exception {
@@ -131,8 +112,22 @@ public class GoogleVision {
 		else
 			path = "gs://" + env.getProperty("storage.bucketName") + "/" + onlinePath;
 		
+		performDetectionOnline(path, Type.SAFE_SEARCH_DETECTION)
+			  .getResponses(0);
+		
 		return performDetectionOnline(path, Type.SAFE_SEARCH_DETECTION)
 				  .getResponses(0)
 				  .getSafeSearchAnnotation();
+	}
+	
+	public AnnotateImageResponse simpleAnalyse(Path onlinePath) throws Exception {
+		String path;
+		if(onlinePath.startsWith("/"))
+			path = "gs://" + env.getProperty("storage.bucketName") + onlinePath.toString().replace("\\", "/");
+		else
+			path = "gs://" + env.getProperty("storage.bucketName") + "/" + onlinePath.toString().replace("\\", "/");
+		
+		return performTwoDetectionOnline(path, Type.SAFE_SEARCH_DETECTION, Type.LABEL_DETECTION)
+			  .getResponses(0);
 	}
 }

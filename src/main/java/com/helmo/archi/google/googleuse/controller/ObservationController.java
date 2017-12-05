@@ -1,5 +1,7 @@
 package com.helmo.archi.google.googleuse.controller;
 
+import com.google.cloud.vision.v1.AnnotateImageResponse;
+import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.cloud.vision.v1.SafeSearchAnnotation;
 import com.helmo.archi.google.googleuse.ml.GoogleTranslate;
 import com.helmo.archi.google.googleuse.ml.GoogleVision;
@@ -58,35 +60,16 @@ public class ObservationController implements BasicController<Observation> {
 	@Override
 	@PostMapping
 	public List<Observation> create(@RequestBody Observation... observs) {
-		//Analyse the pics
 		List<Observation> rtn = new ArrayList<>();
 		Observation added;
 		try {
 			for (Observation obs : observs) {
-				SafeSearchAnnotation safe = vision.safeSearchAnalyse(
+				AnnotateImageResponse analyse = vision.simpleAnalyse(
 					  Paths.get(obs.getOnlinePath()));
-				obs.setAnalyseResult(safe.toString());
-				rtn.add(added = obsSrv.create(obs));
 				
-				//Define Notification
-				if (safe.getAdultValue() >= 2
-					  || safe.getMedicalValue() >= 2
-					  || safe.getViolenceValue() >= 2) {
-					Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
-					String message = String.format(
-						  "Analyse de l'image :\n" +
-								"Violance : %s\n" +
-								"Adulte : %s\n" +
-								"Medical : %s\n" +
-								"Canular : %s",
-						  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
-					);
-					notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
-						  "Problème avec une observation",
-						  message,
-						  added
-					));
-				}
+				obs.setAnalyseResult(analyse.getSafeSearchAnnotation().toString());
+				rtn.add(added = obsSrv.create(obs));
+				checkNotification(added, analyse);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,11 +77,21 @@ public class ObservationController implements BasicController<Observation> {
 		return rtn;
 	}
 	
+	private boolean contains(List<EntityAnnotation> entities, String key) {
+		boolean rtn = false;
+		for(EntityAnnotation entity : entities)
+			if(entity.getDescription().toLowerCase().contains(key)) {
+				rtn = true;
+				break;
+			}
+		return rtn;
+	}
+	
 	private Map<String, String> translateSafeSearch(SafeSearchAnnotation safe) {
 		Map<String, String> rtn = new HashMap<>();
 		
 		rtn.put("adult", translate.simpleTranslateFromENToFR(safe.getAdult().name()));
-		rtn.put("medial", translate.simpleTranslateFromENToFR(safe.getMedical().name()));
+		rtn.put("medical", translate.simpleTranslateFromENToFR(safe.getMedical().name()));
 		rtn.put("violence", translate.simpleTranslateFromENToFR(safe.getViolence().name()));
 		rtn.put("spoof", translate.simpleTranslateFromENToFR(safe.getSpoof().name()));
 		
@@ -109,7 +102,60 @@ public class ObservationController implements BasicController<Observation> {
 	@Override
 	@PutMapping
 	public List<Observation> update(@RequestBody Observation... observations) {
-		return obsSrv.update(observations);
+		List<Observation> toUpdate = new ArrayList<>();
+		for (Observation obs : observations) {
+			Observation old = obsSrv.getById(obs.getId());
+			String onlPath = old.getOnlinePath();
+			if(onlPath != null && onlPath.length() > 0 && !onlPath.equals(obs.getOnlinePath())) {
+				try {
+					AnnotateImageResponse analyse = vision.simpleAnalyse(
+						  Paths.get(obs.getOnlinePath()));
+					obs.setAnalyseResult(analyse.getSafeSearchAnnotation().toString());
+					checkNotification(obs, analyse);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return obsSrv.update((Observation[])toUpdate.toArray());
+	}
+	
+	private void checkNotification(Observation obs, AnnotateImageResponse analyse) {
+		
+		SafeSearchAnnotation safe = analyse.getSafeSearchAnnotation();
+		List<EntityAnnotation> labels = analyse.getLabelAnnotationsList();
+		//Define Notification
+		if (safe.getAdultValue() >= 2
+			  || safe.getMedicalValue() >= 2
+			  || safe.getViolenceValue() >= 2) {
+			Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
+			String message = String.format(
+				  "Analyse de l'image :\n" +
+						"Violance : %s\n" +
+						"Adulte : %s\n" +
+						"Medical : %s\n" +
+						"Canular : %s",
+				  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
+			);
+			notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
+				  "Problème avec une observation",
+				  message,
+				  obs
+			));
+		} else if(!contains(labels, "bird")) {
+			
+			StringBuilder message = new StringBuilder("Analyse de l'image : \n");
+			for(EntityAnnotation entity : labels)
+				message.append(
+					  translate.simpleTranslateFromENToFR(entity.getDescription()))
+					  .append(" : ").append(entity.getScore()).append("\n");
+			
+			notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
+				  "Aucun oiseau détecté",
+				  message.toString(),
+				  obs
+			));
+		}
 	}
 	
 	@Override
