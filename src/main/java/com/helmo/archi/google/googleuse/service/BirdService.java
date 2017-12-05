@@ -2,6 +2,7 @@ package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.repository.BirdRepository;
+import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -16,11 +17,17 @@ public class BirdService implements BasicService<Bird, Long> {
 	private final BirdRepository brdRepo;
 	private final NextSequenceService nextSeq;
 	private final MongoTemplate monqoTemplate;
+	private final Environment env;
 	
-	public BirdService(BirdRepository brdRepo, NextSequenceService nextSeq, MongoTemplate monqoTemplate) {
+	private final String COLLECTION_NAME;
+	
+	public BirdService(BirdRepository brdRepo, NextSequenceService nextSeq,
+	                   MongoTemplate monqoTemplate, Environment env) {
 		this.brdRepo = brdRepo;
 		this.nextSeq = nextSeq;
 		this.monqoTemplate = monqoTemplate;
+		this.env = env;
+		this.COLLECTION_NAME = env.getProperty("mongodb.birds");
 	}
 	
 	@Override
@@ -36,11 +43,11 @@ public class BirdService implements BasicService<Bird, Long> {
 	@Override
 	public Bird create(Bird toSave) {
 		Bird bird = new Bird();
+		bird.setId(nextSeq.getNextSequence(COLLECTION_NAME));
 		bird.setName(toSave.getName());
 		bird.setDescription(toSave.getDescription());
 		bird.setData(toSave.getData());
 		bird.setPicture(toSave.getPicture());
-		bird.setId(nextSeq.getNextSequence("birds"));
 		return brdRepo.insert(bird);
 	}
 	
@@ -61,7 +68,7 @@ public class BirdService implements BasicService<Bird, Long> {
 			  : bird.getPicture());
 		
 		brdRepo.delete(toUpdate.getId());
-		return brdRepo.insert(toUpdate);
+		return brdRepo.insert(bird);
 	}
 	
 	@Override
@@ -104,12 +111,4 @@ public class BirdService implements BasicService<Bird, Long> {
 			  .lt(args + args * 1.5));
 		return monqoTemplate.find(findQuery, Bird.class);
 	}
-
-//	public <X extends java.lang> List<Bird> findSingleByArgs(String key, X item) {
-//		return null;
-//	}
-
-//	public <X extends java.lang> List<Bird> findSingleByArgs(String key, X x) {
-//		return null;
-//	}
 }

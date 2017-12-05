@@ -135,7 +135,7 @@ public class BirdController implements BasicController<Bird> {
 		return finalScore;
 	}
 	
-	@GetMapping("/values/names")
+	@GetMapping("/names")
 	@Secured("ROLE_USER")
 	public List<String> getNames() {
 		List<String> values = new ArrayList<>();
