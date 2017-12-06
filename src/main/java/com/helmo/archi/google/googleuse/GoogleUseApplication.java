@@ -45,21 +45,27 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	                                  PasswordEncoder passEnc, Environment env, GoogleStorage storage) {
 		return args -> {
 			
-			checkRolesIntegrity(roleRepo);
+			checkRolesIntegrity(roleRepo, env, env.getProperty("data.role.property-names").split(","));
 			
 			checkMediaTypeIntegrity(medRepo, env.getProperty("data.mediaTypes").split(","));
 			
-			checkManagementUser("admin", true, usrRepo, roleRepo, env, passEnc,
-				  roleRepo.findOneByName("ROLE_ADMIN"),
-				  roleRepo.findOneByName("ROLE_SYSTEM"),
-				  roleRepo.findOneByName("ROLE_ANONYMOUS"),
-				  roleRepo.findOneByName("ROLE_USER"));
+			checkManagementUser(
+				  "admin",
+				  usrRepo, env, passEnc,
+				  createUser(
+				  	  "admin",
+					    roleRepo,
+					    env,
+					    passEnc));
 			
-			checkManagementUser("system", false, usrRepo, roleRepo, env, passEnc,
-				  roleRepo.findOneByName("ROLE_ADMIN"),
-				  roleRepo.findOneByName("ROLE_SYSTEM"),
-				  roleRepo.findOneByName("ROLE_ANONYMOUS"),
-				  roleRepo.findOneByName("ROLE_USER"));
+			checkManagementUser(
+				  "system",
+				  usrRepo, env, passEnc,
+				  createUser(
+						"system",
+						roleRepo,
+						env,
+						passEnc));
 			
 			if (usrRepo.findByEmail("user@nat.be") == null) { //TODO Remove for production
 				usrRepo.save(new User(
@@ -78,6 +84,21 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		};
 	}
 	
+	private User createUser(String type, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc) {
+		User rtn = new User();
+		rtn.setFullName(env.getProperty("user." + type + ".name"));
+		rtn.setEmail(env.getProperty("user." + type + ".email"));
+		rtn.setAdmin(Boolean.parseBoolean(env.getProperty("user." + type + ".is-admin")));
+		rtn.setOnlinePath(env.getProperty("helmo.storage.defaultPic.onlineLocation"));
+		rtn.setPassword(passEnc.encode(env.getProperty("user." + type + ".password")));
+		rtn.setSessions(new ArrayList<>());
+		List<Role> roles = new ArrayList<>();
+		for(String str : env.getProperty("user." + type + ".roles").split(","))
+			roles.add(roleRepo.findOneByName(str));
+		rtn.setRoles(roles);
+		return rtn;
+	}
+	
 	private void checkStorageIntegrity(GoogleStorage storage, Environment env) {
 		if (!storage.exist(Paths.get(env.getProperty("storage.defaultPic.onlineLocation"))))  //TODO Not ok
 			try {
@@ -91,50 +112,33 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			}
 	}
 	
-	private void checkManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
-		User usr = usrRepo.findByEmail(env.getProperty("user." + type + ".email")); //TODO Improve
-		if (checkAdminIntegrity(usr, env, passEnc, roleRepo))
-			if (usr != null)
-				usrRepo.delete(usr);
-		addManagementUser(type, admin, usrRepo, roleRepo, env, passEnc, roles);
+	private void checkManagementUser(String type, UserRepository usrRepo, Environment env,
+	                                  PasswordEncoder passEnc, User haveToBe) {
+		User dbUser = usrRepo.findByEmail(env.getProperty("user." + type + ".email"));
+		if(dbUser == null || compareUsers(dbUser, haveToBe, type, passEnc, env)) {
+			usrRepo.delete(dbUser);
+			usrRepo.save(haveToBe);
+		}
 	}
 	
-	private void addManagementUser(String type, boolean admin, UserRepository usrRepo, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc, Role... roles) {
-		if (usrRepo.findByEmail(env.getProperty("user." + type + ".email")) == null)
-			usrRepo.save(new User(
-				  env.getProperty("user." + type + ".name"),
-				  env.getProperty("user." + type + ".email"),
-				  passEnc.encode(env.getProperty("user." + type + ".password")),
-				  admin,
-				  env.getProperty("helmo.storage.defaultPic.onlineLocation"),
-				  Arrays.asList(roles)));
+	private boolean compareUsers(User dbUser, User haveToBe, String type, PasswordEncoder passEnc, Environment env) {
+		boolean rtn = dbUser.getFullName().equals(haveToBe.getFullName())
+			  && dbUser.getEmail().equals(haveToBe.getEmail())
+			  && dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
+			  && dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
+			  && dbUser.getSessions().size() == 0
+			  && passEnc.matches(
+			  	  env.getProperty("user." + type + ".password"), dbUser.getPassword()
+				);
 		
-	}
-	
-	private boolean checkAdminIntegrity(User usr, Environment env, PasswordEncoder passEnc, RoleRepository roleRepo) {
-		return usr != null
-			  && usr.getFullName().equals(env.getProperty("user.admin.name"))
-			  && usr.getEmail().equals(env.getProperty("user.admin.email"))
-			  && passEnc.matches(env.getProperty("user.admin.email"), usr.getPassword())
-			  && usr.getOnlinePath().equals(env.getProperty("helmo.storage.defaultPic.onlineLocation"))
-			  && usr.isAdmin()
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_ADMIN"))
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_SYSTEM"))
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_ANONYMOUS"))
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_USER"));
-	}
-	
-	private boolean checkSystemIntegrity(User usr, Environment env, PasswordEncoder passEnc, RoleRepository roleRepo) {
-		return usr != null
-			  && usr.getFullName().equals(env.getProperty("user.system.name"))
-			  && usr.getEmail().equals(env.getProperty("user.system.email"))
-			  && passEnc.matches(env.getProperty("user.system.password"), usr.getPassword())
-			  && usr.getOnlinePath().equals(env.getProperty("helmo.storage.defaultPic.onlineLocation"))
-			  && !usr.isAdmin()
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_SYSTEM"))
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_ANONYMOUS"))
-			  && usr.getRoles().contains(roleRepo.findOneByName("ROLE_USER"));
+		for(Role role : haveToBe.getRoles()) {
+			if (!dbUser.getRoles().contains(role)) {
+				rtn = false;
+				break;
+			}
+		}
 		
+		return rtn;
 	}
 	
 	private void checkMediaTypeIntegrity(MediaTypeRepository medRepo, String ... mediaTypeNames) {
@@ -151,32 +155,21 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		return rtn;
 	}
 	
-	private void checkRolesIntegrity(RoleRepository roleRepo) { //TODO Apply same principle as MediaTypes
+	private void checkRolesIntegrity(RoleRepository roleRepo, Environment env, String... roleNames) {
 		List<Role> roles = new ArrayList<>();
-		if (roleRepo.findOneByName("ROLE_ADMIN") == null) {
-			Role adm = new Role();
-			adm.setName("ROLE_ADMIN");
-			adm.setDescription("Natagora's Super Administrator");
-			roles.add(adm);
-		}
-		if (roleRepo.findOneByName("ROLE_SYSTEM") == null) {
-			Role sys = new Role();
-			sys.setName("ROLE_SYSTEM");
-			sys.setDescription("Allow a non human user to do some actions");
-			roles.add(sys);
-		}
-		if (roleRepo.findOneByName("ROLE_USER") == null) {
-			Role usr = new Role();
-			usr.setName("ROLE_USER");
-			usr.setDescription("Simple user");
-			roles.add(usr);
-		}
-		if (roleRepo.findOneByName("ROLE_ANONYMOUS") == null) {
-			Role usr = new Role();
-			usr.setName("ROLE_ANONYMOUS");
-			usr.setDescription("Unauthenticated user");
-			roles.add(usr);
-		}
+		for(String str : roleNames)
+			if(roleRepo.findOneByName(env.getProperty("data.role." + str + ".name")) == null)
+				roles.add(createRole(
+					  env.getProperty("data.role." + str + ".name"),
+					  env.getProperty("data.role." + str + ".description")
+				));
 		roleRepo.save(roles);
+	}
+	
+	private Role createRole(String name, String description) {
+		Role role = new Role();
+		role.setName(name);
+		role.setDescription(description);
+		return role;
 	}
 }
