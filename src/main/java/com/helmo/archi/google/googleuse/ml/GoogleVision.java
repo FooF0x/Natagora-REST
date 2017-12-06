@@ -4,16 +4,12 @@ import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.cloud.vision.v1.*;
 import com.google.cloud.vision.v1.Feature.Type;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.Descriptors;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +18,8 @@ import java.util.Map;
 @Component
 public class GoogleVision {
 	
-	private ImageAnnotatorSettings settings;
 	private final Environment env;
+	private ImageAnnotatorSettings settings;
 	
 	public GoogleVision(Environment env) throws IOException {
 		this.env = env;
@@ -48,9 +44,9 @@ public class GoogleVision {
 			  .setType(type)
 			  .build();
 		AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
-				    .addFeatures(feat)
-				    .setImage(img)
-				    .build();
+			  .addFeatures(feat)
+			  .setImage(img)
+			  .build();
 		requests.add(request);
 		
 		try (ImageAnnotatorClient client = ImageAnnotatorClient.create(settings)) {
@@ -74,9 +70,9 @@ public class GoogleVision {
 			  .setType(typeTwo)
 			  .build();
 		AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
-				    .addFeatures(featOne).addFeatures(featTwo)
-				    .setImage(img)
-				    .build();
+			  .addFeatures(featOne).addFeatures(featTwo)
+			  .setImage(img)
+			  .build();
 		requests.add(request);
 		
 		try (ImageAnnotatorClient client = ImageAnnotatorClient.create(settings)) {
@@ -107,7 +103,7 @@ public class GoogleVision {
 	
 	public SafeSearchAnnotation safeSearchAnalyse(Path onlinePath) throws Exception {
 		String path;
-		if(onlinePath.startsWith("/"))
+		if (onlinePath.startsWith("/"))
 			path = "gs://" + env.getProperty("storage.bucketName") + onlinePath;
 		else
 			path = "gs://" + env.getProperty("storage.bucketName") + "/" + onlinePath;
@@ -116,13 +112,13 @@ public class GoogleVision {
 			  .getResponses(0);
 		
 		return performDetectionOnline(path, Type.SAFE_SEARCH_DETECTION)
-				  .getResponses(0)
-				  .getSafeSearchAnnotation();
+			  .getResponses(0)
+			  .getSafeSearchAnnotation();
 	}
 	
 	public AnnotateImageResponse simpleAnalyse(Path onlinePath) throws Exception {
 		String path;
-		if(onlinePath.startsWith("/"))
+		if (onlinePath.startsWith("/"))
 			path = "gs://" + env.getProperty("storage.bucketName") + onlinePath.toString().replace("\\", "/");
 		else
 			path = "gs://" + env.getProperty("storage.bucketName") + "/" + onlinePath.toString().replace("\\", "/");

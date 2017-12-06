@@ -3,9 +3,6 @@ package com.helmo.archi.google.googleuse.tools;
 import com.helmo.archi.google.googleuse.model.Notification;
 import com.helmo.archi.google.googleuse.model.NotificationStatus;
 import com.helmo.archi.google.googleuse.model.Observation;
-import com.helmo.archi.google.googleuse.service.NotificationStatusService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;

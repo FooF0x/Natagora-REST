@@ -2,7 +2,6 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.model.BirdFinder;
-import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.service.BirdService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -135,7 +134,7 @@ public class BirdController implements BasicController<Bird> {
 		maxValue = processFinalMap(maxValue, processDouble, fullScore);
 		
 		List<List<Object>> finalScore = new ArrayList<>();
-		for(Bird brd : fullScore.keySet()) {
+		for (Bird brd : fullScore.keySet()) {
 			List<Object> temp = new ArrayList<>(
 				  Arrays.asList(fullScore.get(brd) / maxValue, brd));
 			finalScore.add(temp);
@@ -158,7 +157,7 @@ public class BirdController implements BasicController<Bird> {
 		
 		for (Bird tempBird : matchBirds.get(key)) { //For all the birds found for this value
 			double ratio = (double) ((Number) tempBird.get(key).get(0)).longValue() / searchValue;
-			if(ratio > 1) ratio = 1 - (ratio % 1);
+			if (ratio > 1) ratio = 1 - (ratio % 1);
 			if (birdScore.containsKey(tempBird)) { //If already found
 				Double current = birdScore.get(tempBird); //Get its score
 				birdScore.replace(tempBird, current,

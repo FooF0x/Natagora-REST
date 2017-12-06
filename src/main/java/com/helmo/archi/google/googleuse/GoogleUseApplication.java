@@ -58,10 +58,10 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 				  "admin",
 				  usrRepo, env, passEnc,
 				  createUser(
-				  	  "admin",
-					    roleRepo,
-					    env,
-					    passEnc));
+						"admin",
+						roleRepo,
+						env,
+						passEnc));
 			
 			checkManagementUser(
 				  "system",
@@ -98,7 +98,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		rtn.setPassword(passEnc.encode(env.getProperty("user." + type + ".password")));
 		rtn.setSessions(new ArrayList<>());
 		List<Role> roles = new ArrayList<>();
-		for(String str : env.getProperty("user." + type + ".roles").split(","))
+		for (String str : env.getProperty("user." + type + ".roles").split(","))
 			roles.add(roleRepo.findOneByName(str));
 		rtn.setRoles(roles);
 		return rtn;
@@ -118,9 +118,9 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	}
 	
 	private void checkManagementUser(String type, UserRepository usrRepo, Environment env,
-	                                  PasswordEncoder passEnc, User haveToBe) {
+	                                 PasswordEncoder passEnc, User haveToBe) {
 		User dbUser = usrRepo.findByEmail(env.getProperty("user." + type + ".email"));
-		if(dbUser == null || compareUsers(dbUser, haveToBe, type, passEnc, env)) {
+		if (dbUser == null || compareUsers(dbUser, haveToBe, type, passEnc, env)) {
 			usrRepo.delete(dbUser);
 			usrRepo.save(haveToBe);
 		}
@@ -133,10 +133,10 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			  && dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
 			  && dbUser.getSessions().size() == 0
 			  && passEnc.matches(
-			  	  env.getProperty("user." + type + ".password"), dbUser.getPassword()
-				);
+			  env.getProperty("user." + type + ".password"), dbUser.getPassword()
+		);
 		
-		for(Role role : haveToBe.getRoles()) {
+		for (Role role : haveToBe.getRoles()) {
 			if (!dbUser.getRoles().contains(role)) {
 				rtn = false;
 				break;
@@ -148,8 +148,8 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	
 	private void checkNotificationStatusIntegrity(NotificationStatusRepository notRepo, String... status) {
 		List<NotificationStatus> rtn = new ArrayList<>();
-		for(String str : status)
-			if(notRepo.findByName(str) == null)
+		for (String str : status)
+			if (notRepo.findByName(str) == null)
 				rtn.add(createStatus(str));
 		notRepo.save(rtn);
 	}
@@ -160,14 +160,15 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		return rtn;
 	}
 	
-	private void checkMediaTypeIntegrity(MediaTypeRepository medRepo, String ... mediaTypeNames) {
+	private void checkMediaTypeIntegrity(MediaTypeRepository medRepo, String... mediaTypeNames) {
 		List<MediaType> mediaTypes = new ArrayList<>();
-		for(String str : mediaTypeNames)
-			if(medRepo.findByName(str) == null)
+		for (String str : mediaTypeNames)
+			if (medRepo.findByName(str) == null)
 				mediaTypes.add(createMediaType(str));
-				
+		
 		medRepo.save(mediaTypes);
 	}
+	
 	private MediaType createMediaType(String name) {
 		MediaType rtn = new MediaType();
 		rtn.setName(name);
@@ -176,8 +177,8 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	
 	private void checkRolesIntegrity(RoleRepository roleRepo, Environment env, String... roleNames) {
 		List<Role> roles = new ArrayList<>();
-		for(String str : roleNames)
-			if(roleRepo.findOneByName(env.getProperty("data.role." + str + ".name")) == null)
+		for (String str : roleNames)
+			if (roleRepo.findOneByName(env.getProperty("data.role." + str + ".name")) == null)
 				roles.add(createRole(
 					  env.getProperty("data.role." + str + ".name"),
 					  env.getProperty("data.role." + str + ".description")

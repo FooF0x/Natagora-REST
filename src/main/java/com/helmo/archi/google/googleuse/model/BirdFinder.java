@@ -20,8 +20,8 @@ public class BirdFinder {
 	private Map<String, Double> doubleItems;
 	
 	public void processInput() {
-		if(longItems == null) longItems = new HashMap<>();
-		if(doubleItems == null) doubleItems = new HashMap<>();
+		if (longItems == null) longItems = new HashMap<>();
+		if (doubleItems == null) doubleItems = new HashMap<>();
 		for (String key : stringItems.keySet()) {
 			String item = stringItems.get(key);
 			if (isNumeric(item)) {

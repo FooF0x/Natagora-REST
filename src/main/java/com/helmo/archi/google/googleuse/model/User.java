@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import java.util.List;
 
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.*;
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 @Entity
 @Table(name = "users")
@@ -51,7 +51,7 @@ public class User extends IdentifiedModel {
 //	private Password passwordData;
 	
 	@Column(name = "password")
-	@JsonProperty(access =  WRITE_ONLY)
+	@JsonProperty(access = WRITE_ONLY)
 	private String password;
 	
 	public User() {

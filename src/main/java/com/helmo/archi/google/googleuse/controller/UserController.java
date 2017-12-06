@@ -1,7 +1,6 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.User;
-import com.helmo.archi.google.googleuse.service.PasswordService;
 import com.helmo.archi.google.googleuse.service.UserService;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -18,16 +17,14 @@ import java.util.List;
 public class UserController implements BasicController<User> {
 	
 	private final UserService usrSrv;
-	private final Environment env;
 	
 	private final List<User> superUsers; //SuperUsers in cache
 	
 	public UserController(UserService usrSrv, Environment env) {
 		this.usrSrv = usrSrv;
-		this.env = env;
 		superUsers = Arrays.asList(     //Define the cache
-				usrSrv.getByEmail(env.getProperty("user.admin.email")),
-				usrSrv.getByEmail(env.getProperty("user.system.email")));
+			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
+			  usrSrv.getByEmail(env.getProperty("user.system.email")));
 	}
 	
 	@Override

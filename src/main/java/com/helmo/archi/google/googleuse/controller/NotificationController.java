@@ -40,8 +40,8 @@ public class NotificationController implements BasicController<Notification> {
 	public ResponseEntity create(@RequestBody Notification... notifications) {
 		try {
 			List<Notification> rtn = new ArrayList<>();
-			for(Notification not : notifications) {
-				if(not.getStatus().getId() == 0)
+			for (Notification not : notifications) {
+				if (not.getStatus().getId() == 0)
 					not.setStatus(statusSrv.findByName(not.getStatus().getName()));
 				rtn.add(notSrv.create(not));
 			}
@@ -57,8 +57,8 @@ public class NotificationController implements BasicController<Notification> {
 	public ResponseEntity update(@RequestBody Notification... notifications) {
 		try {
 			List<Notification> rtn = new ArrayList<>();
-			for(Notification not : notifications) {
-				if(not.getStatus().getId() == 0)
+			for (Notification not : notifications) {
+				if (not.getStatus().getId() == 0)
 					not.setStatus(statusSrv.findByName(not.getStatus().getName()));
 				rtn.add(notSrv.update(not));
 			}

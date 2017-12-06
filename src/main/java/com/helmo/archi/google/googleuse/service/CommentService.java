@@ -6,9 +6,7 @@ import com.helmo.archi.google.googleuse.repository.CommentRepository;
 import com.helmo.archi.google.googleuse.tools.Time;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 @Service

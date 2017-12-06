@@ -9,9 +9,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "notifications_status")
-@Getter @Setter
+@Getter
+@Setter
 public class NotificationStatus extends IdentifiedModel {
-
+	
 	@Column(name = "name")
 	private String name;
 }

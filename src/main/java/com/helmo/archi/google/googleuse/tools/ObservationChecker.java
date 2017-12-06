@@ -59,20 +59,22 @@ public class ObservationChecker {
 		notType = medSrv.getByName(env.getProperty("data.mediaTypes.nothing"));
 		
 		picFilter = new FileNameExtensionFilter("Picture Files",
-				    env.getProperty("storage.allowedPicExt").split(","));
+			  env.getProperty("storage.allowedPicExt").split(","));
 		vidFilter = new FileNameExtensionFilter("Video Files",
-				    env.getProperty("storage.allowedVidExt").split(","));
+			  env.getProperty("storage.allowedVidExt").split(","));
 		audFilter = new FileNameExtensionFilter("Audio Files",
-				    env.getProperty("storage.allowedAudExt").split(","));
+			  env.getProperty("storage.allowedAudExt").split(","));
 		
 	}
 	
 	private boolean acceptedPictures(File file) {
 		return picFilter.accept(file);
 	}
+	
 	private boolean acceptedVideos(File file) {
 		return vidFilter.accept(file);
 	}
+	
 	private boolean acceptedAudios(File file) {
 		return audFilter.accept(file);
 	}
@@ -82,16 +84,16 @@ public class ObservationChecker {
 		Observation added;
 		boolean sesOk = (session != null);
 		Session dbSes = session;
-		if(sesOk) dbSes = sesSrv.getById(session.getId());
+		if (sesOk) dbSes = sesSrv.getById(session.getId());
 		
 		for (Observation obs : observations) {
 			boolean sendNotif = false;
 			/* CHECK FOR SESSION */
-			if(sesOk) obs.setSession(dbSes);
-			else if(obs.getSession() == null) throw new NullPointerException("No session define");
+			if (sesOk) obs.setSession(dbSes);
+			else if (obs.getSession() == null) throw new NullPointerException("No session define");
 				
 			/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
-			if(!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
+			if (!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
 			
 			try {
 				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
@@ -104,7 +106,7 @@ public class ObservationChecker {
 				
 			/* ADD TO DATABASE*/
 			added = obsSrv.create(obs);
-			if(sendNotif)
+			if (sendNotif)
 				notSrv.create(NotificationBuilder.getDefaultNotification(
 					  "Format du média invalide",
 					  "Le format du média de l'observation est invalide : \n" + added.getOnlinePath(),
@@ -121,7 +123,7 @@ public class ObservationChecker {
 	}
 	
 	private void defineMediaType(Observation obs) {
-		if(obs.getOnlinePath() != null && obs.getOnlinePath().trim().length() > 0) {
+		if (obs.getOnlinePath() != null && obs.getOnlinePath().trim().length() > 0) {
 			File file = new File(obs.getOnlinePath());
 			if (acceptedPictures(file)) {
 				obs.setMediaType(picType);
@@ -139,16 +141,18 @@ public class ObservationChecker {
 	
 	/**
 	 * Analyse the obs and DOESN'T update the observation
+	 *
 	 * @param obs
 	 * @throws Exception
 	 */
 	private void analyseMedia(Observation obs) throws Exception {
-		if(obs.getMediaType().equals(picType)) {
+		if (obs.getMediaType().equals(picType)) {
 			AnnotateImageResponse analyse = vision.simpleAnalyse(
 				  Paths.get(obs.getOnlinePath()));
 			obs.setAnalyseResult(analyse.getSafeSearchAnnotation().toString());
 			checkNotification(obs, analyse);
-		} if(obs.getMediaType().equals(vidType) || obs.getMediaType().equals(audType)){ //TODO Add Google Cloud Video Intelligence
+		}
+		if (obs.getMediaType().equals(vidType) || obs.getMediaType().equals(audType)) { //TODO Add Google Cloud Video Intelligence
 			obs.setAnalyseResult("ANALYSE NOT AVAILABLE\nAnalyse only available for : pictures");
 		}
 	}
@@ -162,9 +166,9 @@ public class ObservationChecker {
 				/* CHECK THE PICTURE */
 				String newPath = obs.getOnlinePath();
 				String oldPath = oldObs.getOnlinePath();
-				if(newPath != null && newPath.trim().length() > 0) { //That means there's something
-					if(oldPath != null && oldPath.trim().length() > 0) {
-						if(!oldPath.equals(newPath)) { //If not equals, there's something different
+				if (newPath != null && newPath.trim().length() > 0) { //That means there's something
+					if (oldPath != null && oldPath.trim().length() > 0) {
+						if (!oldPath.equals(newPath)) { //If not equals, there's something different
 							defineMediaType(obs);
 							analyseMedia(obs);
 						}
@@ -175,8 +179,8 @@ public class ObservationChecker {
 				}
 				
 				/* CHECK THE BIRD */
-				if(oldObs.getBirdId() != obs.getBirdId())
-					if(!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
+				if (oldObs.getBirdId() != obs.getBirdId())
+					if (!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
 				
 				toUpdate.add(obsSrv.update(obs));
 			}
@@ -211,10 +215,10 @@ public class ObservationChecker {
 			));
 			obs.setValidation(false);
 			obsSrv.update(obs);
-		} else if(!containsNotCaseSensitive(labels, "bird")) {
+		} else if (!containsNotCaseSensitive(labels, "bird")) {
 			
 			StringBuilder message = new StringBuilder("Analyse de l'image : \n");
-			for(EntityAnnotation entity : labels)
+			for (EntityAnnotation entity : labels)
 				message.append(
 					  translate.simpleTranslateFromENToFR(entity.getDescription()))
 					  .append(" : ").append(entity.getScore()).append("\n");
@@ -233,8 +237,8 @@ public class ObservationChecker {
 	private boolean containsNotCaseSensitive(List<EntityAnnotation> entities, String key) {
 		boolean rtn = false;
 		String lowerKey = key.toLowerCase();
-		for(EntityAnnotation entity : entities)
-			if(entity.getDescription().toLowerCase().contains(lowerKey)) {
+		for (EntityAnnotation entity : entities)
+			if (entity.getDescription().toLowerCase().contains(lowerKey)) {
 				rtn = true;
 				break;
 			}

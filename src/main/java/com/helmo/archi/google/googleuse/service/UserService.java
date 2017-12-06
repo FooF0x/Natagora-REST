@@ -42,7 +42,7 @@ public class UserService implements BasicService<User, Long> {
 	
 	@Override
 	public User create(User usr) {
-		if(usr.getRoles() == null || usr.getRoles().size() == 0)
+		if (usr.getRoles() == null || usr.getRoles().size() == 0)
 			usr.setRoles(Collections.singletonList(roleRepo.findOneByName("ROLE_USER")));
 		
 		User two = new User();
