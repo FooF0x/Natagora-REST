@@ -47,23 +47,31 @@ public class UserController implements BasicController<User> {
 	@Override
 	@PostMapping
 	@Secured("ROLE_SYSTEM")
-	public List<User> create(@RequestBody User... users) {
-		List<User> rtn = new ArrayList<>();
-		for (User usr : users)
-			if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
-				rtn.add(usrSrv.create(usr));
-		return rtn;
+	public ResponseEntity create(@RequestBody User... users) {
+		try {
+			List<User> rtn = new ArrayList<>();
+			for (User usr : users)
+				if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
+					rtn.add(usrSrv.create(usr));
+			return ResponseEntity.ok(rtn);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_USER")
-	public List<User> update(@RequestBody User... users) {
-		List<User> rtn = new ArrayList<>();
-		for (User usr : users)
-			if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
-				rtn.add(usrSrv.update(usr));
-		return rtn;
+	public ResponseEntity update(@RequestBody User... users) {
+		try {
+			List<User> rtn = new ArrayList<>();
+			for (User usr : users)
+				if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
+					rtn.add(usrSrv.update(usr));
+			return ResponseEntity.ok(rtn);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override

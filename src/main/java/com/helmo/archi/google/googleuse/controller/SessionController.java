@@ -40,25 +40,33 @@ public class SessionController implements BasicController<Session> {
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")
-	public List<Session> create(@RequestBody Session... sessions) {
-		List<Session> rtn = new ArrayList<>();
-		//TODO Analyse inside obs
-		for(Session ses : sessions) {
-			Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
-			ses.setObservations(new ArrayList<>());
-			Session added = sesSrv.create(ses);
-			added.setObservations(
-				  obsChecker.observationAdder(added, obs));
-			rtn.add(added);
+	public ResponseEntity create(@RequestBody Session... sessions) {
+		try {
+			List<Session> rtn = new ArrayList<>();
+			//TODO Analyse inside obs
+			for (Session ses : sessions) {
+				Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
+				ses.setObservations(new ArrayList<>());
+				Session added = sesSrv.create(ses);
+				added.setObservations(
+					  obsChecker.observationAdder(added, obs));
+				rtn.add(added);
+			}
+			return ResponseEntity.ok(rtn);
+		} catch (Exception ex) {
+			return ResponseEntity.badRequest().build();
 		}
-		return rtn;
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_USER")
-	public List<Session> update(@RequestBody Session... ses) {
-		return sesSrv.update(ses);
+	public ResponseEntity update(@RequestBody Session... ses) {
+		try {
+			return ResponseEntity.ok(sesSrv.update(ses));
+		} catch (Exception ex) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override

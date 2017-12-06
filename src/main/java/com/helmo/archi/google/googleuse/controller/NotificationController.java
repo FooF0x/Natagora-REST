@@ -33,15 +33,23 @@ public class NotificationController implements BasicController<Notification> {
 	
 	@Override
 	@PostMapping
-	public List<Notification> create(@RequestBody Notification... notifications) {
-		return notSrv.create(notifications);
+	public ResponseEntity create(@RequestBody Notification... notifications) {
+		try {
+			return ResponseEntity.ok(notSrv.create(notifications));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_USER")
-	public List<Notification> update(@RequestBody Notification... notifs) {
-		return update(notifs);
+	public ResponseEntity update(@RequestBody Notification... notifications) {
+		try {
+			return ResponseEntity.ok(notSrv.create(notifications));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override

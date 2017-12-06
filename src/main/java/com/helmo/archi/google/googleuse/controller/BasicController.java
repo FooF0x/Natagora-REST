@@ -14,10 +14,10 @@ public interface BasicController<Model> {
 	Model getOne(@PathVariable("id") long id);
 	
 	@PostMapping
-	List<Model> create(@RequestBody Model... models);
+	ResponseEntity create(@RequestBody Model... models);
 	
 	@PutMapping
-	List<Model> update(@RequestBody Model... models);
+	ResponseEntity update(@RequestBody Model... models);
 	
 	@DeleteMapping("/{id}")
 	ResponseEntity deleteOne(@PathVariable("id") long id);

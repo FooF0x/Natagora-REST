@@ -12,6 +12,8 @@ import com.helmo.archi.google.googleuse.service.*;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +37,9 @@ public class ObservationChecker {
 	private final GoogleVision vision;
 	private final GoogleTranslate translate;
 	
-	private final Pattern picPattern;
-	private final Pattern vidPattern;
-	private final Pattern audPattern;
+	private final FileNameExtensionFilter picFilter;
+	private final FileNameExtensionFilter vidFilter;
+	private final FileNameExtensionFilter audFilter;
 	
 	public ObservationChecker(ObservationService obsSrv, NotificationService notSrv, MediaTypeService medSrv,
 	                          GoogleVision vision, GoogleTranslate translate, Environment env, SessionService sesSrv,
@@ -55,63 +57,71 @@ public class ObservationChecker {
 		audType = medSrv.getByName(env.getProperty("data.mediaTypes.audio"));
 		notType = medSrv.getByName(env.getProperty("data.mediaTypes.nothing"));
 		
-		picPattern = getPatternFromEnvironment(env.getProperty("storage.allowedPicExt"));
-		vidPattern = getPatternFromEnvironment(env.getProperty("storage.allowedVidExt"));
-		audPattern = getPatternFromEnvironment(env.getProperty("storage.allowedAudExt"));
+		picFilter = new FileNameExtensionFilter("Picture Files",
+				    env.getProperty("storage.allowedPicExt").split(","));
+		vidFilter = new FileNameExtensionFilter("Video Files",
+				    env.getProperty("storage.allowedVidExt").split(","));
+		audFilter = new FileNameExtensionFilter("Audio Files",
+				    env.getProperty("storage.allowedAudExt").split(","));
 		
 	}
 	
-	private Pattern getPatternFromEnvironment(String base) {
-		StringBuilder strPattern = new StringBuilder();
-		for(String str : base.split(","))
-			strPattern.append("(?=.*.").append(str).append(")");
-		return Pattern.compile(strPattern.toString());
+	private boolean acceptedPictures(File file) {
+		return picFilter.accept(file);
+	}
+	private boolean acceptedVideos(File file) {
+		return vidFilter.accept(file);
+	}
+	private boolean acceptedAudios(File file) {
+		return audFilter.accept(file);
 	}
 	
-	public List<Observation> observationAdder(Session session, Observation... observations) {
+	public List<Observation> observationAdder(Session session, Observation... observations) throws Exception {
 		List<Observation> rtn = new ArrayList<>();
 		Observation added;
 		boolean sesOk = (session != null);
 		Session dbSes = session;
 		if(sesOk) dbSes = sesSrv.getById(session.getId());
 		
-		try {
-			for (Observation obs : observations) {
+		for (Observation obs : observations) {
 				/* CHECK FOR SESSION */
-				if(sesOk) obs.setSession(dbSes);
-				else if(obs.getSession() == null) throw new NullPointerException("No session define");
+			if(sesOk) obs.setSession(dbSes);
+			else if(obs.getSession() == null) throw new NullPointerException("No session define");
 				
 				/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
-				if(!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
+			if(!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
 				
-				/* DEFINE MEDIA TYPE */
-				defineMediaType(obs);
+				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
+			defineMediaType(obs);
 				
 				/* ADD TO DATABASE*/
-				added = obsSrv.create(obs);
-				
-				//TODO MAYBE, add to MongoDB for geographical research
+			added = obsSrv.create(obs);
+			
+			//TODO MAYBE, add to MongoDB for geographical research
 				
 				/* ANALYSE BASED ON TYPE*/
-				analyseMedia(added);
-				
-				rtn.add(obsSrv.update(added)); //Because analyseMedia doesn't update database
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			analyseMedia(added);
+			
+			rtn.add(obsSrv.update(added)); //Because analyseMedia doesn't update database
 		}
 		return rtn;
 	}
 	
 	private void defineMediaType(Observation obs) {
 		if(obs.getOnlinePath() != null && obs.getOnlinePath().trim().length() > 0) {
-			String path = obs.getOnlinePath();
-			if (picPattern.matcher(path).find()) {
+			File file = new File(obs.getOnlinePath());
+			if (acceptedPictures(file)) {
 				obs.setMediaType(picType);
-			} else if (vidPattern.matcher(path).find()) {
+			} else if (acceptedVideos(file)) {
 				obs.setMediaType(picType);
-			} else if (audPattern.matcher(path).find()) {
+			} else if (acceptedAudios(file)) {
 				obs.setMediaType(audType);
+			} else { //If there's something but not a good format, send notification
+				notSrv.create(NotificationBuilder.getDefaultNotification(
+					  "Format du média invalide",
+					  "Le format du média de l'observation est invalide : \n" + obs.getOnlinePath(),
+					  obs));
+				obs.setMediaType(notType);
 			}
 		} else {
 			obs.setMediaType(notType);

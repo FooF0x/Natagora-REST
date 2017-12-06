@@ -35,15 +35,23 @@ public class AttributeController implements BasicController<Attribute> {
 	@Override
 	@PostMapping
 	@Secured("ROLE_ADMIN")
-	public List<Attribute> create(@RequestBody Attribute... attributes) {
-		return attSrv.create(attributes);
+	public ResponseEntity create(@RequestBody Attribute... attributes) {
+		try {
+			return ResponseEntity.ok(attSrv.create(attributes));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_ADMIN")
-	public List<Attribute> update(@RequestBody Attribute... attributes) {
-		return attSrv.update(attributes);
+	public ResponseEntity update(@RequestBody Attribute... attributes) {
+		try {
+			return ResponseEntity.ok(attSrv.update(attributes));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override

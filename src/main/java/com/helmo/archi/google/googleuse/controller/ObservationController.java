@@ -58,15 +58,22 @@ public class ObservationController implements BasicController<Observation> {
 	
 	@Override
 	@PostMapping
-	public List<Observation> create(@RequestBody Observation... observations) {
-		return obsChecker.observationAdder(null, observations);
+	public ResponseEntity create(@RequestBody Observation... observations) {
+		try {
+			return ResponseEntity.ok(obsChecker.observationAdder(null, observations));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@PutMapping
-	public List<Observation> update(@RequestBody Observation... observations) {
-		List<Observation> updated = obsChecker.observationUpdater(observations);
-		return obsSrv.update((Observation[])updated.toArray(new Observation[updated.size()]));
+	public ResponseEntity update(@RequestBody Observation... observations) {
+		try {
+			return ResponseEntity.ok(obsChecker.observationUpdater(observations));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override

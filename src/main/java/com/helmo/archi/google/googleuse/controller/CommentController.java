@@ -33,15 +33,23 @@ public class CommentController implements BasicController<Comment> {
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")
-	public List<Comment> create(@RequestBody Comment... comment) {
-		return cmtSrv.create(comment);
+	public ResponseEntity create(@RequestBody Comment... comments) {
+		try {
+			return ResponseEntity.ok(cmtSrv.create(comments));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_USER")
-	public List<Comment> update(Comment... comments) {
-		return cmtSrv.update(comments);
+	public ResponseEntity update(Comment... comments) {
+		try {
+			return ResponseEntity.ok(cmtSrv.update(comments));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override

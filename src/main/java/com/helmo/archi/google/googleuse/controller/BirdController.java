@@ -37,15 +37,23 @@ public class BirdController implements BasicController<Bird> {
 	@Override
 	@PostMapping
 	@Secured("ROLE_ADMIN")
-	public List<Bird> create(@RequestBody Bird... bird) {
-		return brdSrv.create(bird);
+	public ResponseEntity create(@RequestBody Bird... bird) {
+		try {
+			return ResponseEntity.ok(brdSrv.create(bird));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
 	@PutMapping
 	@Secured("ROLE_ADMIN")
-	public List<Bird> update(@RequestBody Bird... bird) {
-		return brdSrv.update(bird);
+	public ResponseEntity update(@RequestBody Bird... bird) {
+		try {
+			return ResponseEntity.ok(brdSrv.update(bird));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@Override
