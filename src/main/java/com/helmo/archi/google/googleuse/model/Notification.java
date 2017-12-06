@@ -21,10 +21,11 @@ public class Notification extends IdentifiedModel {
 	@Column(name = "date_time")
 	private Timestamp date;
 	
-	@Column(name = "status")
-	private boolean status;
+	@JoinColumn(name = "id_status")
+	@ManyToOne(targetEntity = NotificationStatus.class)
+	private NotificationStatus status;
 	
-	@JoinColumn(name = "observation")
+	@JoinColumn(name = "id_observation")
 	@ManyToOne(
 		  targetEntity = Observation.class,
 		  cascade = CascadeType.REMOVE)

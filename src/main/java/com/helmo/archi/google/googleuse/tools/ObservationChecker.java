@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Component
 public class ObservationChecker {
@@ -31,6 +30,7 @@ public class ObservationChecker {
 	
 	private final ObservationService obsSrv;
 	private final NotificationService notSrv;
+	private final NotificationStatusService statusSrv;
 	private final SessionService sesSrv;
 	private final BirdService brdSrv;
 	
@@ -42,10 +42,11 @@ public class ObservationChecker {
 	private final FileNameExtensionFilter audFilter;
 	
 	public ObservationChecker(ObservationService obsSrv, NotificationService notSrv, MediaTypeService medSrv,
-	                          GoogleVision vision, GoogleTranslate translate, Environment env, SessionService sesSrv,
-	                          BirdService brdSrv) {
+	                          NotificationStatusService statusSrv, GoogleVision vision, GoogleTranslate translate,
+	                          Environment env, SessionService sesSrv, BirdService brdSrv) {
 		this.obsSrv = obsSrv;
 		this.notSrv = notSrv;
+		this.statusSrv = statusSrv;
 		this.sesSrv = sesSrv;
 		this.brdSrv = brdSrv;
 		
@@ -84,22 +85,34 @@ public class ObservationChecker {
 		if(sesOk) dbSes = sesSrv.getById(session.getId());
 		
 		for (Observation obs : observations) {
-				/* CHECK FOR SESSION */
+			boolean sendNotif = false;
+			/* CHECK FOR SESSION */
 			if(sesOk) obs.setSession(dbSes);
 			else if(obs.getSession() == null) throw new NullPointerException("No session define");
 				
-				/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
+			/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
 			if(!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
-				
-				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
-			defineMediaType(obs);
-				
-				/* ADD TO DATABASE*/
-			added = obsSrv.create(obs);
 			
+			try {
+				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
+				defineMediaType(obs);
+			} catch (IllegalArgumentException ex) {
+				obs.setMediaType(notType);
+				obs.setValidation(false);
+				sendNotif = true;
+			}
+				
+			/* ADD TO DATABASE*/
+			added = obsSrv.create(obs);
+			if(sendNotif)
+				notSrv.create(NotificationBuilder.getDefaultNotification(
+					  "Format du média invalide",
+					  "Le format du média de l'observation est invalide : \n" + added.getOnlinePath(),
+					  statusSrv.findByName("PENDING"),
+					  added));
 			//TODO MAYBE, add to MongoDB for geographical research
 				
-				/* ANALYSE BASED ON TYPE*/
+			/* ANALYSE BASED ON TYPE*/
 			analyseMedia(added);
 			
 			rtn.add(obsSrv.update(added)); //Because analyseMedia doesn't update database
@@ -117,11 +130,7 @@ public class ObservationChecker {
 			} else if (acceptedAudios(file)) {
 				obs.setMediaType(audType);
 			} else { //If there's something but not a good format, send notification
-				notSrv.create(NotificationBuilder.getDefaultNotification(
-					  "Format du média invalide",
-					  "Le format du média de l'observation est invalide : \n" + obs.getOnlinePath(),
-					  obs));
-				obs.setMediaType(notType);
+				throw new IllegalArgumentException("Wrong file");
 			}
 		} else {
 			obs.setMediaType(notType);
@@ -197,6 +206,7 @@ public class ObservationChecker {
 			notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
 				  "Problème avec une observation",
 				  message,
+				  statusSrv.findByName("PENDING"),
 				  obs
 			));
 			obs.setValidation(false);
@@ -212,6 +222,7 @@ public class ObservationChecker {
 			notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
 				  "Aucun oiseau détecté",
 				  message.toString(),
+				  statusSrv.findByName("PENDING"),
 				  obs
 			));
 			obs.setValidation(false);

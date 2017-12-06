@@ -1,26 +1,32 @@
 package com.helmo.archi.google.googleuse.tools;
 
 import com.helmo.archi.google.googleuse.model.Notification;
+import com.helmo.archi.google.googleuse.model.NotificationStatus;
 import com.helmo.archi.google.googleuse.model.Observation;
+import com.helmo.archi.google.googleuse.service.NotificationStatusService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
+@Component
 public class NotificationBuilder {
 	
 	public static Notification getNotification(
-		  String caption, String description, Timestamp time, boolean status, Observation obs) {
-		Notification notif = new Notification();
-		notif.setDate(time);
-		notif.setCaption(caption);
-		notif.setDescription(description);
-		notif.setObservation(obs);
-		notif.setStatus(status);
-		return notif;
+		  String caption, String description, Timestamp time, NotificationStatus status, Observation obs) {
+		Notification notification = new Notification();
+		notification.setDate(time);
+		notification.setCaption(caption);
+		notification.setDescription(description);
+		notification.setObservation(obs);
+		notification.setStatus(status);
+		return notification;
 	}
 	
 	/**
-	 * Return a notification with actual timestamp and status as false.
+	 * Return a notification with actual timestamp and status as <code>PENDING</code>.
 	 *
 	 * @param caption The caption of the notification.
 	 * @param description The description of the notification.
@@ -28,12 +34,12 @@ public class NotificationBuilder {
 	 * @return A notification.
 	 */
 	public static Notification getDefaultNotification(
-		  String caption, String description, Observation obs) {
+		  String caption, String description, NotificationStatus status, Observation obs) {
 		return getNotification(
 			  caption,
 			  description,
 			  new Timestamp(new Date().getTime()),
-			  false,
+			  status,
 			  obs
 		);
 	}

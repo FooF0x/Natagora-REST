@@ -55,6 +55,7 @@ public class UserController implements BasicController<User> {
 					rtn.add(usrSrv.create(usr));
 			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
 	}
@@ -70,6 +71,7 @@ public class UserController implements BasicController<User> {
 					rtn.add(usrSrv.update(usr));
 			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
 	}

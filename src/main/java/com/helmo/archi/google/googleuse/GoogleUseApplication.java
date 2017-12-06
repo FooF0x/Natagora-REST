@@ -1,9 +1,11 @@
 package com.helmo.archi.google.googleuse;
 
 import com.helmo.archi.google.googleuse.model.MediaType;
+import com.helmo.archi.google.googleuse.model.NotificationStatus;
 import com.helmo.archi.google.googleuse.model.Role;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.repository.MediaTypeRepository;
+import com.helmo.archi.google.googleuse.repository.NotificationStatusRepository;
 import com.helmo.archi.google.googleuse.repository.RoleRepository;
 import com.helmo.archi.google.googleuse.repository.UserRepository;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
@@ -42,12 +44,15 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	
 	@Bean
 	public ApplicationRunner startApp(UserRepository usrRepo, RoleRepository roleRepo, MediaTypeRepository medRepo,
-	                                  PasswordEncoder passEnc, Environment env, GoogleStorage storage) {
+	                                  PasswordEncoder passEnc, Environment env, GoogleStorage storage,
+	                                  NotificationStatusRepository notRepo) {
 		return args -> {
 			
 			checkRolesIntegrity(roleRepo, env, env.getProperty("data.role.property-names").split(","));
 			
 			checkMediaTypeIntegrity(medRepo, env.getProperty("data.mediaTypes").split(","));
+			
+			checkNotificationStatusIntegrity(notRepo, env.getProperty("data.not-status").split(","));
 			
 			checkManagementUser(
 				  "admin",
@@ -138,6 +143,20 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			}
 		}
 		
+		return rtn;
+	}
+	
+	private void checkNotificationStatusIntegrity(NotificationStatusRepository notRepo, String... status) {
+		List<NotificationStatus> rtn = new ArrayList<>();
+		for(String str : status)
+			if(notRepo.findByName(str) == null)
+				rtn.add(createStatus(str));
+		notRepo.save(rtn);
+	}
+	
+	private NotificationStatus createStatus(String name) {
+		NotificationStatus rtn = new NotificationStatus();
+		rtn.setName(name);
 		return rtn;
 	}
 	

@@ -36,7 +36,7 @@ public class NotificationService implements BasicService<Notification, Long> {
 		notif.setDate(toAdd.getDate() != null
 			  ? toAdd.getDate()
 			  : Time.getTime());
-		notif.setStatus(toAdd.isStatus());
+		notif.setStatus(toAdd.getStatus());
 		notif.setObservation(toAdd.getObservation());
 		return notRepo.save(notif);
 	}
@@ -44,7 +44,7 @@ public class NotificationService implements BasicService<Notification, Long> {
 	@Override
 	public Notification update(Notification toUpdate) {
 		Notification notif = notRepo.findOne(toUpdate.getId());
-		notif.setStatus(toUpdate.isStatus());
+		notif.setStatus(toUpdate.getStatus());
 		notif.setCaption(
 			  toUpdate.getCaption() != null
 					? toUpdate.getCaption()

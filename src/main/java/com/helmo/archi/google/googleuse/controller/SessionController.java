@@ -54,6 +54,7 @@ public class SessionController implements BasicController<Session> {
 			}
 			return ResponseEntity.ok(rtn);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
 	}
@@ -65,6 +66,7 @@ public class SessionController implements BasicController<Session> {
 		try {
 			return ResponseEntity.ok(sesSrv.update(ses));
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
 	}
