@@ -111,4 +111,8 @@ public class BirdService implements BasicService<Bird, Long> {
 			  .lt(args + args * 1.5));
 		return monqoTemplate.find(findQuery, Bird.class);
 	}
+	
+	public boolean exist(long id) {
+		return brdRepo.exists(id);
+	}
 }

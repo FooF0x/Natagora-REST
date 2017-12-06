@@ -1,7 +1,9 @@
 package com.helmo.archi.google.googleuse;
 
+import com.helmo.archi.google.googleuse.model.MediaType;
 import com.helmo.archi.google.googleuse.model.Role;
 import com.helmo.archi.google.googleuse.model.User;
+import com.helmo.archi.google.googleuse.repository.MediaTypeRepository;
 import com.helmo.archi.google.googleuse.repository.RoleRepository;
 import com.helmo.archi.google.googleuse.repository.UserRepository;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
@@ -34,25 +36,29 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	}
 	
 	@Bean
-	public PasswordEncoder encodage() {
+	public PasswordEncoder encode() {
 		return new BCryptPasswordEncoder();
 	}
 	
 	@Bean
-	public ApplicationRunner startApp(UserRepository usrRepo, RoleRepository roleRepo, PasswordEncoder passEnc, Environment env,
-	                                  GoogleStorage storage) {
+	public ApplicationRunner startApp(UserRepository usrRepo, RoleRepository roleRepo, MediaTypeRepository medRepo,
+	                                  PasswordEncoder passEnc, Environment env, GoogleStorage storage) {
 		return args -> {
 			
 			checkRolesIntegrity(roleRepo);
 			
+			checkMediaTypeIntegrity(medRepo, env.getProperty("data.mediaTypes").split(","));
+			
 			checkManagementUser("admin", true, usrRepo, roleRepo, env, passEnc,
 				  roleRepo.findOneByName("ROLE_ADMIN"),
 				  roleRepo.findOneByName("ROLE_SYSTEM"),
+				  roleRepo.findOneByName("ROLE_ANONYMOUS"),
 				  roleRepo.findOneByName("ROLE_USER"));
 			
 			checkManagementUser("system", false, usrRepo, roleRepo, env, passEnc,
 				  roleRepo.findOneByName("ROLE_ADMIN"),
 				  roleRepo.findOneByName("ROLE_SYSTEM"),
+				  roleRepo.findOneByName("ROLE_ANONYMOUS"),
 				  roleRepo.findOneByName("ROLE_USER"));
 			
 			if (usrRepo.findByEmail("user@nat.be") == null) { //TODO Remove for production
@@ -131,7 +137,21 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		
 	}
 	
-	private void checkRolesIntegrity(RoleRepository roleRepo) {
+	private void checkMediaTypeIntegrity(MediaTypeRepository medRepo, String ... mediaTypeNames) {
+		List<MediaType> mediaTypes = new ArrayList<>();
+		for(String str : mediaTypeNames)
+			if(medRepo.findByName(str) == null)
+				mediaTypes.add(createMediaType(str));
+				
+		medRepo.save(mediaTypes);
+	}
+	private MediaType createMediaType(String name) {
+		MediaType rtn = new MediaType();
+		rtn.setName(name);
+		return rtn;
+	}
+	
+	private void checkRolesIntegrity(RoleRepository roleRepo) { //TODO Apply same principle as MediaTypes
 		List<Role> roles = new ArrayList<>();
 		if (roleRepo.findOneByName("ROLE_ADMIN") == null) {
 			Role adm = new Role();

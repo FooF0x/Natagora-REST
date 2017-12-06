@@ -50,7 +50,7 @@ public class GoogleStorage { //TODO Work with path not strings
 	}
 	
 	private void uploadMedia(Path path, Path onlinePath, String mediaType) throws IOException {
-		BlobId blobId = BlobId.of(bucketName, onlinePath.toString());
+		BlobId blobId = BlobId.of(bucketName, onlinePath.toString().replace("\\", "/"));
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType(mediaType)
@@ -89,7 +89,7 @@ public class GoogleStorage { //TODO Work with path not strings
 	}
 	
 	private boolean isASubfolder(Path path) {
-		return path.startsWith("\\") || path.startsWith("/");
+		return path.startsWith("\\");
 	}
 	
 	public byte[] getMedia(Path onlinePath) throws IOException {
@@ -107,7 +107,6 @@ public class GoogleStorage { //TODO Work with path not strings
 		} else {
 			// When Blob size is big or unknown use the blob's channel reader.
 			try (ReadChannel reader = blob.reader()) {
-//				byte[] content = new byte[64 * 1024];
 				List<Byte> content = new LinkedList<>();
 				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
 				while (reader.read(bytes) > 0) {
@@ -122,40 +121,6 @@ public class GoogleStorage { //TODO Work with path not strings
 			}
 		}
 		return rtn;
-	}
-	
-	public void getMedia(Path onlinePath, Path downloadTo) throws IOException {
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString()));
-		if (blob == null) {
-			System.out.println("No such object");
-			return;
-		}
-		
-		PrintStream writeTo = System.out;
-		if (downloadTo != null) {
-			writeTo = new PrintStream(new FileOutputStream(downloadTo.toFile()));
-		}
-		if (blob.getSize() < 1_000_000) {
-			// Blob is small read all its content in one request
-			byte[] content = blob.getContent();
-			writeTo.write(content);
-		} else {
-			// When Blob size is big or unknown use the blob's channel reader.
-			try (ReadChannel reader = blob.reader()) {
-				WritableByteChannel channel = Channels.newChannel(writeTo);
-				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
-				while (reader.read(bytes) > 0) {
-					bytes.flip();
-					channel.write(bytes);
-					bytes.clear();
-				}
-			}
-		}
-		if (downloadTo == null) {
-			writeTo.println();
-		} else {
-			writeTo.close();
-		}
 	}
 	
 	public boolean deleteMedia(Path onlinePath) {

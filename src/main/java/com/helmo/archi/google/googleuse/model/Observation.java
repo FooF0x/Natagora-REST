@@ -48,7 +48,7 @@ public class Observation extends IdentifiedModel {
 	
 	@JoinColumn(name = "id_session")
 	@ManyToOne(targetEntity = Session.class)
-	@JsonIgnore
+	@JsonProperty(access =  WRITE_ONLY)
 	private Session session;
 	
 	@Transient

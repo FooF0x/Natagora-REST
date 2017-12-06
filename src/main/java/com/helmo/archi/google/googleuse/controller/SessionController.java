@@ -1,11 +1,14 @@
 package com.helmo.archi.google.googleuse.controller;
 
+import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.service.SessionService;
+import com.helmo.archi.google.googleuse.tools.ObservationChecker;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -13,9 +16,11 @@ import java.util.List;
 public class SessionController implements BasicController<Session> {
 	
 	private final SessionService sesSrv;
+	private final ObservationChecker obsChecker;
 	
-	public SessionController(SessionService sesSrv) {
+	public SessionController(SessionService sesSrv, ObservationChecker obsChecker) {
 		this.sesSrv = sesSrv;
+		this.obsChecker = obsChecker;
 	}
 	
 	@Override
@@ -35,10 +40,19 @@ public class SessionController implements BasicController<Session> {
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")
-	public List<Session> create(@RequestBody Session... ses) {
-		return sesSrv.create(ses);
+	public List<Session> create(@RequestBody Session... sessions) {
+		List<Session> rtn = new ArrayList<>();
+		//TODO Analyse inside obs
+		for(Session ses : sessions) {
+			Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
+			ses.setObservations(new ArrayList<>());
+			Session added = sesSrv.create(ses);
+			added.setObservations(
+				  obsChecker.observationAdder(added, obs));
+			rtn.add(added);
+		}
+		return rtn;
 	}
-	
 	
 	@Override
 	@PutMapping
