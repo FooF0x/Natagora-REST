@@ -2,10 +2,12 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Notification;
 import com.helmo.archi.google.googleuse.service.NotificationService;
+import com.helmo.archi.google.googleuse.service.NotificationStatusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -13,9 +15,11 @@ import java.util.List;
 public class NotificationController implements BasicController<Notification> {
 	
 	private final NotificationService notSrv;
+	private final NotificationStatusService statusSrv;
 	
-	public NotificationController(NotificationService notSrv) {
+	public NotificationController(NotificationService notSrv, NotificationStatusService statusSrv) {
 		this.notSrv = notSrv;
+		this.statusSrv = statusSrv;
 	}
 	
 	@Override
@@ -35,7 +39,13 @@ public class NotificationController implements BasicController<Notification> {
 	@PostMapping
 	public ResponseEntity create(@RequestBody Notification... notifications) {
 		try {
-			return ResponseEntity.ok(notSrv.create(notifications));
+			List<Notification> rtn = new ArrayList<>();
+			for(Notification not : notifications) {
+				if(not.getStatus().getId() == 0)
+					not.setStatus(statusSrv.findByName(not.getStatus().getName()));
+				rtn.add(notSrv.create(not));
+			}
+			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
@@ -46,7 +56,13 @@ public class NotificationController implements BasicController<Notification> {
 	@Secured("ROLE_USER")
 	public ResponseEntity update(@RequestBody Notification... notifications) {
 		try {
-			return ResponseEntity.ok(notSrv.create(notifications));
+			List<Notification> rtn = new ArrayList<>();
+			for(Notification not : notifications) {
+				if(not.getStatus().getId() == 0)
+					not.setStatus(statusSrv.findByName(not.getStatus().getName()));
+				rtn.add(notSrv.update(not));
+			}
+			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
