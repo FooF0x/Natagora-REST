@@ -41,7 +41,7 @@ public class User extends IdentifiedModel {
 		  inverseJoinColumns = @JoinColumn(name = "id_role"))
 	private List<Role> roles;
 	
-	@OneToMany(cascade = {CascadeType.PERSIST},
+	@OneToMany(cascade = {CascadeType.ALL},
 		  mappedBy = "user")
 	private List<Session> sessions;
 

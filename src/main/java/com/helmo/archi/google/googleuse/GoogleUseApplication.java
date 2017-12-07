@@ -22,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication
@@ -72,17 +71,14 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 						env,
 						passEnc));
 			
-			if (usrRepo.findByEmail("user@nat.be") == null) { //TODO Remove for production
-				usrRepo.save(new User(
-					  "user",
-					  "user@nat.be",
-					  passEnc.encode("useruser"),
-					  false,
-					  env.getProperty("helmo.storage.defaultPic.onlineLocation"),
-					  Arrays.asList(
-							roleRepo.findOneByName("ROLE_USER"))
-				));
-			}
+			checkManagementUser(
+					"default",
+					usrRepo, env, passEnc,
+					createUser(
+							"default",
+							roleRepo,
+							env,
+							passEnc));
 			
 			checkStorageIntegrity(storage, env);
 			
@@ -94,7 +90,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		rtn.setFullName(env.getProperty("user." + type + ".name"));
 		rtn.setEmail(env.getProperty("user." + type + ".email"));
 		rtn.setAdmin(Boolean.parseBoolean(env.getProperty("user." + type + ".is-admin")));
-		rtn.setOnlinePath(env.getProperty("helmo.storage.defaultPic.onlineLocation"));
+		rtn.setOnlinePath(env.getProperty("storage.defaultPic.onlineLocation"));
 		rtn.setPassword(passEnc.encode(env.getProperty("user." + type + ".password")));
 		rtn.setSessions(new ArrayList<>());
 		List<Role> roles = new ArrayList<>();
@@ -120,30 +116,34 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	private void checkManagementUser(String type, UserRepository usrRepo, Environment env,
 	                                 PasswordEncoder passEnc, User haveToBe) {
 		User dbUser = usrRepo.findByEmail(env.getProperty("user." + type + ".email"));
-		if (dbUser == null || compareUsers(dbUser, haveToBe, type, passEnc, env)) {
+		if(dbUser == null) {
+			usrRepo.save(haveToBe);
+		} else if (!compareUsers(dbUser, haveToBe, type, passEnc, env)) {
 			usrRepo.delete(dbUser);
 			usrRepo.save(haveToBe);
 		}
 	}
 	
 	private boolean compareUsers(User dbUser, User haveToBe, String type, PasswordEncoder passEnc, Environment env) {
-		boolean rtn = dbUser.getFullName().equals(haveToBe.getFullName())
-			  && dbUser.getEmail().equals(haveToBe.getEmail())
-			  && dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
-			  && dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
-			  && dbUser.getSessions().size() == 0
-			  && passEnc.matches(
-			  env.getProperty("user." + type + ".password"), dbUser.getPassword()
-		);
-		
-		for (Role role : haveToBe.getRoles()) {
-			if (!dbUser.getRoles().contains(role)) {
-				rtn = false;
-				break;
+		try {
+			boolean rtn = dbUser.getFullName().equals(haveToBe.getFullName())
+					&& dbUser.getEmail().equals(haveToBe.getEmail())
+					&& dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
+					&& dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
+//					&& dbUser.getSessions().size() == 0
+					&& passEnc.matches(
+					env.getProperty("user." + type + ".password"), dbUser.getPassword()
+			);
+			for (Role role : haveToBe.getRoles()) {
+				if (!dbUser.getRoles().contains(role)) {
+					rtn = false;
+					break;
+				}
 			}
+			return rtn;
+		} catch (NullPointerException ex) {
+			return false;
 		}
-		
-		return rtn;
 	}
 	
 	private void checkNotificationStatusIntegrity(NotificationStatusRepository notRepo, String... status) {

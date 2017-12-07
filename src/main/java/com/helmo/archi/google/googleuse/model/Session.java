@@ -39,6 +39,15 @@ public class Session extends IdentifiedModel {
 	@JsonProperty(access = WRITE_ONLY)
 	private User user;
 	
+	@Column(name = "temperature")
+	private double temperature;
+	
+	@Column(name = "wind")
+	private double wind;
+	
+	@Column(name = "rain")
+	private double rain;
+	
 	public Session() {
 	}
 	
