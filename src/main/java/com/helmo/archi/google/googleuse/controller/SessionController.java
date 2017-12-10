@@ -68,27 +68,8 @@ public class SessionController implements BasicController<Session> {
 				JsonParser springParser = JsonParserFactory.getJsonParser();
 				Map<String, Object> result = springParser.parseMap(rawWeather);
 				
-				if(result.containsKey("main")) {
-					LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) result.get("main");
-					if(main.containsValue("temp"))
-						ses.setTemperature(main.get("temp"));
-					
-				}
-				if(result.containsKey("rain")) {
-					LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) result.get("rain");
-					if(rain.containsValue("3h"))
-						ses.setTemperature(rain.get("3h"));
-				} else {
-					ses.setRain(0.0);
-				}
-				if(result.containsKey("wind")) {
-					LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) result.get("wind");
-					if(wind.containsValue("speed"))
-						ses.setTemperature(wind.get("speed"));
-				} else {
-					ses.setWind(0.0);
-				}
-				
+				/* SET THE WEATHER */
+				setWeatherData(ses, result);
 				
 				Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
 				ses.setObservations(new ArrayList<>());
@@ -97,10 +78,29 @@ public class SessionController implements BasicController<Session> {
 					  obsChecker.observationAdder(added, obs));
 				rtn.add(added);
 			}
-			return ResponseEntity.ok(rtn);
+			return ResponseEntity.ok(rtn); //TODO Define transmission object with data and list of errors (Surround createObs with try/catch)
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return ResponseEntity.badRequest().build();
+		}
+	}
+	
+	private void setWeatherData(Session ses, Map<String, Object> seed) {
+		if(seed.containsKey("main")) {
+			LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) seed.get("main");
+			if(main.containsKey("temp"))
+				ses.setTemperature(main.get("temp"));
+			
+		}
+		if(seed.containsKey("rain")) {
+			LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) seed.get("rain");
+			if(rain.containsKey("3h"))
+				ses.setTemperature(rain.get("3h"));
+		}
+		if(seed.containsKey("wind")) {
+			LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) seed.get("wind");
+			if(wind.containsKey("speed"))
+				ses.setTemperature(wind.get("speed"));
 		}
 	}
 	
