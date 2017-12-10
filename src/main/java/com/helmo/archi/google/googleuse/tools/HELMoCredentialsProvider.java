@@ -14,9 +14,6 @@ public class HELMoCredentialsProvider {
 			return ServiceAccountCredentials.fromStream(
 				  new FileInputStream(
 						new ClassPathResource("/service_key.json").getFile()));
-//			return ServiceAccountCredentials.fromStream(
-//					new FileInputStream(
-//							new ClassPathResource("C:\\Dev\\service_key.json").getFile()));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

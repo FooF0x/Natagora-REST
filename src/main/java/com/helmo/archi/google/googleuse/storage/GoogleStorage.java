@@ -18,7 +18,6 @@ import java.util.List;
 public class GoogleStorage { //TODO Work with path not strings
 	
 	private final Storage storage;
-	//	@Value("${google.storage.bucketName}")
 	private String bucketName;
 	
 	public GoogleStorage() {
@@ -88,7 +87,7 @@ public class GoogleStorage { //TODO Work with path not strings
 	}
 	
 	public byte[] getMedia(Path onlinePath) throws IOException {
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString()));
+		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString().replace("\\", "/")));
 		if (blob == null) {
 			System.out.println("No such object");
 			return new byte[0];
