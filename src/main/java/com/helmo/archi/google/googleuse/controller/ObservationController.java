@@ -1,7 +1,6 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Observation;
-import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.service.CommentService;
 import com.helmo.archi.google.googleuse.service.NotificationService;
 import com.helmo.archi.google.googleuse.service.ObservationService;

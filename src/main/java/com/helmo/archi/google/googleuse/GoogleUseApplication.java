@@ -72,13 +72,13 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 						passEnc));
 			
 			checkManagementUser(
-					"default",
-					usrRepo, env, passEnc,
-					createUser(
-							"default",
-							roleRepo,
-							env,
-							passEnc));
+				  "default",
+				  usrRepo, env, passEnc,
+				  createUser(
+						"default",
+						roleRepo,
+						env,
+						passEnc));
 			
 			checkStorageIntegrity(storage, env);
 			
@@ -116,7 +116,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	private void checkManagementUser(String type, UserRepository usrRepo, Environment env,
 	                                 PasswordEncoder passEnc, User haveToBe) {
 		User dbUser = usrRepo.findByEmail(env.getProperty("user." + type + ".email"));
-		if(dbUser == null) {
+		if (dbUser == null) {
 			usrRepo.save(haveToBe);
 		} else if (!compareUsers(dbUser, haveToBe, type, passEnc, env)) {
 			usrRepo.delete(dbUser);
@@ -127,12 +127,12 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	private boolean compareUsers(User dbUser, User haveToBe, String type, PasswordEncoder passEnc, Environment env) {
 		try {
 			boolean rtn = dbUser.getFullName().equals(haveToBe.getFullName())
-					&& dbUser.getEmail().equals(haveToBe.getEmail())
-					&& dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
-					&& dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
+				  && dbUser.getEmail().equals(haveToBe.getEmail())
+				  && dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
+				  && dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
 //					&& dbUser.getSessions().size() == 0
-					&& passEnc.matches(
-					env.getProperty("user." + type + ".password"), dbUser.getPassword()
+				  && passEnc.matches(
+				  env.getProperty("user." + type + ".password"), dbUser.getPassword()
 			);
 			for (Role role : haveToBe.getRoles()) {
 				if (!dbUser.getRoles().contains(role)) {

@@ -1,6 +1,5 @@
 package com.helmo.archi.google.googleuse.service;
 
-import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.repository.BirdRepository;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,10 +127,10 @@ public class ObservationService implements BasicService<Observation, Long> {
 	
 	public List<Observation> getRange(long one, long two) {
 		return getAll()
-				.stream()
-				.skip(one)
-				.limit(two - one)
-				.collect(Collectors.toList());
+			  .stream()
+			  .skip(one)
+			  .limit(two - one)
+			  .collect(Collectors.toList());
 	}
 	
 	public List<Observation> getBySession(Session ses) {

@@ -25,7 +25,7 @@ public class SessionService implements BasicService<Session, Long> {
 	public List<Session> getAll() {
 		List<Session> sessions = sesRepo.findAll();
 		sessions.forEach(
-				s -> s.setObservations(obsRepo.getBySession(s)));
+			  s -> s.setObservations(obsRepo.getBySession(s)));
 		return sessions;
 	}
 	
@@ -119,10 +119,10 @@ public class SessionService implements BasicService<Session, Long> {
 	
 	public List<Session> getRange(long one, long two) {
 		return getAll()
-				.stream()
-				.skip(one)
-				.limit(two - one)
-				.collect(Collectors.toList());
+			  .stream()
+			  .skip(one)
+			  .limit(two - one)
+			  .collect(Collectors.toList());
 		
 	}
 }

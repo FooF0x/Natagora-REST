@@ -2,7 +2,6 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.model.Session;
-import com.helmo.archi.google.googleuse.service.BirdService;
 import com.helmo.archi.google.googleuse.service.SessionService;
 import com.helmo.archi.google.googleuse.service.WeatherService;
 import com.helmo.archi.google.googleuse.tools.ObservationChecker;
@@ -22,14 +21,11 @@ import java.util.Map;
 public class SessionController implements BasicController<Session> {
 	
 	private final SessionService sesSrv;
-	private final BirdService brdSrv;
 	private final WeatherService wthSrv;
 	private final ObservationChecker obsChecker;
 	
-	public SessionController(SessionService sesSrv, BirdService brdSrv,
-	                         WeatherService wthSrv, ObservationChecker obsChecker) {
+	public SessionController(SessionService sesSrv, WeatherService wthSrv, ObservationChecker obsChecker) {
 		this.sesSrv = sesSrv;
-		this.brdSrv = brdSrv;
 		this.wthSrv = wthSrv;
 		this.obsChecker = obsChecker;
 	}
@@ -51,7 +47,7 @@ public class SessionController implements BasicController<Session> {
 	@GetMapping("/{one}/{two}")
 	@Secured("ROLE_USER")
 	public List<Session> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
-		if(two <= one) throw new IllegalArgumentException("Wrong args");
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
 		return sesSrv.getRange(one, two);
 	}
 	
@@ -69,26 +65,25 @@ public class SessionController implements BasicController<Session> {
 				JsonParser springParser = JsonParserFactory.getJsonParser();
 				Map<String, Object> result = springParser.parseMap(rawWeather);
 				
-				if(result.containsKey("main")) {
+				if (result.containsKey("main")) {
 					LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) result.get("main");
-					if(main.containsValue("temp"))
+					if (main.containsValue("temp"))
 						ses.setTemperature(main.get("temp"));
 					else ses.setTemperature(null);
 				} else ses.setTemperature(null);
-				if(result.containsKey("rain")) {
+				if (result.containsKey("rain")) {
 					LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) result.get("rain");
-					if(rain.containsValue("3h"))
+					if (rain.containsValue("3h"))
 						ses.setTemperature(rain.get("3h"));
 					else ses.setRain(null);
 				} else ses.setRain(null);
 				
-				if(result.containsKey("wind")) {
+				if (result.containsKey("wind")) {
 					LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) result.get("wind");
-					if(wind.containsValue("speed"))
+					if (wind.containsValue("speed"))
 						ses.setTemperature(wind.get("speed"));
 					else ses.setWind(null);
 				} else ses.setWind(null);
-				
 				
 				
 				Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
@@ -106,20 +101,20 @@ public class SessionController implements BasicController<Session> {
 	}
 	
 	private void setWeatherData(Session ses, Map<String, Object> seed) {
-		if(seed.containsKey("main")) {
+		if (seed.containsKey("main")) {
 			LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) seed.get("main");
-			if(main.containsKey("temp"))
+			if (main.containsKey("temp"))
 				ses.setTemperature(main.get("temp"));
 			
 		}
-		if(seed.containsKey("rain")) {
+		if (seed.containsKey("rain")) {
 			LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) seed.get("rain");
-			if(rain.containsKey("3h"))
+			if (rain.containsKey("3h"))
 				ses.setTemperature(rain.get("3h"));
 		}
-		if(seed.containsKey("wind")) {
+		if (seed.containsKey("wind")) {
 			LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) seed.get("wind");
-			if(wind.containsKey("speed"))
+			if (wind.containsKey("speed"))
 				ses.setTemperature(wind.get("speed"));
 		}
 	}

@@ -17,7 +17,6 @@ import java.util.List;
 public class UserController implements BasicController<User> {
 	
 	
-	
 	private final UserService usrSrv;
 	
 	private final List<User> superUsers; //SuperUsers in cache
