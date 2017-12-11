@@ -1,6 +1,7 @@
 package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.Observation;
+import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import com.helmo.archi.google.googleuse.repository.ObservationRepository;
 import com.helmo.archi.google.googleuse.tools.Time;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ObservationService implements BasicService<Observation, Long> {
@@ -23,9 +25,7 @@ public class ObservationService implements BasicService<Observation, Long> {
 	@Override
 	public List<Observation> getAll() {
 		List<Observation> rtn = obsRepo.findAll();
-		for (Observation obs : obsRepo.findAll())
-			obs.setBird(brdRepo.findOne(obs.getBirdId()));
-		
+		rtn.forEach(obs -> obs.setBird(brdRepo.findOne(obs.getBirdId())));
 		return rtn;
 	}
 	
@@ -118,5 +118,19 @@ public class ObservationService implements BasicService<Observation, Long> {
 	@Override
 	public void delete(Observation observation) {
 		obsRepo.delete(observation);
+	}
+	
+	public List<Observation> getRange(long one, long two) {
+		return getAll()
+				.stream()
+				.skip(one)
+				.limit(two - one)
+				.collect(Collectors.toList());
+	}
+	
+	public List<Observation> getBySession(Session ses) {
+		List<Observation> observations = obsRepo.getBySession(ses);
+		observations.forEach(obs -> obs.setBird(brdRepo.findOne(obs.getBirdId())));
+		return observations;
 	}
 }

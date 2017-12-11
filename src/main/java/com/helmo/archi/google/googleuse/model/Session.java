@@ -40,13 +40,13 @@ public class Session extends IdentifiedModel {
 	private User user;
 	
 	@Column(name = "temperature")
-	private double temperature;
+	private Double temperature;
 	
 	@Column(name = "wind")
-	private double wind;
+	private Double wind;
 	
 	@Column(name = "rain")
-	private double rain;
+	private Double rain;
 	
 	public Session() {
 	}

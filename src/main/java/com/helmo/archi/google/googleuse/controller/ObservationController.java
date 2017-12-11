@@ -1,6 +1,7 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Observation;
+import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.service.CommentService;
 import com.helmo.archi.google.googleuse.service.NotificationService;
 import com.helmo.archi.google.googleuse.service.ObservationService;
@@ -46,6 +47,13 @@ public class ObservationController implements BasicController<Observation> {
 	public Observation getOne(@PathVariable("id") long id) {
 		return obsSrv.getById(id);
 	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Observation> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		return obsSrv.getRange(one, two);
+	}
+	
 	
 	@Override
 	@PostMapping
