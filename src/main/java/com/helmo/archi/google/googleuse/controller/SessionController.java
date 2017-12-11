@@ -38,13 +38,7 @@ public class SessionController implements BasicController<Session> {
 	@GetMapping()
 	@Secured("ROLE_USER")
 	public List<Session> getAll() {
-		List<Session> sessions = sesSrv.getAll();
-		for(Session ses : sessions) {
-			for(Observation obs : ses.getObservations()) {
-				obs.setBird(brdSrv.getById(obs.getBirdId()));
-			}
-		}
-		return sessions;
+		return sesSrv.getAll();
 	}
 	
 	@Override
@@ -52,6 +46,13 @@ public class SessionController implements BasicController<Session> {
 	@Secured("ROLE_USER")
 	public Session getOne(@PathVariable("id") long id) {
 		return sesSrv.getById(id);
+	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Session> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if(two <= one) throw new IllegalArgumentException("Wrong args");
+		return sesSrv.getRange(one, two);
 	}
 	
 	@Override
@@ -68,8 +69,27 @@ public class SessionController implements BasicController<Session> {
 				JsonParser springParser = JsonParserFactory.getJsonParser();
 				Map<String, Object> result = springParser.parseMap(rawWeather);
 				
-				/* SET THE WEATHER */
-				setWeatherData(ses, result);
+				if(result.containsKey("main")) {
+					LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) result.get("main");
+					if(main.containsValue("temp"))
+						ses.setTemperature(main.get("temp"));
+					else ses.setTemperature(null);
+				} else ses.setTemperature(null);
+				if(result.containsKey("rain")) {
+					LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) result.get("rain");
+					if(rain.containsValue("3h"))
+						ses.setTemperature(rain.get("3h"));
+					else ses.setRain(null);
+				} else ses.setRain(null);
+				
+				if(result.containsKey("wind")) {
+					LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) result.get("wind");
+					if(wind.containsValue("speed"))
+						ses.setTemperature(wind.get("speed"));
+					else ses.setWind(null);
+				} else ses.setWind(null);
+				
+				
 				
 				Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
 				ses.setObservations(new ArrayList<>());

@@ -16,6 +16,8 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController implements BasicController<User> {
 	
+	
+	
 	private final UserService usrSrv;
 	
 	private final List<User> superUsers; //SuperUsers in cache
@@ -29,16 +31,22 @@ public class UserController implements BasicController<User> {
 	
 	@Override
 	@GetMapping
-	@Secured("ROLE_ANONYMOUS")
+	@Secured("ROLE_SYSTEM")
 	public List<User> getAll() {
 		return usrSrv.getAll();
 	}
 	
 	@Override
 	@GetMapping("/{id}")
-	@Secured("ROLE_ANONYMOUS")
+	@Secured("ROLE_SYSTEM")
 	public User getOne(@PathVariable("id") long id) {
 		return usrSrv.getById(id);
+	}
+	
+	@GetMapping("/email/{email}")
+	@Secured("ROLE_SYSTEM")
+	public User getByEmail(@PathVariable("email") String email) {
+		return usrSrv.getByEmail(email);
 	}
 	
 	@Override
