@@ -59,11 +59,11 @@ public class ObservationChecker {
 		notType = medSrv.getByName(env.getProperty("data.mediaTypes.nothing"));
 		
 		picFilter = new FileNameExtensionFilter("Picture Files",
-			  env.getProperty("storage.allowedPicExt").split(","));
+				env.getProperty("storage.allowedPicExt").split(","));
 		vidFilter = new FileNameExtensionFilter("Video Files",
-			  env.getProperty("storage.allowedVidExt").split(","));
+				env.getProperty("storage.allowedVidExt").split(","));
 		audFilter = new FileNameExtensionFilter("Audio Files",
-			  env.getProperty("storage.allowedAudExt").split(","));
+				env.getProperty("storage.allowedAudExt").split(","));
 		
 	}
 	
@@ -93,7 +93,11 @@ public class ObservationChecker {
 			else if (obs.getSession() == null) throw new NullPointerException("No session define");
 				
 			/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
-			if (!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
+			/* If equals 0, that means no bird known*/
+			if (obs.getBirdId() != 0) {
+				/* TODO Send Notification & allow admin to add a new bird */
+			} else if (!brdSrv.exist(obs.getBirdId()))
+				throw new IllegalArgumentException("Bird ID not correct");
 			
 			try {
 				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
@@ -101,23 +105,25 @@ public class ObservationChecker {
 			} catch (IllegalArgumentException ex) {
 				obs.setMediaType(notType);
 				obs.setValidation(false);
-				sendNotif = true;
+				sendNotif = true; //TODO Create notification Pool
 			}
 				
 			/* ADD TO DATABASE*/
 			added = obsSrv.create(obs);
 			if (sendNotif)
 				notSrv.create(NotificationBuilder.getDefaultNotification(
-					  "Format du média invalide",
-					  "Le format du média de l'observation est invalide : \n" + added.getOnlinePath(),
-					  statusSrv.findByName("PENDING"),
-					  added));
+						"Format du média invalide",
+						"Le format du média de l'observation est invalide : \n" + added.getOnlinePath(),
+						statusSrv.findByName("PENDING"),
+						added));
 			//TODO MAYBE, add to MongoDB for geographical research
 				
 			/* ANALYSE BASED ON TYPE*/
-			analyseMedia(added);
+			if(analyseMedia(added)) {
+				obsSrv.update(added); //Because analyseMedia doesn't update database
+			}
 			
-			rtn.add(obsSrv.update(added)); //Because analyseMedia doesn't update database
+			rtn.add(added);
 		}
 		return rtn;
 	}
@@ -145,16 +151,18 @@ public class ObservationChecker {
 	 * @param obs
 	 * @throws Exception
 	 */
-	private void analyseMedia(Observation obs) throws Exception {
-		if (obs.getMediaType().equals(picType)) {
+	private boolean analyseMedia(Observation obs) throws Exception {
+		if (obs.getMediaType().equals(picType)) { //TODO Create thread not to block the process
 			AnnotateImageResponse analyse = vision.simpleAnalyse(
-				  Paths.get(obs.getOnlinePath()));
+					Paths.get(obs.getOnlinePath()));
 			obs.setAnalyseResult(analyse.getSafeSearchAnnotation().toString());
 			checkNotification(obs, analyse);
+			return true;
 		}
 		if (obs.getMediaType().equals(vidType) || obs.getMediaType().equals(audType)) { //TODO Add Google Cloud Video Intelligence
 			obs.setAnalyseResult("ANALYSE NOT AVAILABLE\nAnalyse only available for : pictures");
 		}
+		return false;
 	}
 	
 	public List<Observation> observationUpdater(Observation... observations) {
@@ -196,38 +204,48 @@ public class ObservationChecker {
 		List<EntityAnnotation> labels = analyse.getLabelAnnotationsList();
 		//Define Notification
 		if (safe.getAdultValue() >= 2
-			  || safe.getMedicalValue() >= 2
-			  || safe.getViolenceValue() >= 2) {
+				|| safe.getMedicalValue() >= 2
+				|| safe.getViolenceValue() >= 2) {
 			Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
 			String message = String.format(
-				  "Analyse de l'image :\n" +
-						"Violance : %s\n" +
-						"Adulte   : %s\n" +
-						"Medical  : %s\n" +
-						"Canular  : %s",
-				  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
+					"Analyse de l'image :\n" +
+							"Violance : %s\n" +
+							"Adulte   : %s\n" +
+							"Medical  : %s\n" +
+							"Canular  : %s",
+					rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
 			);
 			notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
-				  "Problème avec une observation",
-				  message,
-				  statusSrv.findByName("PENDING"),
-				  obs
+					"Problème avec une observation",
+					message,
+					statusSrv.findByName("PENDING"),
+					obs
 			));
 			obs.setValidation(false);
 			obsSrv.update(obs);
 		} else if (!containsNotCaseSensitive(labels, "bird")) {
 			
 			StringBuilder message = new StringBuilder("Analyse de l'image : \n");
+			StringBuilder toTranslate = new StringBuilder();
 			for (EntityAnnotation entity : labels)
+				toTranslate.append(entity.getDescription()).append(",");
+			String[] translation = translate.simpleTranslateFromENToFR(toTranslate.toString()).split(",");
+			
+			for(int i = 0; i < translation.length; i++)
 				message.append(
-					  translate.simpleTranslateFromENToFR(entity.getDescription()))
-					  .append(" : ").append(entity.getScore()).append("\n");
+						translation[i])
+						.append(" : ").append(labels.get(i).getScore()).append("\n");
+			
+//			for (EntityAnnotation entity : labels)
+//				message.append(
+//						translate.simpleTranslateFromENToFR(entity.getDescription()))
+//						.append(" : ").append(entity.getScore()).append("\n");
 			
 			notSrv.create(NotificationBuilder.getDefaultNotification( //Send a notification
-				  "Aucun oiseau détecté",
-				  message.toString(),
-				  statusSrv.findByName("PENDING"),
-				  obs
+					"Aucun oiseau détecté",
+					message.toString(),
+					statusSrv.findByName("PENDING"),
+					obs
 			));
 			obs.setValidation(false);
 			obsSrv.update(obs);

@@ -35,6 +35,9 @@ public class Observation extends IdentifiedModel {
 	@Column(name = "online_path")
 	private String onlinePath;
 	
+	@Column(name = "public_link")
+	private String publicLink;
+	
 	@Column(name = "analyse_result")
 	private String analyseResult;
 	

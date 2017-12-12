@@ -62,6 +62,10 @@ public class ObservationService implements BasicService<Observation, Long> {
 			  obs.getOnlinePath() != null
 					? obs.getOnlinePath()
 					: "");
+		two.setPublicLink(
+			  obs.getPublicLink() != null
+					? obs.getPublicLink()
+					: "");
 		two.setValidation(obs.isValidation());
 		two.setSession(obs.getSession());
 		
@@ -91,6 +95,10 @@ public class ObservationService implements BasicService<Observation, Long> {
 			  obs.getOnlinePath() != null
 					? obs.getOnlinePath()
 					: original.getOnlinePath());
+		original.setPublicLink(
+			  obs.getPublicLink() != null
+					? obs.getPublicLink()
+					: original.getPublicLink());
 		original.setAnalyseResult(
 			  obs.getAnalyseResult() != null
 					? obs.getAnalyseResult()
