@@ -4,32 +4,34 @@ import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.Translate.TranslateOption;
 import com.google.cloud.translate.TranslateOptions;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
+@Component
 public class GoogleTranslate {
 	
 	private Translate translate;
 	
 	public GoogleTranslate() {
-		try {
-			translate = TranslateOptions
-					.newBuilder()
-					.setCredentials(HELMoCredentialsProvider.getCredential())
-					.build().getService();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		translate = TranslateOptions
+			  .newBuilder()
+			  .setCredentials(HELMoCredentialsProvider.getCredential())
+			  .build().getService();
 	}
 	
 	public String simpleTranslateInEN(String input) {
 		return translate.translate(input).getTranslatedText();
 	}
 	
+	public String simpleTranslateFromENToFR(String input) {
+		return translate.translate(input,
+			  TranslateOption.sourceLanguage("en"),
+			  TranslateOption.targetLanguage("fr")).getTranslatedText();
+	}
+	
 	public String translateWithOption(String input, String srcLg, String tgtLg) {
 		return translate.translate(
-				input,
-				TranslateOption.sourceLanguage(srcLg),
-				TranslateOption.targetLanguage(tgtLg)).getTranslatedText();
+			  input,
+			  TranslateOption.sourceLanguage(srcLg),
+			  TranslateOption.targetLanguage(tgtLg)).getTranslatedText();
 	}
 }

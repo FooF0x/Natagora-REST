@@ -1,42 +1,66 @@
 package com.helmo.archi.google.googleuse.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@Getter
+@Setter
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User extends IdentifiedModel {
 	
 	@Column(name = "full_name")
+	@NotEmpty
 	private String fullName;
+	
 	@Column(name = "email")
+//	@Email(message = "Please, provide a valid email")
+	@NotEmpty
 	private String email;
+	
 	@Column(name = "is_admin")
 	private boolean admin = false;
 	
 	@Column(name = "pic_path")
 	private String onlinePath;
 	
-//	@JsonManagedReference
-	@OneToMany(cascade = {CascadeType.PERSIST},
-			mappedBy = "father")
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+	@JoinTable(
+		  name = "user_role",
+		  joinColumns = @JoinColumn(name = "id_user"),
+		  inverseJoinColumns = @JoinColumn(name = "id_role"))
+	private List<Role> roles;
+	
+	@OneToMany(cascade = {CascadeType.ALL},
+		  mappedBy = "user")
 	private List<Session> sessions;
+
+//	@JoinColumn(name = "last_used")
+//	@OneToMany(targetEntity = Password.class)
+//	@JsonIgnore
+//	private Password passwordData;
 	
-	public User() {}
+	@Column(name = "password")
+	@JsonProperty(access = WRITE_ONLY)
+	private String password;
 	
-	public User(String fullName, String email) {
+	public User() {
+	}
+	
+	public User(String fullName, String email, String pass, boolean admin, String onlinePath, List<Role> roles) {
 		this.fullName = fullName;
 		this.email = email;
-		sessions = new ArrayList<>();
+		this.admin = admin;
+		this.password = pass;
+		this.onlinePath = onlinePath;
+		this.roles = roles;
 	}
 }

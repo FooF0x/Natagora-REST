@@ -4,58 +4,65 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
+import org.springframework.stereotype.Component;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
+@Component
 public class GoogleStorage { //TODO Work with path not strings
 	
-	private Storage storage;
+	private final Storage storage;
 	private String bucketName;
 	
-	public GoogleStorage(String bucket) throws IOException {
+	public GoogleStorage() {
 		storage = StorageOptions.newBuilder()
-				.setCredentials(HELMoCredentialsProvider.getCredential())
-				.build()
-				.getService();
-		bucketName = bucket;
+			  .setCredentials(HELMoCredentialsProvider.getCredential())
+			  .build()
+			  .getService();
+		bucketName = "nat-test";
 	}
 	
-	public void uploadPicture(String path, String onlinePath, String ext) throws IOException {
-		if(isASubfolder(onlinePath)) createTreeFolder(onlinePath);
-		uploadMedia(path, formatToOnlinePath(onlinePath), "image/" + ext);
+	public void uploadPicture(Path path, Path onlinePath, String ext) throws IOException {
+		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
+		uploadMedia(path, onlinePath, "image/" + ext);
 	}
 	
-	public void uploadVideoMP4(String path, String onlinePath) throws IOException {
-		if(isASubfolder(onlinePath)) createTreeFolder(onlinePath);
-		uploadMedia(path, formatToOnlinePath(onlinePath), "video/mp4");
+	public void uploadVideoMP4(Path path, Path onlinePath) throws IOException {
+		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
+		uploadMedia(path, onlinePath, "video/mp4");
 	}
 	
-	private void uploadMedia(String path, String onlinePath, String mediaType) throws IOException {
-		BlobId blobId = BlobId.of(bucketName, onlinePath);
+	public void uploadAudioMP3(Path path, Path onlinePath) throws IOException {
+		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
+		uploadMedia(path, onlinePath, "audio/mpeg");
+	}
+	
+	private void uploadMedia(Path path, Path onlinePath, String mediaType) throws IOException {
+		BlobId blobId = BlobId.of(bucketName, onlinePath.toString().replace("\\", "/"));
 		BlobInfo blobInfo = BlobInfo
-				.newBuilder(blobId)
-				.setContentType(mediaType)
+			  .newBuilder(blobId)
+			  .setContentType(mediaType)
+				.setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
 				.build();
 		
-		uploadContent(Paths.get(path), blobInfo);
+		uploadContent(path, blobInfo);
 	}
 	
-	public void uploadFolder(String bucket, String fullFolderName) {
-		BlobId blobId = BlobId.of(bucket, fullFolderName + "/");
+	public void uploadFolder(Path fullFolderName) {
+		BlobId blobId = BlobId.of(bucketName, fullFolderName + "/");
 		BlobInfo blobInfo = BlobInfo
-				.newBuilder(blobId)
-				.setContentType("Folder/folder")
-				.build();
-		storage.create(blobInfo,new  byte[0]);
+			  .newBuilder(blobId)
+			  .setContentType("Folder/folder")
+			  .build();
+		storage.create(blobInfo, new byte[0]);
 	}
 	
 	private void uploadContent(Path uploadFrom, BlobInfo blobInfo) throws IOException {
@@ -78,62 +85,50 @@ public class GoogleStorage { //TODO Work with path not strings
 		}
 	}
 	
-	private boolean isASubfolder(String path) {
-		return path.contains("\\") || path.contains("/");
+	private boolean isASubfolder(Path path) {
+		return path.startsWith("\\");
 	}
 	
-	private void createTreeFolder(String path) {
-		path = formatToOnlinePath(path);
-		String[] tree = path.split("/");
-		String temp = "";
-		for(int i=0; i<tree.length-1; i++) {
-			temp += tree[i];
-			uploadFolder(bucketName, temp);
-		}
-	}
-	
-	public void getMedia(String onlinePath, String strLocalPath) throws IOException {
-		onlinePath = formatToOnlinePath(onlinePath);
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath));
+	public byte[] getMedia(Path onlinePath) throws IOException {
+		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString().replace("\\", "/")));
 		if (blob == null) {
 			System.out.println("No such object");
-			return;
+			return new byte[0];
 		}
 		
-		Path downloadTo = Paths.get(strLocalPath);
-		PrintStream writeTo = System.out;
-		if (downloadTo != null) {
-			writeTo = new PrintStream(new FileOutputStream(downloadTo.toFile()));
-		}
+		byte[] rtn;
+		
 		if (blob.getSize() < 1_000_000) {
 			// Blob is small read all its content in one request
-			byte[] content = blob.getContent();
-			writeTo.write(content);
+			return blob.getContent();
 		} else {
 			// When Blob size is big or unknown use the blob's channel reader.
-//			try (ReadChannel reader = storage.reader(bucketName, blob.getName())) {
 			try (ReadChannel reader = blob.reader()) {
-				WritableByteChannel channel = Channels.newChannel(writeTo);
+				List<Byte> content = new LinkedList<>();
 				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
 				while (reader.read(bytes) > 0) {
 					bytes.flip();
-					channel.write(bytes);
+					for (byte tmp : bytes.array())
+						content.add(tmp);
 					bytes.clear();
 				}
+				rtn = new byte[content.size()];
+				for (int i = 0; i < rtn.length; i++)
+					rtn[i] = content.get(i);
 			}
 		}
-		if (downloadTo == null) {
-			writeTo.println();
-		} else {
-			writeTo.close();
+		return rtn;
+	}
+	
+	public boolean deleteMedia(Path onlinePath) {
+		return storage.delete(BlobId.of(bucketName, onlinePath.toString()));
+	}
+	
+	public boolean exist(Path onlinePath) {
+		try {
+			return getMedia(onlinePath).length == 0;
+		} catch (IOException ex) {
+			return false;
 		}
-	}
-	
-	public boolean deleteMedia(String onlinePath) {
-		return storage.delete(BlobId.of(bucketName, onlinePath));
-	}
-	
-	private String formatToOnlinePath(String path) {
-		return path.replace("\\", "/");
 	}
 }
