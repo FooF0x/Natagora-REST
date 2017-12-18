@@ -20,7 +20,7 @@ public class AttributeController implements BasicController<Attribute> {
 	
 	@Override
 	@GetMapping
-	@Secured("ROLE_ADMIN")
+	@Secured("ROLE_SYSTEM")
 	public List<Attribute> getAll() {
 		return attSrv.getAll();
 	}

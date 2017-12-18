@@ -36,7 +36,6 @@ public class Session extends IdentifiedModel {
 	
 	@JoinColumn(name = "id_user")
 	@ManyToOne(targetEntity = User.class)
-	@JsonProperty(access = WRITE_ONLY)
 	private User user;
 	
 	@Column(name = "temperature")

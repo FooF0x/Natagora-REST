@@ -41,6 +41,7 @@ public class User extends IdentifiedModel {
 	
 	@OneToMany(cascade = {CascadeType.ALL},
 		  mappedBy = "user")
+	@JsonProperty(access = WRITE_ONLY)
 	private List<Session> sessions;
 
 //	@JoinColumn(name = "last_used")
