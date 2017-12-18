@@ -96,19 +96,22 @@ public class UserService implements BasicService<User, Long> {
 	
 	@Override
 	public void delete(User... users) {
-		usrRepo.delete(Arrays.asList(users));
+		Arrays.asList(users).forEach(this::delete);
 	}
 	
 	@Override
 	public void delete(User user) {
 		List<Session> sessions = sesRepo.findByUser(user);
-		sessions.forEach(s -> s.setUser(DEFAULT_USER));
+		sessions.forEach(s -> s.setUser(DEFAULT_USER)); //TODO Define a "deleted user" by default
 		sesRepo.save(sessions);
 		usrRepo.delete(user);
 	}
 	
 	@Override
 	public void deleteById(Long id) {
+		List<Session> sessions = sesRepo.findByUser_Id(id);
+		sessions.forEach(s -> s.setUser(DEFAULT_USER));
+		sesRepo.save(sessions);
 		usrRepo.delete(id);
 	}
 }

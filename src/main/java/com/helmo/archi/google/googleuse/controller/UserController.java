@@ -28,10 +28,12 @@ public class UserController implements BasicController<User> {
 	public UserController(UserService usrSrv, SessionService sesSrv, Environment env) {
 		this.usrSrv = usrSrv;
 		this.sesSrv = sesSrv;
+		defaultUser = usrSrv.getByEmail(env.getProperty("user.default.email"));
 		superUsers = Arrays.asList(     //Define the cache
 			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
-			  usrSrv.getByEmail(env.getProperty("user.system.email")));
-		defaultUser = usrSrv.getByEmail(env.getProperty("user.default.email"));
+			  usrSrv.getByEmail(env.getProperty("user.system.email")),
+			  defaultUser);
+		
 	}
 	
 	@Override
@@ -92,13 +94,7 @@ public class UserController implements BasicController<User> {
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		if (checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-		//FIND ALL SES
-		List<Session> sessions = sesSrv.findByUserId(id);
-		//CHANGE USER TO DEFAULT
-		sessions.forEach( s -> s.setUser(defaultUser));
-		//UPDATE SESSIONS
-		sesSrv.update((Session[]) sessions.toArray());
-		//DELETE USER
+		
 		usrSrv.deleteById(id);
 		return ResponseEntity.ok(null);
 	}
