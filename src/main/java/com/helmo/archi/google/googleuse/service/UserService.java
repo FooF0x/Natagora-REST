@@ -1,7 +1,9 @@
 package com.helmo.archi.google.googleuse.service;
 
+import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.repository.RoleRepository;
+import com.helmo.archi.google.googleuse.repository.SessionRepository;
 import com.helmo.archi.google.googleuse.repository.UserRepository;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,14 +18,22 @@ public class UserService implements BasicService<User, Long> {
 	
 	private final UserRepository usrRepo;
 	private final RoleRepository roleRepo;
+	private final SessionRepository sesRepo;
+	
 	private final PasswordEncoder passEnc;
 	private final Environment env;
 	
-	public UserService(UserRepository usrRepo, RoleRepository roleRepo, PasswordEncoder passEnc, Environment env) {
+	private final User DEFAULT_USER;
+	
+	public UserService(UserRepository usrRepo, RoleRepository roleRepo, SessionRepository sesRepo,
+	                   PasswordEncoder passEnc, Environment env) {
 		this.usrRepo = usrRepo;
 		this.roleRepo = roleRepo;
+		this.sesRepo = sesRepo;
 		this.passEnc = passEnc;
 		this.env = env;
+		
+		DEFAULT_USER = getByEmail(env.getProperty("user.default.email"));
 	}
 	
 	@Override
@@ -91,6 +101,9 @@ public class UserService implements BasicService<User, Long> {
 	
 	@Override
 	public void delete(User user) {
+		List<Session> sessions = sesRepo.findByUser(user);
+		sessions.forEach(s -> s.setUser(DEFAULT_USER));
+		sesRepo.save(sessions);
 		usrRepo.delete(user);
 	}
 	

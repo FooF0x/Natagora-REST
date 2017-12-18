@@ -1,6 +1,8 @@
 package com.helmo.archi.google.googleuse.controller;
 
+import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.model.User;
+import com.helmo.archi.google.googleuse.service.SessionService;
 import com.helmo.archi.google.googleuse.service.UserService;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -18,14 +20,18 @@ public class UserController implements BasicController<User> {
 	
 	
 	private final UserService usrSrv;
+	private final SessionService sesSrv;
 	
 	private final List<User> superUsers; //SuperUsers in cache
+	private final User defaultUser;
 	
-	public UserController(UserService usrSrv, Environment env) {
+	public UserController(UserService usrSrv, SessionService sesSrv, Environment env) {
 		this.usrSrv = usrSrv;
+		this.sesSrv = sesSrv;
 		superUsers = Arrays.asList(     //Define the cache
 			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
 			  usrSrv.getByEmail(env.getProperty("user.system.email")));
+		defaultUser = usrSrv.getByEmail(env.getProperty("user.default.email"));
 	}
 	
 	@Override
@@ -86,7 +92,13 @@ public class UserController implements BasicController<User> {
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		if (checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-		
+		//FIND ALL SES
+		List<Session> sessions = sesSrv.findByUserId(id);
+		//CHANGE USER TO DEFAULT
+		sessions.forEach( s -> s.setUser(defaultUser));
+		//UPDATE SESSIONS
+		sesSrv.update((Session[]) sessions.toArray());
+		//DELETE USER
 		usrSrv.deleteById(id);
 		return ResponseEntity.ok(null);
 	}

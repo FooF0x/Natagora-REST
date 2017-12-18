@@ -1,6 +1,7 @@
 package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.Session;
+import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.repository.ObservationRepository;
 import com.helmo.archi.google.googleuse.repository.SessionRepository;
 import com.helmo.archi.google.googleuse.tools.Time;
@@ -114,6 +115,14 @@ public class SessionService implements BasicService<Session, Long> {
 	@Override
 	public void deleteById(Long id) {
 		sesRepo.delete(id);
+	}
+	
+	public List<Session> findByUser(User user) {
+		return sesRepo.findByUser(user);
+	}
+	
+	public List<Session> findByUserId(Long id) {
+		return sesRepo.findByUser_Id(id);
 	}
 	
 	
