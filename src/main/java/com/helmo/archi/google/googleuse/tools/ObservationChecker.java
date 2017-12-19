@@ -101,7 +101,7 @@ public class ObservationChecker {
 			
 			/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
 			/* If equals 0, that means no bird known*/
-			if (added.getBirdId() == 0) {
+			if (added.getBirdId() == 0) { //TODO Manage add new birds
 				notifications.add(NotificationBuilder.getDefaultNotification(
 					  "Oiseau inconnu",
 					  "L'oiseau ajouté est inconnu", //TODO Give more informations
