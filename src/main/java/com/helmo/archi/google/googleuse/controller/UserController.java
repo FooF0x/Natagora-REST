@@ -8,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -50,10 +51,9 @@ public class UserController implements BasicController<User> {
 		return usrSrv.getById(id);
 	}
 	
-	@GetMapping("/email/{email}")
-	@Secured("ROLE_SYSTEM")
-	public User getByEmail(@PathVariable("email") String email) {
-		return usrSrv.getByEmail(email);
+	@GetMapping("/email")
+	public User getByEmail() {
+		return usrSrv.getByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 	}
 	
 	@Override

@@ -102,4 +102,11 @@ public class ObservationController implements BasicController<Observation> {
 		}
 	}
 	
+	@PutMapping("/validate/{id}")
+	public void validate(@PathVariable("id") long id) {
+		Observation obs = obsSrv.getById(id);
+		obs.setValidation(true);
+		obsSrv.update(obs);
+	}
+	
 }
