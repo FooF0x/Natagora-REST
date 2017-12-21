@@ -30,6 +30,15 @@ public class GoogleStorage { //TODO Work with path not strings
 		bucketName = "nat-test";
 	}
 	
+	private Blob createBlob(Path path) {
+		Blob blob = storage.get(BlobId.of(bucketName, path.toString().replace("\\", "/")));
+		if (blob == null) {
+			System.out.println("No such object");
+			return null;
+		}
+		return blob;
+	}
+	
 	public void uploadPicture(Path path, Path onlinePath, String ext) throws IOException {
 		if (isASubfolder(onlinePath)) uploadFolder(onlinePath);
 		uploadMedia(path, onlinePath, "image/" + ext);
@@ -50,8 +59,8 @@ public class GoogleStorage { //TODO Work with path not strings
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType(mediaType)
-				.setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
-				.build();
+			  .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
+			  .build();
 		
 		uploadContent(path, blobInfo);
 	}
@@ -90,11 +99,7 @@ public class GoogleStorage { //TODO Work with path not strings
 	}
 	
 	public byte[] getMedia(Path onlinePath) throws IOException {
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString().replace("\\", "/")));
-		if (blob == null) {
-			System.out.println("No such object");
-			return new byte[0];
-		}
+		Blob blob = createBlob(onlinePath);
 		
 		byte[] rtn;
 		
@@ -130,5 +135,10 @@ public class GoogleStorage { //TODO Work with path not strings
 		} catch (IOException ex) {
 			return false;
 		}
+	}
+	
+	public String getPublicLink(Path onlinePath) {
+		
+		return createBlob(onlinePath).getMediaLink();
 	}
 }

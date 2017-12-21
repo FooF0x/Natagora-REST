@@ -141,6 +141,7 @@ public class ObservationService implements BasicService<Observation, Long> {
 			  .collect(Collectors.toList());
 	}
 	
+	
 	public List<Observation> getBySession(Session ses) {
 		List<Observation> observations = obsRepo.getBySession(ses);
 		observations.forEach(obs -> obs.setBird(brdRepo.findOne(obs.getBirdId())));

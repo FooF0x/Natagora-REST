@@ -97,7 +97,7 @@ public class ObservationChecker {
 			else if (obs.getSession() == null) throw new NullPointerException("No session define");
 			
 			/* ADD TO DATABASE (to have the ID) */
-			added = obsSrv.create(obs);
+			added = obsSrv.create(obs); //TODO MAYBE, add to MongoDB for geographical research
 			
 			/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
 			/* If equals 0, that means no bird known*/
@@ -113,6 +113,7 @@ public class ObservationChecker {
 			try {
 				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
 				defineMediaType(added);
+				definePublicLink(added);
 			} catch (IllegalArgumentException ex) {
 				notifications.add(NotificationBuilder.getDefaultNotification(
 					  "Format du média invalide",
@@ -121,12 +122,13 @@ public class ObservationChecker {
 					  added));
 			}
 			
-			//TODO MAYBE, add to MongoDB for geographical research
+			
 				
 			/* ANALYSE BASED ON TYPE*/
-			if(analyseMedia(added, notifications)) {
-				obsSrv.update(added); //Because analyseMedia doesn't update database
-			}
+			analyseMedia(added, notifications);
+			
+			obsSrv.update(added); //Because analyseMedia doesn't update database
+			
 			
 			rtn.add(added);
 			notSrv.create(notifications.toArray(new Notification[] {}));
@@ -150,6 +152,12 @@ public class ObservationChecker {
 			}
 		} else {
 			obs.setMediaType(notType);
+		}
+	}
+	
+	private void definePublicLink(Observation obs) {
+		if(!obs.getMediaType().equals(notType)) {
+			obs.setPublicLink(storage.getPublicLink(Paths.get(obs.getOnlinePath())));
 		}
 	}
 	
