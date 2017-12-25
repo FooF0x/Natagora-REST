@@ -1,6 +1,5 @@
 package com.helmo.archi.google.googleuse.controller;
 
-import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.service.SessionService;
 import com.helmo.archi.google.googleuse.service.UserService;
@@ -119,5 +118,5 @@ public class UserController implements BasicController<User> {
 	 */
 	private boolean checkAdmin(User usr) {
 		return usr != null && superUsers.contains(usr);
-	}
+	} //Comparison based on ID
 }

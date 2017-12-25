@@ -75,7 +75,6 @@ public class BirdController implements BasicController<Bird> {
 	@Secured("ROLE_USER")
 	public List<List<Object>> birdHelper(@RequestBody BirdFinder seed) {
 		seed.processInput();
-		Map<Bird, Double> rtn = new HashMap<>();
 		
 		//TODO Extract the database part in a stringItems method
 		Map<String, String> stringItems = seed.getStringItems(); //Original Seed

@@ -1,13 +1,7 @@
 package com.helmo.archi.google.googleuse;
 
-import com.helmo.archi.google.googleuse.model.MediaType;
-import com.helmo.archi.google.googleuse.model.NotificationStatus;
-import com.helmo.archi.google.googleuse.model.Role;
-import com.helmo.archi.google.googleuse.model.User;
-import com.helmo.archi.google.googleuse.repository.MediaTypeRepository;
-import com.helmo.archi.google.googleuse.repository.NotificationStatusRepository;
-import com.helmo.archi.google.googleuse.repository.RoleRepository;
-import com.helmo.archi.google.googleuse.repository.UserRepository;
+import com.helmo.archi.google.googleuse.model.*;
+import com.helmo.archi.google.googleuse.repository.*;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -35,6 +29,8 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	@Autowired
 	private MediaTypeRepository medRepo;
 	@Autowired
+	private BirdRepository brdRepo;
+	@Autowired
 	private PasswordEncoder passEnc;
 	@Autowired
 	private Environment env;
@@ -61,6 +57,8 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	public ApplicationRunner startApp() {
 		return args -> {
 			
+			checkBirdIntegrity();
+			
 			checkRolesIntegrity(env.getProperty("data.role.property-names").split(","));
 			
 			checkMediaTypeIntegrity(env.getProperty("data.mediaTypes").split(","));
@@ -78,10 +76,19 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			checkManagementUser(
 				  "default",
 				  createUser("default"));
-			
+
 //			checkStorageIntegrity();
 			
 		};
+	}
+	
+	private void checkBirdIntegrity() {
+		if (!brdRepo.exists(0L)) { //TODO if exist, check values integrity
+			Bird bird = new Bird();
+			bird.setName("Unknown bird");
+			bird.setDescription("This is an unknown bird");
+			brdRepo.insert(bird);
+		}
 	}
 	
 	private User createUser(String type) {

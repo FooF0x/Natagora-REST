@@ -43,11 +43,6 @@ public class User extends IdentifiedModel {
 		  mappedBy = "user")
 	@JsonProperty(access = WRITE_ONLY)
 	private List<Session> sessions;
-
-//	@JoinColumn(name = "last_used")
-//	@OneToMany(targetEntity = Password.class)
-//	@JsonIgnore
-//	private Password passwordData;
 	
 	@Column(name = "password")
 	@JsonProperty(access = WRITE_ONLY)

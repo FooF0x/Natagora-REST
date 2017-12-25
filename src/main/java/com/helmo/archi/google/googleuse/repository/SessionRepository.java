@@ -3,7 +3,6 @@ package com.helmo.archi.google.googleuse.repository;
 import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

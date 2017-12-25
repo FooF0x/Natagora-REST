@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController implements BasicController<Notification> {
-	
+	//TODO Get By User and Observation
 	private final NotificationService notSrv;
 	private final NotificationStatusService statusSrv;
 	

@@ -60,11 +60,11 @@ public class ObservationChecker {
 		notType = medSrv.getByName(env.getProperty("data.mediaTypes.nothing"));
 		
 		picFilter = new FileNameExtensionFilter("Picture Files",
-				env.getProperty("storage.allowedPicExt").split(","));
+			  env.getProperty("storage.allowedPicExt").split(","));
 		vidFilter = new FileNameExtensionFilter("Video Files",
-				env.getProperty("storage.allowedVidExt").split(","));
+			  env.getProperty("storage.allowedVidExt").split(","));
 		audFilter = new FileNameExtensionFilter("Audio Files",
-				env.getProperty("storage.allowedAudExt").split(","));
+			  env.getProperty("storage.allowedAudExt").split(","));
 		
 		PENDING_STATUS = statusSrv.findByName("PENDING");
 		
@@ -131,7 +131,7 @@ public class ObservationChecker {
 			
 			
 			rtn.add(added);
-			notSrv.create(notifications.toArray(new Notification[] {}));
+			notSrv.create(notifications.toArray(new Notification[]{}));
 		}
 		return rtn;
 	}
@@ -142,7 +142,7 @@ public class ObservationChecker {
 			if (acceptedPictures(file)) {
 				obs.setMediaType(picType);
 			} else if (acceptedVideos(file)) {
-				obs.setMediaType(picType);
+				obs.setMediaType(vidType);
 			} else if (acceptedAudios(file)) {
 				obs.setMediaType(audType);
 			} else { //If there's something but not a good format, send notification
@@ -156,7 +156,7 @@ public class ObservationChecker {
 	}
 	
 	private void definePublicLink(Observation obs) {
-		if(!obs.getMediaType().equals(notType)) {
+		if (!obs.getMediaType().equals(notType)) {
 			obs.setPublicLink(storage.getPublicLink(Paths.get(obs.getOnlinePath())));
 		}
 	}
@@ -170,7 +170,7 @@ public class ObservationChecker {
 	private boolean analyseMedia(Observation obs, List<Notification> notifications) throws Exception {
 		if (obs.getMediaType().equals(picType)) { //TODO Create thread not to block the process
 			AnnotateImageResponse analyse = vision.simpleAnalyse(
-					Paths.get(obs.getOnlinePath()));
+				  Paths.get(obs.getOnlinePath()));
 			obs.setAnalyseResult(analyse.getSafeSearchAnnotation().toString());
 			checkNotification(obs, analyse, notifications);
 			return true;
@@ -201,7 +201,7 @@ public class ObservationChecker {
 						defineMediaType(obs);
 						analyseMedia(obs, notifications);
 					}
-				} else if(oldPath != null && oldPath.trim().length() > 0) { //New doesn't have and old yes so delete old file
+				} else if (oldPath != null && oldPath.trim().length() > 0) { //New doesn't have and old yes so delete old file
 					storage.deleteMedia(Paths.get(oldPath));
 				}
 				
@@ -210,7 +210,7 @@ public class ObservationChecker {
 					if (!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
 				
 				toUpdate.add(obsSrv.update(obs));
-				notSrv.create(notifications.toArray(new Notification[] {}));
+				notSrv.create(notifications.toArray(new Notification[]{}));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -224,22 +224,22 @@ public class ObservationChecker {
 		List<EntityAnnotation> labels = analyse.getLabelAnnotationsList();
 		//Define Notification
 		if (safe.getAdultValue() >= 2
-				|| safe.getMedicalValue() >= 2
-				|| safe.getViolenceValue() >= 2) {
+			  || safe.getMedicalValue() >= 2
+			  || safe.getViolenceValue() >= 2) {
 			Map<String, String> rlt = translateSafeSearch(safe); //Translate the result
 			String message = String.format(
-					"Analyse de l'image :\n" +
-							"Violance : %s\n" +
-							"Adulte   : %s\n" +
-							"Medical  : %s\n" +
-							"Canular  : %s",
-					rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
+				  "Analyse de l'image :\n" +
+						"Violance : %s\n" +
+						"Adulte   : %s\n" +
+						"Medical  : %s\n" +
+						"Canular  : %s",
+				  rlt.get("violence"), rlt.get("adult"), rlt.get("medical"), rlt.get("spoof")
 			);
 			notifications.add(NotificationBuilder.getDefaultNotification( //Send a notification
-					"Problème avec une observation",
-					message,
-					PENDING_STATUS,
-					obs
+				  "Problème avec une observation",
+				  message,
+				  PENDING_STATUS,
+				  obs
 			));
 			obs.setValidation(false);
 			obsSrv.update(obs);
@@ -251,15 +251,15 @@ public class ObservationChecker {
 				toTranslate.append(entity.getDescription()).append(",");
 			String[] translation = translate.simpleTranslateFromENToFR(toTranslate.toString()).split(",");
 			
-			for(int i = 0; i < translation.length; i++)
+			for (int i = 0; i < translation.length; i++)
 				message.append(
-						translation[i])
-						.append(" : ").append(labels.get(i).getScore()).append("\n");
+					  translation[i])
+					  .append(" : ").append(labels.get(i).getScore()).append("\n");
 			notifications.add(NotificationBuilder.getDefaultNotification( //Send a notification
-					"Aucun oiseau détecté",
-					message.toString(),
-					PENDING_STATUS,
-					obs
+				  "Aucun oiseau détecté",
+				  message.toString(),
+				  PENDING_STATUS,
+				  obs
 			));
 			obs.setValidation(false);
 			obsSrv.update(obs);

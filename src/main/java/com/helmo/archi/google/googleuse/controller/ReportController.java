@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reports")
-public class ReportController implements BasicController<Report> {
+public class ReportController implements BasicController<Report> { //TODO Get reports by user
 	
 	private final ReportService rptSrv;
 	
@@ -27,7 +27,7 @@ public class ReportController implements BasicController<Report> {
 	
 	@Override
 	@GetMapping("/{id}")
-	@Secured("ROLE_ADMIN")
+	@Secured("ROLE_USER")
 	public Report getOne(@PathVariable("id") long id) {
 		return rptSrv.getById(id);
 	}

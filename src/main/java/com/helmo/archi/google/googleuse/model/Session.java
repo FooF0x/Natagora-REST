@@ -1,14 +1,11 @@
 package com.helmo.archi.google.googleuse.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
-
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 @Entity
 @Table(name = "sessions")
