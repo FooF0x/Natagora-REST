@@ -23,6 +23,7 @@ public class UserService implements BasicService<User, Long> {
 	private final PasswordEncoder passEnc;
 	private final Environment env;
 	
+	private final List<User> SUPER_USERS;
 	private final User DEFAULT_USER;
 	
 	public UserService(UserRepository usrRepo, RoleRepository roleRepo, SessionRepository sesRepo,
@@ -34,6 +35,10 @@ public class UserService implements BasicService<User, Long> {
 		this.env = env;
 		
 		DEFAULT_USER = getByEmail(env.getProperty("user.default.email"));
+		SUPER_USERS = Arrays.asList(     //Define the cache
+			  getByEmail(env.getProperty("user.admin.email")),
+			  getByEmail(env.getProperty("user.system.email")),
+			  DEFAULT_USER);
 	}
 	
 	@Override
@@ -69,6 +74,9 @@ public class UserService implements BasicService<User, Long> {
 	}
 	
 	public User update(User toUpdate) {
+		if (checkAdmin(toUpdate))
+			return null;
+		
 		User usr = usrRepo.findOne(toUpdate.getId());
 		usr.setFullName(
 			  toUpdate.getFullName() != null
@@ -92,6 +100,7 @@ public class UserService implements BasicService<User, Long> {
 		);
 		usr.setAdmin(toUpdate.isAdmin());
 		return usrRepo.save(usr);
+		
 	}
 	
 	@Override
@@ -101,10 +110,12 @@ public class UserService implements BasicService<User, Long> {
 	
 	@Override
 	public void delete(User user) {
-		List<Session> sessions = sesRepo.findByUser(user);
-		sessions.forEach(s -> s.setUser(DEFAULT_USER)); //TODO Define a "deleted user" by default
-		sesRepo.save(sessions);
-		usrRepo.delete(user);
+		if (!checkAdmin(user)) {
+			List<Session> sessions = sesRepo.findByUser(user);
+			sessions.forEach(s -> s.setUser(DEFAULT_USER));
+			sesRepo.save(sessions);
+			usrRepo.delete(user);
+		}
 	}
 	
 	@Override
@@ -114,4 +125,14 @@ public class UserService implements BasicService<User, Long> {
 		sesRepo.save(sessions);
 		usrRepo.delete(id);
 	}
+	
+	/**
+	 * Check weather a user is simple or admin.
+	 *
+	 * @param usr The user you wanna check
+	 * @return <code>TRUE</code> if is admin or system user
+	 */
+	private boolean checkAdmin(User usr) {
+		return usr != null && SUPER_USERS.contains(usr);
+	} //Comparison based on ID
 }

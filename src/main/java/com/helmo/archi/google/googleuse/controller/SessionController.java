@@ -88,7 +88,7 @@ public class SessionController implements BasicController<Session> {
 			return ResponseEntity.ok(rtn); //TODO Define transmission object with data and list of errors (Surround createObs with try/catch)
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(ex.getMessage());
 		}
 	}
 	
@@ -117,19 +117,19 @@ public class SessionController implements BasicController<Session> {
 			return ResponseEntity.ok(sesSrv.update(ses));
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(ex.getMessage());
 		}
 	}
 	
 	@Override
 	public ResponseEntity deleteOne(long id) {
 		sesSrv.deleteById(id);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 	
 	@Override
 	public ResponseEntity delete(Session... sessions) {
 		sesSrv.delete(sessions);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 }

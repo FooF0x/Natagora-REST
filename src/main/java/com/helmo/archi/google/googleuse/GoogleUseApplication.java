@@ -57,13 +57,13 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	public ApplicationRunner startApp() {
 		return args -> {
 			
-			checkBirdIntegrity();
-			
 			checkRolesIntegrity(env.getProperty("data.role.property-names").split(","));
 			
 			checkMediaTypeIntegrity(env.getProperty("data.mediaTypes").split(","));
 			
 			checkNotificationStatusIntegrity(env.getProperty("data.not-status").split(","));
+			
+			checkBirdIntegrity();
 			
 			checkManagementUser(
 				  "admin",

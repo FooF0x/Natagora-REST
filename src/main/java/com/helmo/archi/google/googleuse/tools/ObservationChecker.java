@@ -136,7 +136,7 @@ public class ObservationChecker {
 		return rtn;
 	}
 	
-	private void defineMediaType(Observation obs) { //TODO Set public path
+	private void defineMediaType(Observation obs) {
 		if (obs.getOnlinePath() != null && obs.getOnlinePath().trim().length() > 0) {
 			File file = new File(obs.getOnlinePath());
 			if (acceptedPictures(file)) {

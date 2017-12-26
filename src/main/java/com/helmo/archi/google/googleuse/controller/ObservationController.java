@@ -113,7 +113,7 @@ public class ObservationController implements BasicController<Observation> {
 	@PutMapping("/refused/{id}")
 	public void refused(@PathVariable("id") long id) {
 		Observation obs = obsSrv.getById(id);
-		obs.setValidation(false );
+		obs.setValidation(false);
 		obsSrv.update(obs);
 	}
 	

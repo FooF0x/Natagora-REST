@@ -1,7 +1,6 @@
 package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.User;
-import com.helmo.archi.google.googleuse.service.SessionService;
 import com.helmo.archi.google.googleuse.service.UserService;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,19 +18,15 @@ public class UserController implements BasicController<User> {
 	
 	
 	private final UserService usrSrv;
-	private final SessionService sesSrv;
 	
-	private final List<User> superUsers; //SuperUsers in cache
-	private final User defaultUser;
+	private final List<User> SUPER_USERS; //SuperUsers in cache
 	
-	public UserController(UserService usrSrv, SessionService sesSrv, Environment env) {
+	public UserController(UserService usrSrv, Environment env) {
 		this.usrSrv = usrSrv;
-		this.sesSrv = sesSrv;
-		defaultUser = usrSrv.getByEmail(env.getProperty("user.default.email"));
-		superUsers = Arrays.asList(     //Define the cache
+		SUPER_USERS = Arrays.asList(     //Define the cache
 			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
 			  usrSrv.getByEmail(env.getProperty("user.system.email")),
-			  defaultUser);
+			  usrSrv.getByEmail(env.getProperty("user.default.email")));
 		
 	}
 	
@@ -60,14 +54,11 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_SYSTEM")
 	public ResponseEntity create(@RequestBody User... users) {
 		try {
-			List<User> rtn = new ArrayList<>();
-			for (User usr : users)
-				if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
-					rtn.add(usrSrv.create(usr));
+			List<User> rtn = usrSrv.create(users);
 			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -76,14 +67,11 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_USER")
 	public ResponseEntity update(@RequestBody User... users) {
 		try {
-			List<User> rtn = new ArrayList<>();
-			for (User usr : users)
-				if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
-					rtn.add(usrSrv.update(usr));
+			List<User> rtn = usrSrv.update(users);
 			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -102,7 +90,7 @@ public class UserController implements BasicController<User> {
 	@DeleteMapping
 	public ResponseEntity delete(@RequestBody User... users) {
 		for (User usr : users) {
-			if (checkAdmin(usr)) //SuperAdmin and System can't be changed
+			if (checkAdmin(usr)) //SuperAdmin and System can't be changed //TODO Report this check to the service
 				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 			
 			usrSrv.deleteById(usr.getId());
@@ -117,6 +105,6 @@ public class UserController implements BasicController<User> {
 	 * @return <code>TRUE</code> if is admin or system user
 	 */
 	private boolean checkAdmin(User usr) {
-		return usr != null && superUsers.contains(usr);
+		return usr != null && SUPER_USERS.contains(usr);
 	} //Comparison based on ID
 }
