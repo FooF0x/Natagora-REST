@@ -26,7 +26,8 @@ public class UserController implements BasicController<User> {
 		SUPER_USERS = Arrays.asList(     //Define the cache
 			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
 			  usrSrv.getByEmail(env.getProperty("user.system.email")),
-			  usrSrv.getByEmail(env.getProperty("user.default.email")));
+			  usrSrv.getByEmail(env.getProperty("user.default.email")),
+			  usrSrv.getByEmail(env.getProperty("user.anonymous.email")));
 		
 	}
 	
@@ -47,6 +48,13 @@ public class UserController implements BasicController<User> {
 	@GetMapping("/email")
 	public User getByEmail() {
 		return usrSrv.getByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<User> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return usrSrv.getRange(one, two);
 	}
 	
 	@Override

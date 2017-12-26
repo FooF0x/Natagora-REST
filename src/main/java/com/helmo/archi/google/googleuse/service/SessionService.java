@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SessionService implements BasicService<Session, Long> {
+public class SessionService implements AccessRange<Session, Long> {
 	
 	private final SessionRepository sesRepo;
 	private final ObservationRepository obsRepo;
@@ -153,15 +153,5 @@ public class SessionService implements BasicService<Session, Long> {
 			  s -> setObservations(s, null)
 		);
 		return sessions;
-	}
-	
-	
-	public List<Session> getRange(long one, long two) {
-		return getAll()
-			  .stream()
-			  .skip(one)
-			  .limit(two - one)
-			  .collect(Collectors.toList());
-		
 	}
 }

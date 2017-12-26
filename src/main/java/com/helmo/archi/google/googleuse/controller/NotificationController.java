@@ -35,6 +35,13 @@ public class NotificationController implements BasicController<Notification> {
 		return notSrv.getById(id);
 	}
 	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Notification> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return notSrv.getRange(one, two);
+	}
+	
 	@Override
 	@PostMapping
 	public ResponseEntity create(@RequestBody Notification... notifications) {

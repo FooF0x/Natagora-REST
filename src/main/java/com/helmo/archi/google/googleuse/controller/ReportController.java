@@ -32,6 +32,13 @@ public class ReportController implements BasicController<Report> { //TODO Get re
 		return rptSrv.getById(id);
 	}
 	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Report> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return rptSrv.getRange(one, two);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")

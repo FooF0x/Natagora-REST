@@ -30,6 +30,13 @@ public class CommentController implements BasicController<Comment> {
 		return cmtSrv.getById(id);
 	}
 	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Comment> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return cmtSrv.getRange(one, two);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")

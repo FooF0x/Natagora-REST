@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class ReportService implements BasicService<Report, Long> {
+public class ReportService implements AccessRange<Report, Long>{
 	
 	private final ReportRepository repRepo;
 	

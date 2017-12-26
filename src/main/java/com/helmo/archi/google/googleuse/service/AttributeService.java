@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class AttributeService implements BasicService<Attribute, Long> {
+public class AttributeService implements AccessRange<Attribute, Long> {
 	
 	private final AttributeRepository attRepo;
 	private final NextSequenceService nextSeq;

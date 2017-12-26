@@ -33,6 +33,13 @@ public class BirdController implements BasicController<Bird> {
 		return brdSrv.getById(id);
 	}
 	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Bird> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return brdSrv.getRange(one, two);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_ADMIN")
@@ -59,16 +66,24 @@ public class BirdController implements BasicController<Bird> {
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_ADMIN")
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
-		brdSrv.deleteById(id);
-		return ResponseEntity.ok().build();
+		try {
+			brdSrv.deleteById(id);
+			return ResponseEntity.ok().build();
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.unprocessableEntity().body(ex.getMessage());
+		}
 	}
 	
 	@Override
 	@DeleteMapping
 	@Secured("ROLE_ADMIN")
 	public ResponseEntity delete(Bird... birds) {
-		brdSrv.delete(birds);
-		return ResponseEntity.ok().build();
+		try {
+			brdSrv.delete(birds);
+			return ResponseEntity.ok().build();
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.unprocessableEntity().body(ex.getMessage());
+		}
 	}
 	
 	@PostMapping("/helper")

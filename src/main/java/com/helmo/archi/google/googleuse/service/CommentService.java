@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class CommentService implements BasicService<Comment, Long> {
+public class CommentService implements AccessRange<Comment, Long> {
 	
 	private final CommentRepository cmtRepo;
 	

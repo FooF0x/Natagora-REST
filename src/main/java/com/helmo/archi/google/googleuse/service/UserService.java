@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class UserService implements BasicService<User, Long> {
+public class UserService implements AccessRange<User, Long> {
 	
 	private final UserRepository usrRepo;
 	private final RoleRepository roleRepo;

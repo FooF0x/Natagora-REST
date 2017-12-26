@@ -32,6 +32,13 @@ public class AttributeController implements BasicController<Attribute> {
 		return attSrv.getById(id);
 	}
 	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Attribute> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return attSrv.getRange(one, two);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_ADMIN")
