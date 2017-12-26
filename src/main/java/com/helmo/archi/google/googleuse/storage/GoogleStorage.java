@@ -27,7 +27,7 @@ public class GoogleStorage {
 			  .setCredentials(HELMoCredentialsProvider.getCredential())
 			  .build()
 			  .getService();
-		bucketName = "nat-test";
+		bucketName = "natagora-grimar";
 	}
 	
 	private Blob createBlob(Path path) {

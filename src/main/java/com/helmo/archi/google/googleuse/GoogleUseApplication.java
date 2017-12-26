@@ -31,13 +31,13 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	@Autowired
 	private BirdRepository brdRepo;
 	@Autowired
+	private NotificationStatusRepository notRepo;
+	@Autowired
+	private SessionRepository sesRepo;
+	@Autowired
 	private PasswordEncoder passEnc;
 	@Autowired
 	private Environment env;
-	@Autowired
-	private GoogleStorage storage;
-	@Autowired
-	private NotificationStatusRepository notRepo;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(GoogleUseApplication.class, args);
@@ -76,8 +76,10 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			checkManagementUser(
 				  "default",
 				  createUser("default"));
-
-//			checkStorageIntegrity();
+			
+			checkManagementUser(
+				  "anonymous",
+				  createUser("anonymous"));
 			
 		};
 	}
@@ -106,26 +108,26 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		return rtn;
 	}
 	
-	private void checkStorageIntegrity() {
-		if (!storage.exist(Paths.get(env.getProperty("storage.defaultPic.onlineLocation"))))  //TODO Not ok
-			try {
-				storage.uploadPicture(
-					  Paths.get("/pics/defaultPic.png"),
-					  Paths.get(env.getProperty("storage.defaultPic.onlineLocation")),
-					  "png"
-				);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
 	
 	private void checkManagementUser(String type, User haveToBe) {
 		User dbUser = usrRepo.findByEmail(env.getProperty("user." + type + ".email"));
 		if (dbUser == null) {
 			usrRepo.save(haveToBe);
 		} else if (!compareUsers(dbUser, haveToBe, type)) {
-			usrRepo.delete(dbUser);
+			/* TO ALLOWED ME ADDING THE NEW USER (Email must be unique) */
+			dbUser.setEmail("deleted." + dbUser.getEmail());
+			usrRepo.save(dbUser);
+			
+			/* ADDING THE NEW USER */
 			usrRepo.save(haveToBe);
+			
+			/* TRANSFER OWNERSHIP */
+			List<Session> temp = sesRepo.findByUser_Id(dbUser.getId()); //Because default user have all the lonely ses
+			temp.forEach(s -> s.setUser(haveToBe));
+			sesRepo.save(temp);
+			
+			/* DELETE OLD USER */
+			usrRepo.delete(dbUser.getId());
 		}
 	}
 	

@@ -122,8 +122,6 @@ public class ObservationChecker {
 					  added));
 			}
 			
-			
-				
 			/* ANALYSE BASED ON TYPE*/
 			analyseMedia(added, notifications);
 			

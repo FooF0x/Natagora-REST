@@ -27,7 +27,7 @@ public class Session extends IdentifiedModel {
 	@Column(name = "longitude")
 	private String longitude;
 	
-	@OneToMany(cascade = {CascadeType.PERSIST},
+	@OneToMany(cascade = {CascadeType.ALL},
 		  mappedBy = "session")
 	private List<Observation> observations;
 	
