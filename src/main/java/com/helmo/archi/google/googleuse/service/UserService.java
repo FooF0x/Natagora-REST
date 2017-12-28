@@ -65,11 +65,14 @@ public class UserService implements AccessRange<User, Long> {
 		two.setEmail(usr.getEmail());
 		two.setAdmin(usr.isAdmin());
 		two.setPassword(passEnc.encode(usr.getPassword()));
-		two.setOnlinePath(
-			  (usr.getOnlinePath() != null)
-					? usr.getOnlinePath()
-					: env.getProperty("storage.defaultPic.onlineLocation"));
-		two.setRoles(usr.getRoles());
+		
+		if(usr.getOnlinePath() == null) {
+			two.setOnlinePath(env.getProperty("storage.defaultPic.onlineLocation"));
+			two.setPublicLink(env.getProperty("storage.defaultPic.publicLink"));
+		} else {
+			two.setOnlinePath(usr.getOnlinePath());
+			two.setPublicLink(usr.getPublicLink());
+		}
 		return usrRepo.save(two);
 	}
 	
@@ -92,6 +95,11 @@ public class UserService implements AccessRange<User, Long> {
 			  toUpdate.getOnlinePath() != null
 					? toUpdate.getOnlinePath()
 					: usr.getOnlinePath()
+		);
+		usr.setPublicLink(
+			  toUpdate.getPublicLink() != null
+					? toUpdate.getPublicLink()
+					: usr.getPublicLink()
 		);
 		usr.setRoles(
 			  toUpdate.getRoles() != null
