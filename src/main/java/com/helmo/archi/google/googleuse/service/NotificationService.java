@@ -4,6 +4,7 @@ import com.helmo.archi.google.googleuse.model.Notification;
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.repository.NotificationRepository;
 import com.helmo.archi.google.googleuse.tools.Time;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -80,5 +81,9 @@ public class NotificationService implements AccessRange<Notification, Long> {
 	
 	public void deleteByObservation(Observation obs) {
 		notRepo.deleteAllByObservation(obs);
+	}
+	
+	public List<Notification> getByObservationId(Long id) {
+		return notRepo.getByObservation_Id(id);
 	}
 }
