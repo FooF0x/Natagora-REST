@@ -117,6 +117,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		rtn.setEmail(env.getProperty("user." + type + ".email"));
 		rtn.setAdmin(Boolean.parseBoolean(env.getProperty("user." + type + ".is-admin")));
 		rtn.setOnlinePath(env.getProperty("storage.defaultPic.onlineLocation"));
+		rtn.setPublicLink(env.getProperty("storage.defaultPic.publicLink"));
 		rtn.setPassword(passEnc.encode(env.getProperty("user." + type + ".password")));
 		rtn.setSessions(new ArrayList<>());
 		List<Role> roles = new ArrayList<>();
@@ -154,6 +155,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 			boolean rtn = dbUser.getFullName().equals(haveToBe.getFullName())
 				  && dbUser.getEmail().equals(haveToBe.getEmail())
 				  && dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
+				  && dbUser.getPublicLink().equals(haveToBe.getPublicLink())
 				  && dbUser.isAdmin() == haveToBe.isAdmin()
 				  && passEnc.matches(
 				  env.getProperty("user." + type + ".password"), dbUser.getPassword()

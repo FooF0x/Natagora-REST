@@ -2,6 +2,7 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.User;
 import com.helmo.archi.google.googleuse.service.UserService;
+import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,10 +40,13 @@ public class UserController implements BasicController<User> {
 	
 	private final UserService usrSrv;
 	
+	private final GoogleStorage storage;
+	
 	private final List<User> SUPER_USERS; //SuperUsers in cache
 	
-	public UserController(UserService usrSrv, Environment env) {
+	public UserController(UserService usrSrv, GoogleStorage storage, Environment env) {
 		this.usrSrv = usrSrv;
+		this.storage = storage;
 		SUPER_USERS = Arrays.asList(     //Define the cache
 			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
 			  usrSrv.getByEmail(env.getProperty("user.system.email")),
@@ -81,8 +86,14 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_SYSTEM")
 	public ResponseEntity create(@RequestBody User... users) {
 		try {
-			List<User> rtn = usrSrv.create(users);
-			return ResponseEntity.ok(rtn);
+			for(User user : users) {
+				if(user.getOnlinePath() != null) {
+					user.setPublicLink(
+						  storage.getPublicLink(Paths.get(user.getOnlinePath()))
+					);
+				}
+			}
+			return ResponseEntity.ok(usrSrv.create(users));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -94,8 +105,14 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_USER")
 	public ResponseEntity update(@RequestBody User... users) {
 		try {
-			List<User> rtn = usrSrv.update(users);
-			return ResponseEntity.ok(rtn);
+			for(User user : users) {
+				if(user.getOnlinePath() != null) {
+					user.setPublicLink(
+						  storage.getPublicLink(Paths.get(user.getOnlinePath()))
+					);
+				}
+			}
+			return ResponseEntity.ok(usrSrv.update(users));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -107,10 +124,10 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_USER")
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		if (checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		
 		usrSrv.deleteById(id);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 	
 	@Override
@@ -118,11 +135,11 @@ public class UserController implements BasicController<User> {
 	public ResponseEntity delete(@RequestBody User... users) {
 		for (User usr : users) {
 			if (checkAdmin(usr)) //SuperAdmin and System can't be changed //TODO Report this check to the service
-				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 			
 			usrSrv.deleteById(usr.getId());
 		}
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 	
 	/**
@@ -133,5 +150,5 @@ public class UserController implements BasicController<User> {
 	 */
 	private boolean checkAdmin(User usr) {
 		return usr != null && SUPER_USERS.contains(usr);
-	} //Comparison based on ID
+	} //Comparison based on ID && email
 }
