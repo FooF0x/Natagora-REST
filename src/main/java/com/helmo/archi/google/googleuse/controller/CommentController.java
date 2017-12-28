@@ -37,6 +37,16 @@ public class CommentController implements BasicController<Comment> {
 		return cmtSrv.getRange(one, two);
 	}
 	
+	@GetMapping("/for/user/{id}")
+	public List<Comment> getByUserId(@PathVariable("id") long id) {
+		return cmtSrv.getByUserId(id);
+	}
+	
+	@GetMapping("/for/observation/{id}")
+	public List<Comment> getByObservationId(@PathVariable("id") long id) {
+		return cmtSrv.getByObservationId(id);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")

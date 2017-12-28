@@ -19,6 +19,24 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+Our program, who art in memory,
+Called by thy name;
+Thy operating system run;
+Thy function be done at runtime
+As it was in development.
+Give us this day our daily output.
+And forgive us our code duplication,
+As we forgive those who
+Duplicate code against us.
+And lead us not into frustration;
+But deliver us from GOTOs.
+For thine is the algorithm,
+The computation, and the solution,
+Looping forever and ever
+RETURN.
+*/
+
 @SpringBootApplication
 public class GoogleUseApplication extends SpringBootServletInitializer {
 	

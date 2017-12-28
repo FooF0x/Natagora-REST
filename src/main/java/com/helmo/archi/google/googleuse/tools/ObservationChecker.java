@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//There's no place like 127.0.0.1
+
 @Component
 public class ObservationChecker {
 	
@@ -101,14 +103,7 @@ public class ObservationChecker {
 			
 			/* DEFINE IS THE BIRD EXIST (Because no verification from MySQL)*/
 			/* If equals 0, that means no bird known*/
-			if (added.getBirdId() == 0) { //TODO Manage add new birds
-				notifications.add(NotificationBuilder.getDefaultNotification(
-					  "Oiseau inconnu",
-					  "L'oiseau ajouté est inconnu", //TODO Give more informations
-					  PENDING_STATUS,
-					  added));
-			} else if (!brdSrv.exist(added.getBirdId()))
-				throw new IllegalArgumentException("Bird ID not correct");
+			checkBirdId(notifications, added);
 			
 			try {
 				/* DEFINE MEDIA TYPE IN CASE OF NULL OR WRONG */
@@ -159,6 +154,17 @@ public class ObservationChecker {
 		}
 	}
 	
+	private void checkBirdId(List<Notification> notifications, Observation obs) {
+		if (obs.getBirdId() == 0) { //TODO Manage add new birds
+			notifications.add(NotificationBuilder.getDefaultNotification(
+				  "Oiseau inconnu",
+				  "L'oiseau ajouté est inconnu", //TODO Give more informations
+				  PENDING_STATUS,
+				  obs));
+		} else if (!brdSrv.exist(obs.getBirdId()))
+			throw new IllegalArgumentException("Bird ID not correct");
+	}
+	
 	/**
 	 * Analyse the obs and DOESN'T update the observation
 	 *
@@ -179,39 +185,34 @@ public class ObservationChecker {
 		return false;
 	}
 	
-	public List<Observation> observationUpdater(Observation... observations) {
+	public List<Observation> observationUpdater(Observation... observations) throws Exception {
 		List<Observation> toUpdate = new ArrayList<>();
 		List<Notification> notifications = new ArrayList<>();
-		try {
-			for (Observation obs : observations) {
-				Observation oldObs = obsSrv.getById(obs.getId());
+		for (Observation obs : observations) {
+			Observation oldObs = obsSrv.getById(obs.getId());
 				
 				/* CHECK THE PICTURE */
-				String newPath = obs.getOnlinePath();
-				String oldPath = oldObs.getOnlinePath();
-				if (newPath != null && newPath.trim().length() > 0) { //That means there's something
-					if (oldPath != null && oldPath.trim().length() > 0) {
-						if (!oldPath.equals(newPath)) { //If not equals, there's something different
-							defineMediaType(obs);
-							analyseMedia(obs, notifications);
-						}
-					} else { //If old was null or empty, but not the new one, that means there's something new
+			String newPath = obs.getOnlinePath();
+			String oldPath = oldObs.getOnlinePath();
+			if (newPath != null && newPath.trim().length() > 0) { //That means there's something
+				if (oldPath != null && oldPath.trim().length() > 0) {
+					if (!oldPath.equals(newPath)) { //If not equals, there's something different
 						defineMediaType(obs);
 						analyseMedia(obs, notifications);
 					}
-				} else if (oldPath != null && oldPath.trim().length() > 0) { //New doesn't have and old yes so delete old file
-					storage.deleteMedia(Paths.get(oldPath));
+				} else { //If old was null or empty, but not the new one, that means there's something new
+					defineMediaType(obs);
+					analyseMedia(obs, notifications);
 				}
+			} else if (oldPath != null && oldPath.trim().length() > 0) { //New doesn't have and old yes so delete old file
+				storage.deleteMedia(Paths.get(oldPath));
+			}
 				
 				/* CHECK THE BIRD */
-				if (oldObs.getBirdId() != obs.getBirdId())
-					if (!brdSrv.exist(obs.getBirdId())) throw new IllegalArgumentException("Bird ID not correct");
-				
-				toUpdate.add(obsSrv.update(obs));
-				notSrv.create(notifications.toArray(new Notification[]{}));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			checkBirdId(notifications, obs);
+			
+			toUpdate.add(obsSrv.update(obs));
+			notSrv.create(notifications.toArray(new Notification[]{}));
 		}
 		return toUpdate;
 	}

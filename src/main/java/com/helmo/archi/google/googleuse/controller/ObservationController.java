@@ -70,7 +70,7 @@ public class ObservationController implements BasicController<Observation> {
 		try {
 			return ResponseEntity.ok(obsChecker.observationUpdater(observations));
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -82,7 +82,7 @@ public class ObservationController implements BasicController<Observation> {
 			);
 			return ResponseEntity.ok().build();
 		} catch (Exception ex) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.notFound().build();
 		}
 	}
 	

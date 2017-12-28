@@ -29,6 +29,14 @@ public class ReportService implements AccessRange<Report, Long>{
 		return repRepo.findOne(id);
 	}
 	
+	public List<Report> getByUserId(Long id) {
+		return repRepo.getByUser_Id(id);
+	}
+	
+	public List<Report> getByObservationId(Long id) {
+		return repRepo.getByObservation_Id(id);
+	}
+	
 	@Override
 	public Report create(Report rpt) {
 		Report toSave = new Report();

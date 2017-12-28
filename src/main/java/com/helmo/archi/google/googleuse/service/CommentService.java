@@ -28,6 +28,14 @@ public class CommentService implements AccessRange<Comment, Long> {
 		return cmtRepo.findOne(id);
 	}
 	
+	public List<Comment> getByUserId(Long id) {
+		return cmtRepo.getByUser_Id(id);
+	}
+	
+	public List<Comment> getByObservationId(Long id) {
+		return cmtRepo.getByObservation_Id(id);
+	}
+	
 	@Override
 	public Comment create(Comment toSave) {
 		Comment comment = new Comment();

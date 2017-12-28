@@ -46,10 +46,11 @@ public class SessionService implements AccessRange<Session, Long> {
 	}
 	
 	private void setObservations(Session ses, List<Bird> birds) {
-		if (birds == null) brdRepo.findAll();
+		if (birds == null) birds =  brdRepo.findAll();
 		List<Observation> temp = obsRepo.getBySession(ses);
+		List<Bird> finalBirds = birds;
 		temp.forEach(
-			  o -> o.setBird(birds.stream()
+			  o -> o.setBird(finalBirds.stream()
 					.filter(b -> b.getId() == o.getBirdId())
 					.findFirst().get())
 		);

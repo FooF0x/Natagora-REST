@@ -9,17 +9,16 @@ import org.springframework.web.client.RestTemplate;
 public class WeatherService {
 	
 	private final String KEY = "4f953e4c0ac499d47466ae6bd0b08c3b";
+	private final String URL;
 	private final RestTemplate restTemplate;
-	private final Environment env;
 	
 	public WeatherService(RestTemplateBuilder restTemplateBuilder, Environment env) {
 		this.restTemplate = restTemplateBuilder.build();
-		this.env = env;
+		URL = env.getProperty("weather.uri");
 	}
 	
 	public String getWeather(String lat, String lon) {
 		return this.restTemplate.getForObject(
-			  env.getProperty("weather.uri"),
-			  String.class, lat, lon, KEY);
+			  URL, String.class, lat, lon, KEY);
 	}
 }

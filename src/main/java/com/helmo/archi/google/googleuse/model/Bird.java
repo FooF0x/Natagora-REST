@@ -20,6 +20,7 @@ public class Bird extends MongoIdentifiedModel {
 	private String description;
 	
 	private List<String> picture;
+	private List<String> publicLinks;
 	private Map<String, List<Object>> data;
 	
 	public Bird() {

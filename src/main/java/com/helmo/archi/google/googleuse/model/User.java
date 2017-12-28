@@ -32,6 +32,9 @@ public class User extends IdentifiedModel {
 	@Column(name = "pic_path")
 	private String onlinePath;
 	
+	@Column(name = "public_link")
+	private String publicLink;
+	
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
 	@JoinTable(
 		  name = "user_role",
@@ -58,5 +61,19 @@ public class User extends IdentifiedModel {
 		this.password = pass;
 		this.onlinePath = onlinePath;
 		this.roles = roles;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof User)) return false;
+		User that = (User) o;
+		
+		return getId() == that.getId() && email.equals(that.email);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Long.hashCode(getId()) + email.hashCode();
 	}
 }
