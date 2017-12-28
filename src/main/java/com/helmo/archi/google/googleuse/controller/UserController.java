@@ -6,11 +6,30 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+/*
+ * WARNING: The code that follows may make you cry:
+ *           A Safety Pig has been provided below for your benefit
+ *                              _
+ *      _._ _..._ .-',     _.._(`))
+ *     '-. `     '  /-._.-'    ',/
+ *       )         \            '.
+ *      / _    _    |             \
+ *     |  a    a    /              |
+ *      \   .-.                     ;
+ *       '-('' ).-'       ,'       ;
+ *          '-;           |      .'
+ *            \           \    /
+ *            | 7  .__  _.-\   \
+ *            | |  |  ``/  /`  /
+ *           /,_|  |   /,_/   /
+ *              /,_/      '`-'
+ */
 
 @RestController
 @RequestMapping("/users")
@@ -19,13 +38,16 @@ public class UserController implements BasicController<User> {
 	
 	private final UserService usrSrv;
 	
-	private final List<User> superUsers; //SuperUsers in cache
+	private final List<User> SUPER_USERS; //SuperUsers in cache
 	
 	public UserController(UserService usrSrv, Environment env) {
 		this.usrSrv = usrSrv;
-		superUsers = Arrays.asList(     //Define the cache
+		SUPER_USERS = Arrays.asList(     //Define the cache
 			  usrSrv.getByEmail(env.getProperty("user.admin.email")),
-			  usrSrv.getByEmail(env.getProperty("user.system.email")));
+			  usrSrv.getByEmail(env.getProperty("user.system.email")),
+			  usrSrv.getByEmail(env.getProperty("user.default.email")),
+			  usrSrv.getByEmail(env.getProperty("user.anonymous.email")));
+		
 	}
 	
 	@Override
@@ -42,10 +64,16 @@ public class UserController implements BasicController<User> {
 		return usrSrv.getById(id);
 	}
 	
-	@GetMapping("/email/{email}")
-	@Secured("ROLE_SYSTEM")
-	public User getByEmail(@PathVariable("email") String email) {
-		return usrSrv.getByEmail(email);
+	@GetMapping("/email")
+	public User getByEmail() {
+		return usrSrv.getByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<User> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return usrSrv.getRange(one, two);
 	}
 	
 	@Override
@@ -53,14 +81,11 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_SYSTEM")
 	public ResponseEntity create(@RequestBody User... users) {
 		try {
-			List<User> rtn = new ArrayList<>();
-			for (User usr : users)
-				if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
-					rtn.add(usrSrv.create(usr));
+			List<User> rtn = usrSrv.create(users);
 			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -69,14 +94,11 @@ public class UserController implements BasicController<User> {
 	@Secured("ROLE_USER")
 	public ResponseEntity update(@RequestBody User... users) {
 		try {
-			List<User> rtn = new ArrayList<>();
-			for (User usr : users)
-				if (!checkAdmin(usr)) //SuperAdmin and System can't be changed
-					rtn.add(usrSrv.update(usr));
+			List<User> rtn = usrSrv.update(users);
 			return ResponseEntity.ok(rtn);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 	
@@ -95,7 +117,7 @@ public class UserController implements BasicController<User> {
 	@DeleteMapping
 	public ResponseEntity delete(@RequestBody User... users) {
 		for (User usr : users) {
-			if (checkAdmin(usr)) //SuperAdmin and System can't be changed
+			if (checkAdmin(usr)) //SuperAdmin and System can't be changed //TODO Report this check to the service
 				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
 			
 			usrSrv.deleteById(usr.getId());
@@ -110,6 +132,6 @@ public class UserController implements BasicController<User> {
 	 * @return <code>TRUE</code> if is admin or system user
 	 */
 	private boolean checkAdmin(User usr) {
-		return usr != null && superUsers.contains(usr);
-	}
+		return usr != null && SUPER_USERS.contains(usr);
+	} //Comparison based on ID
 }

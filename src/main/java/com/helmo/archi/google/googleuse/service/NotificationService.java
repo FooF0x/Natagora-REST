@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class NotificationService implements BasicService<Notification, Long> {
+public class NotificationService implements AccessRange<Notification, Long> {
 	
 	private final NotificationRepository notRepo;
 	

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ObservationService implements BasicService<Observation, Long> {
+public class ObservationService implements AccessRange<Observation, Long> {
 //	private Map<Long, Bird> birdsCache; //TODO Update Cache
 	
 	private final ObservationRepository obsRepo;
@@ -133,18 +133,14 @@ public class ObservationService implements BasicService<Observation, Long> {
 		obsRepo.delete(observation);
 	}
 	
-	public List<Observation> getRange(long one, long two) {
-		return getAll()
-			  .stream()
-			  .skip(one)
-			  .limit(two - one)
-			  .collect(Collectors.toList());
-	}
-	
 	public List<Observation> getBySession(Session ses) {
 		List<Observation> observations = obsRepo.getBySession(ses);
 		observations.forEach(obs -> obs.setBird(brdRepo.findOne(obs.getBirdId())));
 //		observations.forEach(obs -> obs.setBird(birdsCache.get(obs.getBirdId())));
 		return observations;
+	}
+	
+	public List<Observation> getByBirdId(long id) {
+		return obsRepo.getByBirdId(id);
 	}
 }

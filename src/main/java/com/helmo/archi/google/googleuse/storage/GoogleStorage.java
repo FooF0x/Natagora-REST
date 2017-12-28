@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Component
-public class GoogleStorage { //TODO Work with path not strings
+public class GoogleStorage {
 	
 	private final Storage storage;
 	private String bucketName;
@@ -27,7 +27,16 @@ public class GoogleStorage { //TODO Work with path not strings
 			  .setCredentials(HELMoCredentialsProvider.getCredential())
 			  .build()
 			  .getService();
-		bucketName = "nat-test";
+		bucketName = "natagora-grimar";
+	}
+	
+	private Blob createBlob(Path path) {
+		Blob blob = storage.get(BlobId.of(bucketName, path.toString().replace("\\", "/")));
+		if (blob == null) {
+			System.out.println("No such object");
+			return null;
+		}
+		return blob;
 	}
 	
 	public void uploadPicture(Path path, Path onlinePath, String ext) throws IOException {
@@ -50,8 +59,8 @@ public class GoogleStorage { //TODO Work with path not strings
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType(mediaType)
-				.setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
-				.build();
+			  .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
+			  .build();
 		
 		uploadContent(path, blobInfo);
 	}
@@ -89,46 +98,17 @@ public class GoogleStorage { //TODO Work with path not strings
 		return path.startsWith("\\");
 	}
 	
-	public byte[] getMedia(Path onlinePath) throws IOException {
-		Blob blob = storage.get(BlobId.of(bucketName, onlinePath.toString().replace("\\", "/")));
-		if (blob == null) {
-			System.out.println("No such object");
-			return new byte[0];
-		}
-		
-		byte[] rtn;
-		
-		if (blob.getSize() < 1_000_000) {
-			// Blob is small read all its content in one request
-			return blob.getContent();
-		} else {
-			// When Blob size is big or unknown use the blob's channel reader.
-			try (ReadChannel reader = blob.reader()) {
-				List<Byte> content = new LinkedList<>();
-				ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
-				while (reader.read(bytes) > 0) {
-					bytes.flip();
-					for (byte tmp : bytes.array())
-						content.add(tmp);
-					bytes.clear();
-				}
-				rtn = new byte[content.size()];
-				for (int i = 0; i < rtn.length; i++)
-					rtn[i] = content.get(i);
-			}
-		}
-		return rtn;
-	}
-	
 	public boolean deleteMedia(Path onlinePath) {
 		return storage.delete(BlobId.of(bucketName, onlinePath.toString()));
 	}
 	
 	public boolean exist(Path onlinePath) {
-		try {
-			return getMedia(onlinePath).length == 0;
-		} catch (IOException ex) {
-			return false;
-		}
+		return createBlob(onlinePath) != null;
+	}
+	
+	public String getPublicLink(Path onlinePath) {
+		Blob blob;
+		if((blob = createBlob(onlinePath)) == null) throw new IllegalArgumentException("No such blob");
+		return blob.getMediaLink();
 	}
 }

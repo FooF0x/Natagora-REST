@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController implements BasicController<Notification> {
-	
+	//TODO Get By User and Observation
 	private final NotificationService notSrv;
 	private final NotificationStatusService statusSrv;
 	
@@ -33,6 +33,13 @@ public class NotificationController implements BasicController<Notification> {
 	@GetMapping("/{id}")
 	public Notification getOne(@PathVariable("id") long id) {
 		return notSrv.getById(id);
+	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Notification> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return notSrv.getRange(one, two);
 	}
 	
 	@Override

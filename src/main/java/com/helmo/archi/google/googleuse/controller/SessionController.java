@@ -51,12 +51,17 @@ public class SessionController implements BasicController<Session> {
 		return sesSrv.getRange(one, two);
 	}
 	
+	@GetMapping("/for/{id}")
+	@Secured("ROLE_USER")
+	public List<Session> getFor(@PathVariable("id") long idUser) {
+		//TODO if a simple user is connected, check if it's its id
+		return sesSrv.findByUserId(idUser);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_USER")
 	public ResponseEntity create(@RequestBody Session... sessions) {
-		/* TODO Define weather*/
-		
 		try {
 			List<Session> rtn = new ArrayList<>();
 			for (Session ses : sessions) {
@@ -65,30 +70,17 @@ public class SessionController implements BasicController<Session> {
 				JsonParser springParser = JsonParserFactory.getJsonParser();
 				Map<String, Object> result = springParser.parseMap(rawWeather);
 				
-				if (result.containsKey("main")) {
-					LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) result.get("main");
-					if (main.containsValue("temp"))
-						ses.setTemperature(main.get("temp"));
-					else ses.setTemperature(null);
-				} else ses.setTemperature(null);
-				if (result.containsKey("rain")) {
-					LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) result.get("rain");
-					if (rain.containsValue("3h"))
-						ses.setTemperature(rain.get("3h"));
-					else ses.setRain(null);
-				} else ses.setRain(null);
+				/* SET THE WEATHER */
+				setWeatherData(ses, result);
 				
-				if (result.containsKey("wind")) {
-					LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) result.get("wind");
-					if (wind.containsValue("speed"))
-						ses.setTemperature(wind.get("speed"));
-					else ses.setWind(null);
-				} else ses.setWind(null);
-				
-				
+				/* EXTRACT OBSERVATIONS */
 				Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
 				ses.setObservations(new ArrayList<>());
+				
+				/* ADD SESSION */
 				Session added = sesSrv.create(ses);
+				
+				/* ADD OBSERVATIONS*/
 				added.setObservations(
 					  obsChecker.observationAdder(added, obs));
 				rtn.add(added);
@@ -96,27 +88,25 @@ public class SessionController implements BasicController<Session> {
 			return ResponseEntity.ok(rtn); //TODO Define transmission object with data and list of errors (Surround createObs with try/catch)
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(ex.getMessage());
 		}
 	}
 	
 	private void setWeatherData(Session ses, Map<String, Object> seed) {
 		if (seed.containsKey("main")) {
 			LinkedHashMap<String, Double> main = (LinkedHashMap<String, Double>) seed.get("main");
-			if (main.containsKey("temp"))
-				ses.setTemperature(main.get("temp"));
-			
-		}
+			ses.setTemperature(main.get("temp") - 273.15); //Convert from °K to °C
+		} else ses.setTemperature(null);
+		
 		if (seed.containsKey("rain")) {
 			LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) seed.get("rain");
-			if (rain.containsKey("3h"))
-				ses.setTemperature(rain.get("3h"));
-		}
+			ses.setRain(rain.get("3h"));
+		} else ses.setRain(null);
+		
 		if (seed.containsKey("wind")) {
 			LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) seed.get("wind");
-			if (wind.containsKey("speed"))
-				ses.setTemperature(wind.get("speed"));
-		}
+			ses.setWind(wind.get("speed"));
+		} else ses.setWind(null);
 	}
 	
 	@Override
@@ -127,19 +117,19 @@ public class SessionController implements BasicController<Session> {
 			return ResponseEntity.ok(sesSrv.update(ses));
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(ex.getMessage());
 		}
 	}
 	
 	@Override
 	public ResponseEntity deleteOne(long id) {
 		sesSrv.deleteById(id);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 	
 	@Override
 	public ResponseEntity delete(Session... sessions) {
 		sesSrv.delete(sessions);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 }

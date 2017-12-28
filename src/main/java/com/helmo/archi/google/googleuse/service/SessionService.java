@@ -1,6 +1,10 @@
 package com.helmo.archi.google.googleuse.service;
 
+import com.helmo.archi.google.googleuse.model.Bird;
+import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.model.Session;
+import com.helmo.archi.google.googleuse.model.User;
+import com.helmo.archi.google.googleuse.repository.BirdRepository;
 import com.helmo.archi.google.googleuse.repository.ObservationRepository;
 import com.helmo.archi.google.googleuse.repository.SessionRepository;
 import com.helmo.archi.google.googleuse.tools.Time;
@@ -11,29 +15,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SessionService implements BasicService<Session, Long> {
+public class SessionService implements AccessRange<Session, Long> {
 	
 	private final SessionRepository sesRepo;
 	private final ObservationRepository obsRepo;
+	private final BirdRepository brdRepo;
+
+//	private List<Bird> birds; //Cache list to avoid multiple MongoDB Call //TODO Update the list when a bird is added
 	
-	public SessionService(SessionRepository sesRepo, ObservationRepository obsRepo) {
+	public SessionService(SessionRepository sesRepo, ObservationRepository obsRepo, BirdRepository brdRepo) {
 		this.sesRepo = sesRepo;
 		this.obsRepo = obsRepo;
+		this.brdRepo = brdRepo;
 	}
 	
 	@Override
 	public List<Session> getAll() {
 		List<Session> sessions = sesRepo.findAll();
+		List<Bird> birds = brdRepo.findAll();
 		sessions.forEach(
-			  s -> s.setObservations(obsRepo.getBySession(s)));
+			  s -> setObservations(s, birds));
 		return sessions;
 	}
 	
 	@Override
 	public Session getById(Long id) {
 		Session ses = sesRepo.findOne(id);
-		ses.setObservations(obsRepo.getBySession(ses));
+		setObservations(ses, null);
 		return ses;
+	}
+	
+	private void setObservations(Session ses, List<Bird> birds) {
+		if (birds == null) birds =  brdRepo.findAll();
+		List<Observation> temp = obsRepo.getBySession(ses);
+		List<Bird> finalBirds = birds;
+		temp.forEach(
+			  o -> o.setBird(finalBirds.stream()
+					.filter(b -> b.getId() == o.getBirdId())
+					.findFirst().get())
+		);
+		ses.setObservations(temp);
 	}
 	
 	@Override
@@ -44,6 +65,9 @@ public class SessionService implements BasicService<Session, Long> {
 		two.setLatitude(ses.getLatitude());
 		two.setLongitude(ses.getLongitude());
 		two.setObservations(ses.getObservations());
+		two.setTemperature(ses.getTemperature());
+		two.setWind(ses.getWind());
+		two.setRain(ses.getRain());
 		two.setDateStart(
 			  (ses.getDateStart() != null)
 					? ses.getDateStart()
@@ -116,13 +140,19 @@ public class SessionService implements BasicService<Session, Long> {
 		sesRepo.delete(id);
 	}
 	
+	public List<Session> findByUser(User user) {
+		List<Session> sessions = sesRepo.findByUser(user);
+		sessions.forEach(
+			  s -> setObservations(s, null)
+		);
+		return sessions;
+	}
 	
-	public List<Session> getRange(long one, long two) {
-		return getAll()
-			  .stream()
-			  .skip(one)
-			  .limit(two - one)
-			  .collect(Collectors.toList());
-		
+	public List<Session> findByUserId(Long id) {
+		List<Session> sessions = sesRepo.findByUser_Id(id);
+		sessions.forEach(
+			  s -> setObservations(s, null)
+		);
+		return sessions;
 	}
 }

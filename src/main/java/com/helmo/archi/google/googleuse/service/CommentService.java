@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class CommentService implements BasicService<Comment, Long> {
+public class CommentService implements AccessRange<Comment, Long> {
 	
 	private final CommentRepository cmtRepo;
 	
@@ -26,6 +26,14 @@ public class CommentService implements BasicService<Comment, Long> {
 	@Override
 	public Comment getById(Long id) {
 		return cmtRepo.findOne(id);
+	}
+	
+	public List<Comment> getByUserId(Long id) {
+		return cmtRepo.getByUser_Id(id);
+	}
+	
+	public List<Comment> getByObservationId(Long id) {
+		return cmtRepo.getByObservation_Id(id);
 	}
 	
 	@Override

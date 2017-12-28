@@ -10,21 +10,17 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class AttributeService implements BasicService<Attribute, Long> {
+public class AttributeService implements AccessRange<Attribute, Long> {
 	
 	private final AttributeRepository attRepo;
 	private final NextSequenceService nextSeq;
-	private final MongoTemplate monqoTemplate;
-	private final Environment env;
 	
 	private final String COLLECTION_NAME;
 	
 	public AttributeService(AttributeRepository attRepo, NextSequenceService nextSeq,
-	                        MongoTemplate monqoTemplate, Environment env) {
+	                        Environment env) {
 		this.attRepo = attRepo;
 		this.nextSeq = nextSeq;
-		this.monqoTemplate = monqoTemplate;
-		this.env = env;
 		COLLECTION_NAME = env.getProperty("mongodb.attributes");
 	}
 	

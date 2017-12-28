@@ -27,9 +27,26 @@ public class ReportController implements BasicController<Report> {
 	
 	@Override
 	@GetMapping("/{id}")
-	@Secured("ROLE_ADMIN")
+	@Secured("ROLE_USER")
 	public Report getOne(@PathVariable("id") long id) {
 		return rptSrv.getById(id);
+	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Report> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return rptSrv.getRange(one, two);
+	}
+	
+	@GetMapping("/for/user/{id}")
+	public List<Report> getByUserId(@PathVariable("id") long id) {
+		return rptSrv.getByUserId(id);
+	}
+	
+	@GetMapping("/for/observation/{id}")
+	public List<Report> getByObservationId(@PathVariable("id") long id) {
+		return rptSrv.getByObservationId(id);
 	}
 	
 	@Override

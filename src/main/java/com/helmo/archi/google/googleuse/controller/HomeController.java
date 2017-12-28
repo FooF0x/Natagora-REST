@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
 	
 	@GetMapping
-	public String index() { //TODO Define a Hello page
+	public String index() {
 		return "<p>Hello</p>" +
 			  "<p>Authors : GRIGNET Quentin - MARÉCHAL Thibaut</p>";
 	}

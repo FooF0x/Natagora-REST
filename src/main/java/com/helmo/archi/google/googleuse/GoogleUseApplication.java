@@ -1,14 +1,9 @@
 package com.helmo.archi.google.googleuse;
 
-import com.helmo.archi.google.googleuse.model.MediaType;
-import com.helmo.archi.google.googleuse.model.NotificationStatus;
-import com.helmo.archi.google.googleuse.model.Role;
-import com.helmo.archi.google.googleuse.model.User;
-import com.helmo.archi.google.googleuse.repository.MediaTypeRepository;
-import com.helmo.archi.google.googleuse.repository.NotificationStatusRepository;
-import com.helmo.archi.google.googleuse.repository.RoleRepository;
-import com.helmo.archi.google.googleuse.repository.UserRepository;
+import com.helmo.archi.google.googleuse.model.*;
+import com.helmo.archi.google.googleuse.repository.*;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,8 +19,43 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+Our program, who art in memory,
+Called by thy name;
+Thy operating system run;
+Thy function be done at runtime
+As it was in development.
+Give us this day our daily output.
+And forgive us our code duplication,
+As we forgive those who
+Duplicate code against us.
+And lead us not into frustration;
+But deliver us from GOTOs.
+For thine is the algorithm,
+The computation, and the solution,
+Looping forever and ever
+RETURN.
+*/
+
 @SpringBootApplication
 public class GoogleUseApplication extends SpringBootServletInitializer {
+	
+	@Autowired
+	private RoleRepository roleRepo;
+	@Autowired
+	private UserRepository usrRepo;
+	@Autowired
+	private MediaTypeRepository medRepo;
+	@Autowired
+	private BirdRepository brdRepo;
+	@Autowired
+	private NotificationStatusRepository notRepo;
+	@Autowired
+	private SessionRepository sesRepo;
+	@Autowired
+	private PasswordEncoder passEnc;
+	@Autowired
+	private Environment env;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(GoogleUseApplication.class, args);
@@ -42,50 +72,46 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 	}
 	
 	@Bean
-	public ApplicationRunner startApp(UserRepository usrRepo, RoleRepository roleRepo, MediaTypeRepository medRepo,
-	                                  PasswordEncoder passEnc, Environment env, GoogleStorage storage,
-	                                  NotificationStatusRepository notRepo) {
+	public ApplicationRunner startApp() {
 		return args -> {
 			
-			checkRolesIntegrity(roleRepo, env, env.getProperty("data.role.property-names").split(","));
+			checkRolesIntegrity(env.getProperty("data.role.property-names").split(","));
 			
-			checkMediaTypeIntegrity(medRepo, env.getProperty("data.mediaTypes").split(","));
+			checkMediaTypeIntegrity(env.getProperty("data.mediaTypes").split(","));
 			
-			checkNotificationStatusIntegrity(notRepo, env.getProperty("data.not-status").split(","));
+			checkNotificationStatusIntegrity(env.getProperty("data.not-status").split(","));
+			
+			checkBirdIntegrity();
 			
 			checkManagementUser(
 				  "admin",
-				  usrRepo, env, passEnc,
-				  createUser(
-						"admin",
-						roleRepo,
-						env,
-						passEnc));
+				  createUser("admin"));
 			
 			checkManagementUser(
 				  "system",
-				  usrRepo, env, passEnc,
-				  createUser(
-						"system",
-						roleRepo,
-						env,
-						passEnc));
+				  createUser("system"));
 			
 			checkManagementUser(
 				  "default",
-				  usrRepo, env, passEnc,
-				  createUser(
-						"default",
-						roleRepo,
-						env,
-						passEnc));
+				  createUser("default"));
 			
-			checkStorageIntegrity(storage, env);
+			checkManagementUser(
+				  "anonymous",
+				  createUser("anonymous"));
 			
 		};
 	}
 	
-	private User createUser(String type, RoleRepository roleRepo, Environment env, PasswordEncoder passEnc) {
+	private void checkBirdIntegrity() {
+		if (!brdRepo.exists(0L)) { //TODO if exist, check values integrity
+			Bird bird = new Bird();
+			bird.setName("Unknown bird");
+			bird.setDescription("This is an unknown bird");
+			brdRepo.insert(bird);
+		}
+	}
+	
+	private User createUser(String type) {
 		User rtn = new User();
 		rtn.setFullName(env.getProperty("user." + type + ".name"));
 		rtn.setEmail(env.getProperty("user." + type + ".email"));
@@ -100,37 +126,35 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		return rtn;
 	}
 	
-	private void checkStorageIntegrity(GoogleStorage storage, Environment env) {
-		if (!storage.exist(Paths.get(env.getProperty("storage.defaultPic.onlineLocation"))))  //TODO Not ok
-			try {
-				storage.uploadPicture(
-					  Paths.get("/pics/defaultPic.png"),
-					  Paths.get(env.getProperty("storage.defaultPic.onlineLocation")),
-					  "png"
-				);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
 	
-	private void checkManagementUser(String type, UserRepository usrRepo, Environment env,
-	                                 PasswordEncoder passEnc, User haveToBe) {
+	private void checkManagementUser(String type, User haveToBe) {
 		User dbUser = usrRepo.findByEmail(env.getProperty("user." + type + ".email"));
 		if (dbUser == null) {
 			usrRepo.save(haveToBe);
-		} else if (!compareUsers(dbUser, haveToBe, type, passEnc, env)) {
-			usrRepo.delete(dbUser);
+		} else if (!compareUsers(dbUser, haveToBe, type)) {
+			/* TO ALLOWED ME ADDING THE NEW USER (Email must be unique) */
+			dbUser.setEmail("deleted." + dbUser.getEmail());
+			usrRepo.save(dbUser);
+			
+			/* ADDING THE NEW USER */
 			usrRepo.save(haveToBe);
+			
+			/* TRANSFER OWNERSHIP */
+			List<Session> temp = sesRepo.findByUser_Id(dbUser.getId()); //Because default user have all the lonely ses
+			temp.forEach(s -> s.setUser(haveToBe));
+			sesRepo.save(temp);
+			
+			/* DELETE OLD USER */
+			usrRepo.delete(dbUser.getId());
 		}
 	}
 	
-	private boolean compareUsers(User dbUser, User haveToBe, String type, PasswordEncoder passEnc, Environment env) {
+	private boolean compareUsers(User dbUser, User haveToBe, String type) {
 		try {
 			boolean rtn = dbUser.getFullName().equals(haveToBe.getFullName())
 				  && dbUser.getEmail().equals(haveToBe.getEmail())
 				  && dbUser.getOnlinePath().equals(haveToBe.getOnlinePath())
-				  && dbUser.isAdmin() == Boolean.parseBoolean(env.getProperty("user." + type + "is-admin"))
-//					&& dbUser.getSessions().size() == 0
+				  && dbUser.isAdmin() == haveToBe.isAdmin()
 				  && passEnc.matches(
 				  env.getProperty("user." + type + ".password"), dbUser.getPassword()
 			);
@@ -146,7 +170,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		}
 	}
 	
-	private void checkNotificationStatusIntegrity(NotificationStatusRepository notRepo, String... status) {
+	private void checkNotificationStatusIntegrity(String... status) {
 		List<NotificationStatus> rtn = new ArrayList<>();
 		for (String str : status)
 			if (notRepo.findByName(str) == null)
@@ -160,7 +184,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		return rtn;
 	}
 	
-	private void checkMediaTypeIntegrity(MediaTypeRepository medRepo, String... mediaTypeNames) {
+	private void checkMediaTypeIntegrity(String... mediaTypeNames) {
 		List<MediaType> mediaTypes = new ArrayList<>();
 		for (String str : mediaTypeNames)
 			if (medRepo.findByName(str) == null)
@@ -175,7 +199,7 @@ public class GoogleUseApplication extends SpringBootServletInitializer {
 		return rtn;
 	}
 	
-	private void checkRolesIntegrity(RoleRepository roleRepo, Environment env, String... roleNames) {
+	private void checkRolesIntegrity(String... roleNames) {
 		List<Role> roles = new ArrayList<>();
 		for (String str : roleNames)
 			if (roleRepo.findOneByName(env.getProperty("data.role." + str + ".name")) == null)

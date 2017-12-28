@@ -12,6 +12,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -53,7 +54,6 @@ public class ObservationController implements BasicController<Observation> {
 		return obsSrv.getRange(one, two);
 	}
 	
-	
 	@Override
 	@PostMapping
 	public ResponseEntity create(@RequestBody Observation... observations) {
@@ -70,18 +70,19 @@ public class ObservationController implements BasicController<Observation> {
 		try {
 			return ResponseEntity.ok(obsChecker.observationUpdater(observations));
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 	
 	@Override
 	public ResponseEntity delete(@RequestBody Observation... observations) {
 		try {
-			for (Observation obs : observations)
-				deleteOne(obs.getId());
+			Arrays.asList(observations).forEach(
+				  o -> deleteOne(o.getId())
+			);
 			return ResponseEntity.ok().build();
 		} catch (Exception ex) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.notFound().build();
 		}
 	}
 	
@@ -100,6 +101,20 @@ public class ObservationController implements BasicController<Observation> {
 		} catch (Exception ex) {
 			return ResponseEntity.notFound().build();
 		}
+	}
+	
+	@PutMapping("/validate/{id}")
+	public void validate(@PathVariable("id") long id) {
+		Observation obs = obsSrv.getById(id);
+		obs.setValidation(true);
+		obsSrv.update(obs);
+	}
+	
+	@PutMapping("/refused/{id}")
+	public void refused(@PathVariable("id") long id) {
+		Observation obs = obsSrv.getById(id);
+		obs.setValidation(false);
+		obsSrv.update(obs);
 	}
 	
 }

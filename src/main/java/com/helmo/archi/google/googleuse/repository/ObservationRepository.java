@@ -12,4 +12,6 @@ import java.util.List;
 public interface ObservationRepository extends JpaRepository<Observation, Long> {
 	@Query("SELECT o FROM Observation o WHERE o.session = ?1")
 	List<Observation> getBySession(Session ses);
+	
+	List<Observation> getByBirdId(Long id);
 }

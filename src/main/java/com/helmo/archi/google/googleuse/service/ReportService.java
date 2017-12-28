@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class ReportService implements BasicService<Report, Long> {
+public class ReportService implements AccessRange<Report, Long>{
 	
 	private final ReportRepository repRepo;
 	
@@ -27,6 +27,14 @@ public class ReportService implements BasicService<Report, Long> {
 	@Override
 	public Report getById(Long id) {
 		return repRepo.findOne(id);
+	}
+	
+	public List<Report> getByUserId(Long id) {
+		return repRepo.getByUser_Id(id);
+	}
+	
+	public List<Report> getByObservationId(Long id) {
+		return repRepo.getByObservation_Id(id);
 	}
 	
 	@Override

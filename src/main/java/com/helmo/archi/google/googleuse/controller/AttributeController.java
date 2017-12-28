@@ -20,7 +20,7 @@ public class AttributeController implements BasicController<Attribute> {
 	
 	@Override
 	@GetMapping
-	@Secured("ROLE_ADMIN")
+	@Secured("ROLE_SYSTEM")
 	public List<Attribute> getAll() {
 		return attSrv.getAll();
 	}
@@ -30,6 +30,13 @@ public class AttributeController implements BasicController<Attribute> {
 	@Secured("ROLE_ADMIN")
 	public Attribute getOne(@PathVariable("id") long id) {
 		return attSrv.getById(id);
+	}
+	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Attribute> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return attSrv.getRange(one, two);
 	}
 	
 	@Override

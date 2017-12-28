@@ -3,10 +3,12 @@ package com.helmo.archi.google.googleuse.controller;
 import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.model.BirdFinder;
 import com.helmo.archi.google.googleuse.service.BirdService;
+import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
@@ -14,9 +16,11 @@ import java.util.*;
 public class BirdController implements BasicController<Bird> {
 	
 	private final BirdService brdSrv;
+	private final GoogleStorage storage;
 	
-	public BirdController(BirdService brdSrv) {
+	public BirdController(BirdService brdSrv, GoogleStorage storage) {
 		this.brdSrv = brdSrv;
+		this.storage = storage;
 	}
 	
 	@Override
@@ -33,12 +37,27 @@ public class BirdController implements BasicController<Bird> {
 		return brdSrv.getById(id);
 	}
 	
+	@GetMapping("/{one}/{two}")
+	@Secured("ROLE_USER")
+	public List<Bird> getRange(@PathVariable("one") long one, @PathVariable("two") long two) {
+		if (two <= one) throw new IllegalArgumentException("Wrong args");
+		return brdSrv.getRange(one, two);
+	}
+	
 	@Override
 	@PostMapping
 	@Secured("ROLE_ADMIN")
-	public ResponseEntity create(@RequestBody Bird... bird) {
+	public ResponseEntity create(@RequestBody Bird... birds) {
 		try {
-			return ResponseEntity.ok(brdSrv.create(bird));
+			for(Bird bird : birds) { //For all the birds
+				bird.getPicture().forEach( //Define the public links
+					  p -> bird.getPublicLinks().add(
+					  	  storage.getPublicLink(Paths.get(p))
+					  )
+				);
+			}
+			brdSrv.create(birds);
+			return ResponseEntity.ok(brdSrv.create(birds));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
@@ -47,9 +66,22 @@ public class BirdController implements BasicController<Bird> {
 	@Override
 	@PutMapping
 	@Secured("ROLE_ADMIN")
-	public ResponseEntity update(@RequestBody Bird... bird) {
+	public ResponseEntity update(@RequestBody Bird... birds) {
 		try {
-			return ResponseEntity.ok(brdSrv.update(bird));
+			List<Bird> dbBirds = new ArrayList<>();
+			for(Bird bird : birds) { //For all the birds
+				Bird dbBird = brdSrv.getById(bird.getId());
+				bird.getPicture().forEach( //Define the public links
+					 p -> {
+					 	String publicLink = storage.getPublicLink(Paths.get(p));
+					 	if(!dbBird.getPublicLinks().contains(publicLink)) {
+					 		dbBird.getPublicLinks().add(publicLink);
+					    }
+					 }
+				);
+				dbBirds.add(dbBird);
+			}
+			return ResponseEntity.ok(brdSrv.update(dbBirds.toArray(new Bird[]{})));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
@@ -59,23 +91,30 @@ public class BirdController implements BasicController<Bird> {
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_ADMIN")
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
-		brdSrv.deleteById(id);
-		return ResponseEntity.ok().build();
+		try {
+			brdSrv.deleteById(id);
+			return ResponseEntity.ok().build();
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.unprocessableEntity().body(ex.getMessage());
+		}
 	}
 	
 	@Override
 	@DeleteMapping
 	@Secured("ROLE_ADMIN")
 	public ResponseEntity delete(Bird... birds) {
-		brdSrv.delete(birds);
-		return ResponseEntity.ok().build();
+		try {
+			brdSrv.delete(birds);
+			return ResponseEntity.ok().build();
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.unprocessableEntity().body(ex.getMessage());
+		}
 	}
 	
 	@PostMapping("/helper")
 	@Secured("ROLE_USER")
 	public List<List<Object>> birdHelper(@RequestBody BirdFinder seed) {
 		seed.processInput();
-		Map<Bird, Double> rtn = new HashMap<>();
 		
 		//TODO Extract the database part in a stringItems method
 		Map<String, String> stringItems = seed.getStringItems(); //Original Seed
