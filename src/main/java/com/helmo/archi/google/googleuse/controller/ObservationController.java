@@ -94,9 +94,6 @@ public class ObservationController implements BasicController<Observation> {
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		try {
 			Observation obs = obsSrv.getById(id);
-			repSrv.deleteByObservation(obs); //Delete all reports
-			cmtSrv.deleteByObservation(obs); //Delete all comments
-			notSrv.deleteByObservation(obs); //Delete all notifications
 			obsSrv.deleteById(id);
 			storage.deleteMedia(Paths.get(obs.getOnlinePath()));
 			return ResponseEntity.ok().build();

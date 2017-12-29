@@ -19,6 +19,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 	@Query(value = "delete from Report r where r.observation = ?1")
 	void deleteAllByObservation(Observation obs);
 	
+	void deleteAllByObservation_Id(Long id);
+	
 	List<Report> getByUser_Id(Long id);
 	
 	List<Report> getByObservation_Id(Long id);

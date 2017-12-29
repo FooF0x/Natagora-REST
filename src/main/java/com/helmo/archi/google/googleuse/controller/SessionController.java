@@ -2,6 +2,7 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.model.Session;
+import com.helmo.archi.google.googleuse.service.ObservationService;
 import com.helmo.archi.google.googleuse.service.SessionService;
 import com.helmo.archi.google.googleuse.service.WeatherService;
 import com.helmo.archi.google.googleuse.tools.ObservationChecker;
@@ -21,11 +22,14 @@ import java.util.Map;
 public class SessionController implements BasicController<Session> {
 	
 	private final SessionService sesSrv;
+	private final ObservationService obsSrv;
 	private final WeatherService wthSrv;
 	private final ObservationChecker obsChecker;
 	
-	public SessionController(SessionService sesSrv, WeatherService wthSrv, ObservationChecker obsChecker) {
+	public SessionController(SessionService sesSrv, ObservationService obsSrv, WeatherService wthSrv,
+	                         ObservationChecker obsChecker) {
 		this.sesSrv = sesSrv;
+		this.obsSrv = obsSrv;
 		this.wthSrv = wthSrv;
 		this.obsChecker = obsChecker;
 	}
@@ -65,25 +69,32 @@ public class SessionController implements BasicController<Session> {
 		try {
 			List<Session> rtn = new ArrayList<>();
 			for (Session ses : sessions) {
-				/* GET THE WEATHER */
-				String rawWeather = wthSrv.getWeather(ses.getLatitude(), ses.getLongitude());
-				JsonParser springParser = JsonParserFactory.getJsonParser();
-				Map<String, Object> result = springParser.parseMap(rawWeather);
+				try {
+					/* GET THE WEATHER */
+					String rawWeather = wthSrv.getWeather(ses.getLatitude(), ses.getLongitude());
+					JsonParser springParser = JsonParserFactory.getJsonParser();
+					Map<String, Object> result = springParser.parseMap(rawWeather);
 				
-				/* SET THE WEATHER */
-				setWeatherData(ses, result);
+					/* SET THE WEATHER */
+					setWeatherData(ses, result);
 				
-				/* EXTRACT OBSERVATIONS */
-				Observation[] obs = ses.getObservations().toArray(new Observation[ses.getObservations().size()]);
-				ses.setObservations(new ArrayList<>());
+					/* EXTRACT OBSERVATIONS */
+					Observation[] obs = ses.getObservations().toArray(new Observation[]{});
+					ses.setObservations(new ArrayList<>());
 				
-				/* ADD SESSION */
-				Session added = sesSrv.create(ses);
+					/* ADD SESSION */
+					Session added = sesSrv.create(ses);
 				
-				/* ADD OBSERVATIONS*/
-				added.setObservations(
-					  obsChecker.observationAdder(added, obs));
-				rtn.add(added);
+					/* ADD OBSERVATIONS*/
+					added.setObservations(
+						  obsChecker.observationAdder(added, obs));
+					rtn.add(added);
+				} catch (Exception ex) { //If Something happens
+					obsSrv.delete(ses.getObservations().toArray(new Observation[]{}));
+					sesSrv.delete(ses);
+					ex.printStackTrace();
+					throw new IllegalArgumentException(ex.getMessage());
+				}
 			}
 			return ResponseEntity.ok(rtn); //TODO Define transmission object with data and list of errors (Surround createObs with try/catch)
 		} catch (Exception ex) {
