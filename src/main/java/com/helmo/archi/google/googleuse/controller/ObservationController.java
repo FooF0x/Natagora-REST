@@ -107,13 +107,9 @@ public class ObservationController implements BasicController<Observation> {
 	
 	@PutMapping("/validate/{id}")
 	public void validate(@PathVariable("id") long id) {
-		NotificationStatus validate = notStatSrv.findByName("ACCEPTED");
+		NotificationStatus accepted = notStatSrv.findByName("ACCEPTED");
 		Observation obs = obsSrv.getById(id);
-		List<Notification> notifications = notSrv.getByObservationId(id);
-		notifications.forEach(
-			  n -> n.setStatus(validate)
-		);
-		notSrv.update(notifications.toArray(new Notification[]{}));
+		updateNotificationsFor(id, accepted);
 		obs.setValidation(true);
 		obsSrv.update(obs);
 	}
@@ -122,13 +118,17 @@ public class ObservationController implements BasicController<Observation> {
 	public void refused(@PathVariable("id") long id) {
 		NotificationStatus refused = notStatSrv.findByName("REFUSED");
 		Observation obs = obsSrv.getById(id);
-		List<Notification> notifications = notSrv.getByObservationId(id);
-		notifications.forEach(
-			  n -> n.setStatus(refused)
-		);
-		notSrv.update(notifications.toArray(new Notification[]{}));
+		updateNotificationsFor(id, refused);
 		obs.setValidation(false);
 		obsSrv.update(obs);
+	}
+	
+	private void updateNotificationsFor(Long id, NotificationStatus status) {
+		List<Notification> notifications = notSrv.getByObservationId(id);
+		notifications.forEach(
+			  n -> n.setStatus(status)
+		);
+		notSrv.update(notifications.toArray(new Notification[]{}));
 	}
 	
 }
