@@ -203,8 +203,9 @@ public class BirdController implements BasicController<Bird> {
 	@Secured("ROLE_USER")
 	public List<String> getNames() {
 		List<String> values = new ArrayList<>();
-		for (Bird brd : brdSrv.getAll())
-			values.add(brd.getName());
+		brdSrv.getAll().forEach(
+			  b -> values.add(b.getName())
+		);
 		return values;
 	}
 	

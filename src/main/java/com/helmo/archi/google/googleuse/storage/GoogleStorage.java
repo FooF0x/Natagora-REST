@@ -108,7 +108,12 @@ public class GoogleStorage {
 	}
 	
 	public String getPublicLink(Path onlinePath) {
-		if((createBlob(onlinePath)) == null) throw new IllegalArgumentException("No such blob");
+		Blob blob;
+		if((blob =createBlob(onlinePath)) == null) throw new IllegalArgumentException("No such blob");
+		BlobInfo info = BlobInfo.newBuilder(blob.getBlobId())
+			  .setAcl(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
+			  .build();
+		storage.update(info);
 		return "https://storage.googleapis.com/" + bucketName + "/" + onlinePath.toString().replace("\\", "/");
 //		return blob.getMediaLink();
 	}

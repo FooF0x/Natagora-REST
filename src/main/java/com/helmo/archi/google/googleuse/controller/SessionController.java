@@ -89,11 +89,11 @@ public class SessionController implements BasicController<Session> {
 					added.setObservations(
 						  obsChecker.observationAdder(added, obs));
 					rtn.add(added);
-				} catch (Exception ex) { //If Something happens
+				} catch (Exception ex) { //If Something happens with one ses
 					obsSrv.delete(ses.getObservations().toArray(new Observation[]{}));
 					sesSrv.delete(ses);
 					ex.printStackTrace();
-					throw new IllegalArgumentException(ex.getMessage());
+					throw new IllegalArgumentException(ex);
 				}
 			}
 			return ResponseEntity.ok(rtn); //TODO Define transmission object with data and list of errors (Surround createObs with try/catch)
@@ -112,12 +112,12 @@ public class SessionController implements BasicController<Session> {
 		if (seed.containsKey("rain")) {
 			LinkedHashMap<String, Double> rain = (LinkedHashMap<String, Double>) seed.get("rain");
 			ses.setRain(rain.get("3h"));
-		} else ses.setRain(null);
+		} else ses.setRain(0.0);
 		
 		if (seed.containsKey("wind")) {
 			LinkedHashMap<String, Double> wind = (LinkedHashMap<String, Double>) seed.get("wind");
 			ses.setWind(wind.get("speed"));
-		} else ses.setWind(null);
+		} else ses.setWind(0.0);
 	}
 	
 	@Override
