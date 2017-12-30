@@ -18,6 +18,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	@Transactional
 	@Query(value = "delete from Comment c where c.observation = ?1")
 	void deleteAllByObservation(Observation obs);
+	void deleteAllByObservation_Id(Long id);
 	
 	List<Comment> getByUser_Id(Long id);
 	

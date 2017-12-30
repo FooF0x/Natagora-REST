@@ -2,14 +2,12 @@ package com.helmo.archi.google.googleuse.service;
 
 import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.model.Session;
-import com.helmo.archi.google.googleuse.repository.BirdRepository;
-import com.helmo.archi.google.googleuse.repository.ObservationRepository;
+import com.helmo.archi.google.googleuse.repository.*;
 import com.helmo.archi.google.googleuse.tools.Time;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ObservationService implements AccessRange<Observation, Long> {
@@ -17,12 +15,19 @@ public class ObservationService implements AccessRange<Observation, Long> {
 	
 	private final ObservationRepository obsRepo;
 	private final BirdRepository brdRepo;
+	private final ReportRepository repRepo;
+	private final CommentRepository cmtRepo;
+	private final NotificationRepository notRepo;
 	
-	public ObservationService(ObservationRepository obsRepo, BirdRepository birdRepository) {
+	public ObservationService(ObservationRepository obsRepo, BirdRepository birdRepository, ReportRepository repRepo,
+	                          CommentRepository cmtRepo, NotificationRepository notRepo) {
 		this.obsRepo = obsRepo;
 		this.brdRepo = birdRepository;
 //		birdsCache = new TreeMap<>();
 //		brdRepo.findAll().forEach(b -> birdsCache.put(b.getId(), b));
+		this.repRepo = repRepo;
+		this.cmtRepo = cmtRepo;
+		this.notRepo = notRepo;
 	}
 	
 	@Override
@@ -120,17 +125,31 @@ public class ObservationService implements AccessRange<Observation, Long> {
 	
 	@Override
 	public void deleteById(Long id) {
+		cmtRepo.deleteAllByObservation_Id(id);
+		notRepo.deleteAllByObservation_Id(id);
+		repRepo.deleteAllByObservation_Id(id);
 		obsRepo.delete(id);
 	}
 	
 	@Override
 	public void delete(Observation... observations) {
-		obsRepo.delete(Arrays.asList(observations));
+		List<Observation> observationList = Arrays.asList(observations);
+		observationList.forEach(
+			  o -> deleteDependence(o.getId())
+		);
+		obsRepo.delete(observationList);
 	}
 	
 	@Override
 	public void delete(Observation observation) {
+		deleteDependence(observation.getId());
 		obsRepo.delete(observation);
+	}
+	
+	private void deleteDependence(long id) {
+		cmtRepo.deleteAllByObservation_Id(id);
+		notRepo.deleteAllByObservation_Id(id);
+		repRepo.deleteAllByObservation_Id(id);
 	}
 	
 	public List<Observation> getBySession(Session ses) {

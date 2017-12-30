@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 	
@@ -15,4 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	@Transactional
 	@Query(value = "delete from Notification n where n.observation = ?1")
 	void deleteAllByObservation(Observation obs);
+	void deleteAllByObservation_Id(Long id);
+	
+	List<Notification> getByObservation_Id(Long id);
 }

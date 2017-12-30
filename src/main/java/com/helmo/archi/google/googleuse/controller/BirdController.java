@@ -71,14 +71,32 @@ public class BirdController implements BasicController<Bird> {
 			List<Bird> dbBirds = new ArrayList<>();
 			for(Bird bird : birds) { //For all the birds
 				Bird dbBird = brdSrv.getById(bird.getId());
-				bird.getPicture().forEach( //Define the public links
-					 p -> {
-					 	String publicLink = storage.getPublicLink(Paths.get(p));
-					 	if(!dbBird.getPublicLinks().contains(publicLink)) {
-					 		dbBird.getPublicLinks().add(publicLink);
-					    }
-					 }
-				);
+				
+				dbBird.setName(bird.getName() != null
+					  ? bird.getName()
+					  : dbBird.getName());
+				dbBird.setDescription(bird.getDescription() != null
+					  ? bird.getDescription()
+					  : dbBird.getDescription());
+				dbBird.setData(bird.getData() != null
+					  ? bird.getData()
+					  : dbBird.getData());
+				dbBird.setPicture(bird.getPicture() != null
+					  ? bird.getPicture()
+					  : dbBird.getPicture());
+				dbBird.setPublicLinks(bird.getPublicLinks() != null
+					  ? bird.getPublicLinks()
+					  : dbBird.getPublicLinks());
+				
+				if(bird.getPicture() != null && bird.getPublicLinks() != null)
+					bird.getPicture().forEach( //Define the public links
+						  p -> {
+							  String publicLink = storage.getPublicLink(Paths.get(p));
+							  if(!dbBird.getPublicLinks().contains(publicLink)) {
+								  dbBird.getPublicLinks().add(publicLink);
+							  }
+						  }
+					);
 				dbBirds.add(dbBird);
 			}
 			return ResponseEntity.ok(brdSrv.update(dbBirds.toArray(new Bird[]{})));
@@ -185,8 +203,9 @@ public class BirdController implements BasicController<Bird> {
 	@Secured("ROLE_USER")
 	public List<String> getNames() {
 		List<String> values = new ArrayList<>();
-		for (Bird brd : brdSrv.getAll())
-			values.add(brd.getName());
+		brdSrv.getAll().forEach(
+			  b -> values.add(b.getName())
+		);
 		return values;
 	}
 	

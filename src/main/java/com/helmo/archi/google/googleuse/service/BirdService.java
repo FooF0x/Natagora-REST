@@ -73,6 +73,9 @@ public class BirdService implements AccessRange<Bird, Long> {
 		bird.setPicture(toUpdate.getPicture() != null
 			  ? toUpdate.getPicture()
 			  : bird.getPicture());
+		bird.setPublicLinks(toUpdate.getPublicLinks() != null
+			  ? toUpdate.getPublicLinks()
+			  : bird.getPublicLinks());
 		
 		brdRepo.delete(toUpdate.getId());
 		return brdRepo.insert(bird);

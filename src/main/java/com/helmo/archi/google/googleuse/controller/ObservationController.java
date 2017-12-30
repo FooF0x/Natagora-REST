@@ -1,10 +1,9 @@
 package com.helmo.archi.google.googleuse.controller;
 
+import com.helmo.archi.google.googleuse.model.Notification;
+import com.helmo.archi.google.googleuse.model.NotificationStatus;
 import com.helmo.archi.google.googleuse.model.Observation;
-import com.helmo.archi.google.googleuse.service.CommentService;
-import com.helmo.archi.google.googleuse.service.NotificationService;
-import com.helmo.archi.google.googleuse.service.ObservationService;
-import com.helmo.archi.google.googleuse.service.ReportService;
+import com.helmo.archi.google.googleuse.service.*;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import com.helmo.archi.google.googleuse.tools.ObservationChecker;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +20,18 @@ public class ObservationController implements BasicController<Observation> {
 	
 	private final ObservationService obsSrv;
 	private final NotificationService notSrv;
+	private final NotificationStatusService notStatSrv;
 	private final ReportService repSrv;
 	private final CommentService cmtSrv;
 	private final GoogleStorage storage;
 	private final ObservationChecker obsChecker;
 	
-	public ObservationController(ObservationService obsSrv, NotificationService notSrv, ReportService repSrv,
+	public ObservationController(ObservationService obsSrv, NotificationService notSrv, NotificationStatusService notStatSrv,
+	                             ReportService repSrv,
 	                             CommentService cmtSrv, GoogleStorage storage, ObservationChecker obsChecker) {
 		this.obsSrv = obsSrv;
 		this.notSrv = notSrv;
+		this.notStatSrv = notStatSrv;
 		this.repSrv = repSrv;
 		this.cmtSrv = cmtSrv;
 		this.storage = storage;
@@ -92,9 +94,6 @@ public class ObservationController implements BasicController<Observation> {
 	public ResponseEntity deleteOne(@PathVariable("id") long id) {
 		try {
 			Observation obs = obsSrv.getById(id);
-			repSrv.deleteByObservation(obs); //Delete all reports
-			cmtSrv.deleteByObservation(obs); //Delete all comments
-			notSrv.deleteByObservation(obs); //Delete all notifications
 			obsSrv.deleteById(id);
 			storage.deleteMedia(Paths.get(obs.getOnlinePath()));
 			return ResponseEntity.ok().build();
@@ -105,16 +104,28 @@ public class ObservationController implements BasicController<Observation> {
 	
 	@PutMapping("/validate/{id}")
 	public void validate(@PathVariable("id") long id) {
+		NotificationStatus accepted = notStatSrv.findByName("ACCEPTED");
 		Observation obs = obsSrv.getById(id);
+		updateNotificationsFor(id, accepted);
 		obs.setValidation(true);
 		obsSrv.update(obs);
 	}
 	
 	@PutMapping("/refused/{id}")
 	public void refused(@PathVariable("id") long id) {
+		NotificationStatus refused = notStatSrv.findByName("REFUSED");
 		Observation obs = obsSrv.getById(id);
+		updateNotificationsFor(id, refused);
 		obs.setValidation(false);
 		obsSrv.update(obs);
+	}
+	
+	private void updateNotificationsFor(Long id, NotificationStatus status) {
+		List<Notification> notifications = notSrv.getByObservationId(id);
+		notifications.forEach(
+			  n -> n.setStatus(status)
+		);
+		notSrv.update(notifications.toArray(new Notification[]{}));
 	}
 	
 }
