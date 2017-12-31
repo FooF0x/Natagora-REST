@@ -20,14 +20,14 @@ public class AttributeController implements BasicController<Attribute> {
 	
 	@Override
 	@GetMapping
-	@Secured("ROLE_SYSTEM")
+	@Secured("ROLE_USER")
 	public List<Attribute> getAll() {
 		return attSrv.getAll();
 	}
 	
 	@Override
 	@GetMapping("/{id}")
-	@Secured("ROLE_ADMIN")
+	@Secured("ROLE_USER")
 	public Attribute getOne(@PathVariable("id") long id) {
 		return attSrv.getById(id);
 	}
