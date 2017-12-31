@@ -79,7 +79,7 @@ public class CommentController implements BasicController<Comment> {
 	
 	@Override
 	@DeleteMapping("/{id}")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		cmtSrv.deleteById(id);
 		return ResponseEntity.ok().build();
 	}

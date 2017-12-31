@@ -14,4 +14,6 @@ public interface ObservationRepository extends JpaRepository<Observation, Long> 
 	List<Observation> getBySession(Session ses);
 	
 	List<Observation> getByBirdId(Long id);
+	
+	void deleteAllBySession_Id(Long id);
 }

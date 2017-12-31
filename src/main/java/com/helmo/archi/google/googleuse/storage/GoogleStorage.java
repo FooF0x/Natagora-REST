@@ -113,7 +113,11 @@ public class GoogleStorage {
 		BlobInfo info = BlobInfo.newBuilder(blob.getBlobId())
 			  .setAcl(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
 			  .build();
-		storage.update(info);
+		try {
+			storage.update(info);
+		} catch (StorageException ex) {
+			return "";
+		}
 		return "https://storage.googleapis.com/" + bucketName + "/" + onlinePath.toString().replace("\\", "/");
 //		return blob.getMediaLink();
 	}

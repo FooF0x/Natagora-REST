@@ -8,6 +8,7 @@ import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import com.helmo.archi.google.googleuse.tools.ObservationChecker;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Paths;
@@ -77,10 +78,11 @@ public class ObservationController implements BasicController<Observation> {
 	}
 	
 	@Override
+	@DeleteMapping
 	public ResponseEntity delete(@RequestBody Observation... observations) {
 		try {
 			Arrays.asList(observations).forEach(
-				  o -> deleteOne(o.getId())
+				  this::delete
 			);
 			return ResponseEntity.ok().build();
 		} catch (Exception ex) {
@@ -91,15 +93,19 @@ public class ObservationController implements BasicController<Observation> {
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		try {
 			Observation obs = obsSrv.getById(id);
-			obsSrv.deleteById(id);
-			storage.deleteMedia(Paths.get(obs.getOnlinePath()));
+			delete(obs);
 			return ResponseEntity.ok().build();
 		} catch (Exception ex) {
 			return ResponseEntity.notFound().build();
 		}
+	}
+	
+	private void delete(Observation obs) {
+		obsSrv.delete(obs);
+		storage.deleteMedia(Paths.get(obs.getOnlinePath()));
 	}
 	
 	@PutMapping("/validate/{id}")

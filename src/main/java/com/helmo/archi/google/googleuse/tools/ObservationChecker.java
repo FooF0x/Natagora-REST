@@ -86,13 +86,14 @@ public class ObservationChecker {
 	
 	public List<Observation> observationAdder(Session session, Observation... observations) throws Exception {
 		List<Observation> rtn = new ArrayList<>();
-		List<Notification> notifications = new ArrayList<>();
+		List<Notification> notifications;
 		Observation added;
 		boolean sesOk = (session != null);
 		Session dbSes = session;
 		if (sesOk) dbSes = sesSrv.getById(session.getId());
 		
 		for (Observation obs : observations) {
+			notifications = new ArrayList<>();
 			
 			/* CHECK FOR SESSION */
 			if (sesOk) obs.setSession(dbSes);

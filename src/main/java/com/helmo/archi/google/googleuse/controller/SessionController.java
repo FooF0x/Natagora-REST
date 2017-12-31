@@ -10,12 +10,10 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/sessions")
@@ -133,13 +131,20 @@ public class SessionController implements BasicController<Session> {
 	}
 	
 	@Override
-	public ResponseEntity deleteOne(long id) {
+	@DeleteMapping("/{id}")
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
+		Session ses = sesSrv.getById(id);
+		obsSrv.delete(ses.getObservations().toArray(new Observation[]{}));
 		sesSrv.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
 	
 	@Override
+	@DeleteMapping()
 	public ResponseEntity delete(Session... sessions) {
+		Arrays.asList(sessions).forEach(
+			  s -> obsSrv.delete(s.getObservations().toArray(new Observation[]{}))
+		);
 		sesSrv.delete(sessions);
 		return ResponseEntity.ok().build();
 	}

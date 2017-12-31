@@ -64,7 +64,7 @@ public class AttributeController implements BasicController<Attribute> {
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_ADMIN")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		attSrv.deleteById(id);
 		return ResponseEntity.ok().build();
 	}

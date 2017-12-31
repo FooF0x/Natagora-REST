@@ -122,7 +122,7 @@ public class UserController implements BasicController<User> {
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		if (checkAdmin(usrSrv.getById(id))) //SuperAdmin and System can't be changed
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		

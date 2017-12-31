@@ -108,7 +108,7 @@ public class BirdController implements BasicController<Bird> {
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_ADMIN")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		try {
 			brdSrv.deleteById(id);
 			return ResponseEntity.ok().build();
