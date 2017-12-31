@@ -1,6 +1,5 @@
 package com.helmo.archi.google.googleuse.storage;
 
-import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 import com.helmo.archi.google.googleuse.tools.HELMoCredentialsProvider;
@@ -13,8 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 @Component
 public class GoogleStorage {
@@ -59,7 +56,6 @@ public class GoogleStorage {
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType(mediaType)
-//			  .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.)))
 			  .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
 			  .build();
 		
@@ -108,13 +104,16 @@ public class GoogleStorage {
 	}
 	
 	public String getPublicLink(Path onlinePath) {
-		Blob blob;
-		if((blob =createBlob(onlinePath)) == null) throw new IllegalArgumentException("No such blob");
-		BlobInfo info = BlobInfo.newBuilder(blob.getBlobId())
-			  .setAcl(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
-			  .build();
-		storage.update(info);
+		try {
+			Blob blob;
+			if ((blob = createBlob(onlinePath)) == null) throw new IllegalArgumentException("No such blob");
+			BlobInfo info = BlobInfo.newBuilder(blob.getBlobId())
+				  .setAcl(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
+				  .build();
+			
+			storage.update(info);
+		} catch (StorageException ignored) {
+		}
 		return "https://storage.googleapis.com/" + bucketName + "/" + onlinePath.toString().replace("\\", "/");
-//		return blob.getMediaLink();
 	}
 }

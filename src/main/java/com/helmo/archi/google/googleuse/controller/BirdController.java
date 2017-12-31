@@ -2,7 +2,9 @@ package com.helmo.archi.google.googleuse.controller;
 
 import com.helmo.archi.google.googleuse.model.Bird;
 import com.helmo.archi.google.googleuse.model.BirdFinder;
+import com.helmo.archi.google.googleuse.model.Observation;
 import com.helmo.archi.google.googleuse.service.BirdService;
+import com.helmo.archi.google.googleuse.service.ObservationService;
 import com.helmo.archi.google.googleuse.storage.GoogleStorage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -16,10 +18,12 @@ import java.util.*;
 public class BirdController implements BasicController<Bird> {
 	
 	private final BirdService brdSrv;
+	private final ObservationService obsSrv;
 	private final GoogleStorage storage;
 	
-	public BirdController(BirdService brdSrv, GoogleStorage storage) {
+	public BirdController(BirdService brdSrv, ObservationService obsSrv, GoogleStorage storage) {
 		this.brdSrv = brdSrv;
+		this.obsSrv = obsSrv;
 		this.storage = storage;
 	}
 	
@@ -108,8 +112,9 @@ public class BirdController implements BasicController<Bird> {
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_ADMIN")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		try {
+			deleteDependencies(id);
 			brdSrv.deleteById(id);
 			return ResponseEntity.ok().build();
 		} catch (IllegalArgumentException ex) {
@@ -122,11 +127,22 @@ public class BirdController implements BasicController<Bird> {
 	@Secured("ROLE_ADMIN")
 	public ResponseEntity delete(Bird... birds) {
 		try {
+			Arrays.asList(birds).forEach(
+				  o -> deleteDependencies(o.getId())
+			);
 			brdSrv.delete(birds);
 			return ResponseEntity.ok().build();
 		} catch (IllegalArgumentException ex) {
 			return ResponseEntity.unprocessableEntity().body(ex.getMessage());
 		}
+	}
+	
+	private void deleteDependencies(Long id) {
+		List<Observation> observations = obsSrv.getByBirdId(id);
+		observations.forEach(
+			  o -> o.setBirdId(0)
+		);
+		obsSrv.update(observations.toArray(new Observation[]{}));
 	}
 	
 	@PostMapping("/helper")

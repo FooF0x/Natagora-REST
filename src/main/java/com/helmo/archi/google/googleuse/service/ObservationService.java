@@ -5,6 +5,7 @@ import com.helmo.archi.google.googleuse.model.Session;
 import com.helmo.archi.google.googleuse.repository.*;
 import com.helmo.archi.google.googleuse.tools.Time;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -125,9 +126,7 @@ public class ObservationService implements AccessRange<Observation, Long> {
 	
 	@Override
 	public void deleteById(Long id) {
-		cmtRepo.deleteAllByObservation_Id(id);
-		notRepo.deleteAllByObservation_Id(id);
-		repRepo.deleteAllByObservation_Id(id);
+		deleteDependence(id);
 		obsRepo.delete(id);
 	}
 	
@@ -135,15 +134,21 @@ public class ObservationService implements AccessRange<Observation, Long> {
 	public void delete(Observation... observations) {
 		List<Observation> observationList = Arrays.asList(observations);
 		observationList.forEach(
-			  o -> deleteDependence(o.getId())
+			  this::deleteDependence
 		);
 		obsRepo.delete(observationList);
 	}
 	
 	@Override
 	public void delete(Observation observation) {
-		deleteDependence(observation.getId());
+		deleteDependence(observation);
 		obsRepo.delete(observation);
+	}
+	
+	private void deleteDependence(Observation obs) {
+		cmtRepo.deleteAllByObservation(obs);
+		notRepo.deleteAllByObservation(obs);
+		repRepo.deleteAllByObservation(obs);
 	}
 	
 	private void deleteDependence(long id) {

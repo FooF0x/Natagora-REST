@@ -20,7 +20,7 @@ public interface BasicController<Model> {
 	ResponseEntity update(@RequestBody Model... models);
 	
 	@DeleteMapping("/{id}")
-	ResponseEntity deleteOne(@PathVariable("id") long id);
+	ResponseEntity deleteOne(@PathVariable("id") Long id);
 	
 	@DeleteMapping
 	ResponseEntity delete(@RequestBody Model... models);

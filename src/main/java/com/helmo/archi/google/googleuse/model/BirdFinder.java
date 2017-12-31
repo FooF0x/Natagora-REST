@@ -13,7 +13,6 @@ public class BirdFinder {
 	
 	//First Input
 	private Map<String, String> stringItems;
-	private Map<String, List<String>> multiple;
 	
 	//Process Input
 	private Map<String, Long> longItems;

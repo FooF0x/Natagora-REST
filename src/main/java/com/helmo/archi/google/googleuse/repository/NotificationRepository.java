@@ -17,6 +17,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	@Transactional
 	@Query(value = "delete from Notification n where n.observation = ?1")
 	void deleteAllByObservation(Observation obs);
+	
+	@Modifying
+	@Transactional
 	void deleteAllByObservation_Id(Long id);
 	
 	List<Notification> getByObservation_Id(Long id);

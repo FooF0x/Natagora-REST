@@ -74,7 +74,7 @@ public class ReportController implements BasicController<Report> {
 	@Override
 	@DeleteMapping("/{id}")
 	@Secured("ROLE_USER")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		rptSrv.deleteById(id);
 		return ResponseEntity.ok().build();
 	}

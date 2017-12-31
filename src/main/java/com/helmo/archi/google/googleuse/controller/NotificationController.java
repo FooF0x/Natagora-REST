@@ -77,7 +77,7 @@ public class NotificationController implements BasicController<Notification> {
 	
 	@Override
 	@DeleteMapping("/{id}")
-	public ResponseEntity deleteOne(@PathVariable("id") long id) {
+	public ResponseEntity deleteOne(@PathVariable("id") Long id) {
 		return ResponseEntity.badRequest().build();
 	}
 	
