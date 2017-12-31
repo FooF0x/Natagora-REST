@@ -59,7 +59,6 @@ public class GoogleStorage {
 		BlobInfo blobInfo = BlobInfo
 			  .newBuilder(blobId)
 			  .setContentType(mediaType)
-//			  .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.)))
 			  .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
 			  .build();
 		
@@ -119,6 +118,5 @@ public class GoogleStorage {
 			return "";
 		}
 		return "https://storage.googleapis.com/" + bucketName + "/" + onlinePath.toString().replace("\\", "/");
-//		return blob.getMediaLink();
 	}
 }

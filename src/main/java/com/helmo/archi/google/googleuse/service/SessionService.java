@@ -52,7 +52,7 @@ public class SessionService implements AccessRange<Session, Long> {
 		temp.forEach(
 			  o -> o.setBird(finalBirds.stream()
 					.filter(b -> b.getId() == o.getBirdId())
-					.findFirst().get())
+					.findFirst().get()) //TODO Or 0 by default
 		);
 		ses.setObservations(temp);
 	}
